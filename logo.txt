@@ -1,0 +1,16 @@
+            ██████████████████████            
+            ██████████████████████            
+        ██████████████████████████████        
+        ██████████████████████████████           Welcome to the Cryb API!
+    ██████████████████████████████████████       
+    ██████████████████████████████████████       This server runs on port :4000 and requires the following:
+████████████                      ████████████
+████████████                      ████████████   * MongoDB (:27017)
+        ████                      ████           * Redis (:6379)
+        ████     ████████         ████           * @cryb/portals (:1337)
+        ████     ████████         ████        
+        ████     ████████         ████           Have any issues? Open them at https://github.com/crybapp/api/issues
+        ████     ████████         ████           Working on new features? Merge them in at https://github.com/crybapp/api/merge_requests
+        ████     ████████         ████           
+        ██████████████████████████████
+        ██████████████████████████████
