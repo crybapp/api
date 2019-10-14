@@ -13,15 +13,11 @@ import { connect } from 'mongoose'
 import routes from './routes'
 import websocket from './websocket'
 
-import Sentry from '../config/sentry.config'
 import passport from '../config/passport.config'
 
 const app = express()
 const server = createServer(app)
 const wss = new Server({ server })
-
-if(process.env.NODE_ENV !== 'development')
-    app.use(Sentry.Handlers.requestHandler())
 
 connect(process.env.MONGO_URI, { useNewUrlParser: true })
 
@@ -34,8 +30,5 @@ app.use(passport.initialize())
 
 routes(app)
 websocket(wss)
-
-if(process.env.NODE_ENV !== 'development')
-    app.use(Sentry.Handlers.errorHandler())
 
 export default server

@@ -12,7 +12,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@sentry/node": "5.6.2",
     "axios": "^0.19.0",
     "biguint-format": "^1.0.1",
     "chance": "^1.0.18",

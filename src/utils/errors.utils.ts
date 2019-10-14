@@ -171,18 +171,11 @@ export const PortalNotOpen: APIResponse = {
     status: 409
 }
 
-import Sentry from '../config/sentry.config'
-
 export const handleError = (error: any, res: Response) => {
     console.error(error)
 
     if(!error) res.sendStatus(500)
     else if(error.response && error.error && error.status) res.status(error.status).send(error)
     else if(error.status) res.sendStatus(error.status)
-    else {
-        if(process.env.NODE_ENV !== 'development')
-            Sentry.captureException(error)
-        
-        res.sendStatus(500)
-    }
+    else res.sendStatus(500)
 }
