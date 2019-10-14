@@ -11,7 +11,7 @@ const parseSentinels = (sentinels: string) =>
             port: parseInt(uri.split(':')[2])
         } as Sentinel)), // Parse sentinels from process env
         getOptions = () => { // Get Options Method
-            if(process.env.NODE_ENV === 'development')
+            if(process.env.NODE_ENV === 'development' || !process.env.REDIS_SENTINELS)
                 return {
                     host: 'localhost',
                     port: 6379,
