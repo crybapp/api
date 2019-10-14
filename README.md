@@ -1,4 +1,4 @@
-![Cryb OSS](.github/cryb.png "Cryb OSS Logo")
+![Cryb OSS](.github/api-icon.png "@cryb/api Logo")
 
 _**API** - Core services_
 
