@@ -2,7 +2,7 @@
 
 _**API** - Core services_
 
-![GitHub contributors](https://img.shields.io/github/contributors/crybapp/api) ![GitHub](https://img.shields.io/github/license/crybapp/api)
+![GitHub contributors](https://img.shields.io/github/contributors/crybapp/api) ![GitHub](https://img.shields.io/github/license/crybapp/api) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
 
 ## Docs
 * [Info](#info)
@@ -19,7 +19,7 @@ _**API** - Core services_
 ## Info
 `@cryb/api` is the core service used to handle requests from clients over REST and WebSocket.
 
-Events such as Room creation, 
+Events such as Room creation, user authentication and requests to `@cryb/portals` to create VM instances are sent from `@cryb/api`.
 
 ### Status
 `@cryb/api` has been actively developed internally since August 2019, and is now open source as of October 2019.
