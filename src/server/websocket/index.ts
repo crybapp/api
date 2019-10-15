@@ -1,5 +1,4 @@
 import WebSocket, { Server } from 'ws'
-import WSRateLimit from 'ws-rate-limit'
 
 import Room from '../../models/room'
 
@@ -20,16 +19,13 @@ import { extractUserId, extractRoomId, UNALLOCATED_PORTALS_KEYS } from '../../ut
  */
 const sub = createPubSubClient()
 
-/**
- * Rate limit
- */
-const rateLimit = WSRateLimit(1000, '2s')
-
 type ConfigKey = 'c_heartbeat_interval' | 'c_reconnect_interval' | 'c_authentication_timeout'
 const fetchConfigItem = async (key: ConfigKey) => parseInt(await client.hget('socket_config', key))
 
 export default (wss: Server) => {
     sub.on('message', async (channel, data) => {
+        console.log(channel, data)
+
         try {
             if(channel === 'ws') {
                 const { message, recipients, sync }: WSInternalEvent = JSON.parse(data)
@@ -56,8 +52,6 @@ export default (wss: Server) => {
     ])
 
     wss.on('connection', async (ws: WebSocket) => {
-        rateLimit(ws)
-
         let socket = new WSSocket(ws)
 
         log('Connection', 'ws', 'CYAN')
