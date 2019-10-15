@@ -1,3 +1,4 @@
+import { URL } from 'url'
 import Redis from 'ioredis'
 
 interface Sentinel {
@@ -11,14 +12,25 @@ const parseSentinels = (sentinels: string) =>
             port: parseInt(uri.split(':')[2])
         } as Sentinel)), // Parse sentinels from process env
         getOptions = () => { // Get Options Method
-            if(process.env.NODE_ENV === 'development' || !process.env.REDIS_SENTINELS)
+            if(!process.env.REDIS_URI && !process.env.REDIS_SENTINELS)
+                throw 'No value was found for REDIS_URI or REDIS_SENTINELS - make sure .env is setup correctly!'
+            
+            if(process.env.REDIS_SENTINELS)
                 return {
-                    host: 'localhost',
-                    port: 6379,
-                    connectTimeout: 2000
+                    sentinels: parseSentinels(process.env.REDIS_SENTINELS),
+                    name: 'mymaster'
                 } as Redis.RedisOptions
 
-            return { sentinels: parseSentinels(process.env.REDIS_SENTINELS), name: 'mymaster' } as Redis.RedisOptions
+            if(process.env.REDIS_URI) {
+                const uri = new URL(process.env.REDIS_URI)
+
+                return {
+                    host: uri.hostname || 'localhost',
+                    port: parseInt(uri.port) || 6379,
+                    db: parseInt(uri.pathname) || 0,
+                    password: uri.password ? decodeURIComponent(uri.password) : null
+                } as Redis.RedisOptions
+            }
         }
 
 export const createPubSubClient = () => new Redis(getOptions())
