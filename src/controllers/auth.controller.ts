@@ -19,7 +19,7 @@ app.post('/discord', async (req, res) => {
 
     try {
         const { access_token, refresh_token, scope } = await fetchDiscordTokens(code),
-        user = await new User().findOrCreate(access_token, refresh_token, scope.split(' ')),
+                user = await new User().findOrCreate(access_token, refresh_token, scope.split(' ')),
                 token = await user.signToken()
 
         res.send(token)
