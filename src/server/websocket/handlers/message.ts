@@ -6,6 +6,7 @@ import WSMessage from '../models/message'
 
 import logMessage from '../log'
 import { validateControllerEvent } from '../../../utils/validate.utils'
+import { extractRoomId, extractUserId } from '../../../utils/helpers.utils'
 
 const pub = createPubSubClient(),
         CONTROLLER_EVENT_TYPES: WSEventType[] = ['KEY_DOWN', 'KEY_UP', 'PASTE_TEXT', 'MOUSE_MOVE', 'MOUSE_SCROLL', 'MOUSE_DOWN', 'MOUSE_UP']
@@ -24,7 +25,7 @@ export default async (message: WSEvent, socket: WSSocket) => {
             if(!socket.user) return // Check if the socket is actually authenticated
             if(!socket.user.room) return // Check if the user is in a room
             if(typeof socket.user.room === 'string') return // Check if room is unreadable
-            if(await client.hget('controller', socket.user.room.id) !== socket.user.id) return // Check if the user has the controller
+            if(await client.hget('controller', extractRoomId(socket.user.room)) !== extractUserId(socket.user)) return // Check if the user has the controller
 
             pub.publish('portals', JSON.stringify({
                 op,

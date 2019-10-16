@@ -1,7 +1,10 @@
 import { WSEventType } from '../server/websocket/models/event'
 
 const validateKeyControllerEvent = data => {
-    const isKeyCodeValid = 0,
+    /**
+     * TODO: Add proper key code range validation
+     */
+    const isKeyCodeValid = true,
             isCtrlKeyValid = typeof data.ctrlKey === 'boolean',
             isShiftKeyValid = typeof data.shiftKey === 'boolean'
 
