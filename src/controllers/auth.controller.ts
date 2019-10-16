@@ -9,7 +9,6 @@ import fetchDiscordTokens, { DISCORD_OAUTH_SCOPES, DISCORD_OAUTH_BASE_URL } from
 const app = express()
 
 const origins = process.env.DISCORD_OAUTH_ORIGINS.split(',')
-if(process.env.NODE_ENV === 'development') origins.push('http://localhost:3000')
 
 app.post('/discord', async (req, res) => {
     console.log(`New login from origin ${req.get('origin')}`)
@@ -19,7 +18,7 @@ app.post('/discord', async (req, res) => {
 
     try {
         const { access_token, refresh_token, scope } = await fetchDiscordTokens(code),
-        user = await new User().findOrCreate(access_token, refresh_token, scope.split(' ')),
+                user = await new User().findOrCreate(access_token, refresh_token, scope.split(' ')),
                 token = await user.signToken()
 
         res.send(token)

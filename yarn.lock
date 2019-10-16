@@ -396,18 +396,6 @@ crypt@~0.0.1:
   resolved "https://registry.yarnpkg.com/crypt/-/crypt-0.0.2.tgz#88d7ff7ec0dfb86f713dc87bbb42d044d3e6c41b"
   integrity sha1-iNf/fsDfuG9xPch7u0LQRNPmxBs=
 
-css-duration@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/css-duration/-/css-duration-0.2.0.tgz#3864259f69239fb02ba728c34aa809be6294a717"
-  integrity sha1-OGQln2kjn7ArpyjDSqgJvmKUpxc=
-  dependencies:
-    css-strip-units "^1.0.0"
-
-css-strip-units@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/css-strip-units/-/css-strip-units-1.0.0.tgz#1b8319039e4b4e664676c383dc89cc0af8c87a11"
-  integrity sha1-G4MZA55LTmZGdsOD3InMCvjIehE=
-
 dasherize@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/dasherize/-/dasherize-2.0.0.tgz#6d809c9cd0cf7bb8952d80fc84fa13d47ddb1308"
@@ -1518,13 +1506,6 @@ which@^1.2.9:
   integrity sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==
   dependencies:
     isexe "^2.0.0"
-
-ws-rate-limit@^0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/ws-rate-limit/-/ws-rate-limit-0.0.0.tgz#1376205b01d6e84f9fd679d5295ef9728df41971"
-  integrity sha1-E3YgWwHW6E+f1nnVKV75co30GXE=
-  dependencies:
-    css-duration "^0.2.0"
 
 ws@^7.1.1:
   version "7.1.1"

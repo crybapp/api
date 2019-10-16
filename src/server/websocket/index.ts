@@ -1,5 +1,4 @@
 import WebSocket, { Server } from 'ws'
-import WSRateLimit from 'ws-rate-limit'
 
 import Room from '../../models/room'
 
@@ -20,11 +19,6 @@ import { extractUserId, extractRoomId, UNALLOCATED_PORTALS_KEYS } from '../../ut
  */
 const sub = createPubSubClient()
 
-/**
- * Rate limit
- */
-const rateLimit = WSRateLimit(1000, '2s')
-
 type ConfigKey = 'c_heartbeat_interval' | 'c_reconnect_interval' | 'c_authentication_timeout'
 const fetchConfigItem = async (key: ConfigKey) => parseInt(await client.hget('socket_config', key))
 
@@ -36,15 +30,14 @@ export default (wss: Server) => {
 
                 handleInternalMessage(message, recipients, sync, wss)
             } else if(channel === 'portals') {
-                const { op, d, t }: PortalEvent = JSON.parse(data),
-                        { status } = d
+                const { op, d, t }: PortalEvent = JSON.parse(data)
+                if(t !== 'PORTAL_CREATE' && t !== 'PORTAL_DESTROY') return
 
-                const { id, roomId } = d
-
-                const room = await new Room().load(roomId)
-                const { portal: allocation } = await room.updatePortalAllocation({ id, status })
-
-                const { online } = await room.fetchOnlineMemberIds()
+                const { id, status, roomId } = d,
+                        room = await new Room().load(roomId),
+                        { portal: allocation } = await room.updatePortalAllocation({ id, status }),
+                        { online } = await room.fetchOnlineMemberIds()
+                
                 handleInternalMessage({ op, d: allocation, t }, online, true, wss)
             } else return console.error(channel, data)
         } catch(error) {
@@ -56,8 +49,6 @@ export default (wss: Server) => {
     ])
 
     wss.on('connection', async (ws: WebSocket) => {
-        rateLimit(ws)
-
         let socket = new WSSocket(ws)
 
         log('Connection', 'ws', 'CYAN')
