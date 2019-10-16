@@ -9,7 +9,6 @@ import fetchDiscordTokens, { DISCORD_OAUTH_SCOPES, DISCORD_OAUTH_BASE_URL } from
 const app = express()
 
 const origins = process.env.DISCORD_OAUTH_ORIGINS.split(',')
-if(process.env.NODE_ENV === 'development') origins.push('http://localhost:3000')
 
 app.post('/discord', async (req, res) => {
     console.log(`New login from origin ${req.get('origin')}`)
