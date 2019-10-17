@@ -10,11 +10,13 @@ import Room from '../../../models/room'
 
 import client from '../../../config/redis.config'
 
-import log from '../../../utils/log.utils'
 import { WSLogPrefix } from '../log'
+import log from '../../../utils/log.utils'
+import config from '../../../config/defaults'
 import { verifyToken } from '../../../utils/generate.utils'
 import { signApertureToken } from '../../../utils/aperture.utils'
 import { UNALLOCATED_PORTALS_KEYS, extractUserId } from '../../../utils/helpers.utils'
+
 
 type SocketConfigKey = 'id' | 'type' | 'user' | 'group' | 'authenticated' | 'last_heartbeat_at'
 const socketKeys: SocketConfigKey[] = ['id', 'type', 'user', 'group', 'authenticated', 'last_heartbeat_at']
@@ -90,7 +92,7 @@ export default class WSSocket {
 
                 if(room.portal.status !== 'open')
                     room.fetchMembers().then(({ members }) => {
-                        if(members.length > 1 && UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1)
+                        if(members.length > (config.min_member_portal_creation_count - 1) && UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1)
                             room.createPortal()
                     })
                 else if(room.portal.id) {
