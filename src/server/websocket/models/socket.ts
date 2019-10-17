@@ -14,7 +14,7 @@ import log from '../../../utils/log.utils'
 import { WSLogPrefix } from '../log'
 import { verifyToken } from '../../../utils/generate.utils'
 import { signApertureToken } from '../../../utils/aperture.utils'
-import { UNALLOCATED_PORTALS_KEYS } from '../../../utils/helpers.utils'
+import { UNALLOCATED_PORTALS_KEYS, extractUserId } from '../../../utils/helpers.utils'
 
 type SocketConfigKey = 'id' | 'type' | 'user' | 'group' | 'authenticated' | 'last_heartbeat_at'
 const socketKeys: SocketConfigKey[] = ['id', 'type', 'user', 'group', 'authenticated', 'last_heartbeat_at']
@@ -95,7 +95,7 @@ export default class WSSocket {
                     })
                 else if(room.portal.id) {
                     const token = signApertureToken(room.portal.id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-                    apertureMessage.broadcastRoom(room)
+                    apertureMessage.broadcast([ extractUserId(user) ])
                 }
             }
 
