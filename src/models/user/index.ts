@@ -10,6 +10,7 @@ import { createPortal } from '../../drivers/portals.driver'
 
 import StoredMessage from '../../schemas/message.schema'
 
+import config from '../../config/defaults.js'
 import client from '../../config/redis.config'
 import WSMessage from '../../server/websocket/models/message'
 import { signToken, generateFlake } from '../../utils/generate.utils'
@@ -215,7 +216,7 @@ export default class User {
             if(!room.members)
                 await room.fetchMembers()
 
-            if(room.members && room.members.length >= 10)
+            if(room.members && room.members.length >= config.max_room_member_count)
                 throw TooManyMembers
 
             await StoredUser.updateOne({
@@ -233,7 +234,7 @@ export default class User {
 
             if(!isInitialMember &&
                 room.members &&
-                room.members.length === 1 &&
+                room.members.length === (config.min_member_portal_creation_count - 1) &&
                 UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1)
                 createPortal(room)
 
