@@ -3,7 +3,7 @@
         ██████████████████████████████        
         ██████████████████████████████           Welcome to the Cryb API!
     ██████████████████████████████████████       
-    ██████████████████████████████████████       This server runs on port :4000 and requires the following:
+    ██████████████████████████████████████       This server runs on port :PORT and requires the following:
 ████████████                      ████████████
 ████████████                      ████████████   * MongoDB (:27017)
         ████                      ████           * Redis (:6379)
