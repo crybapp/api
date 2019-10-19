@@ -60,11 +60,11 @@ We recommend that you run the following services alongside `@cryb/api`, but it's
 * `@cryb/portals`
 * `@cryb/aperture`
 
-You also need to install the required dependencies, by running `yarn`.
+You also need to install the required dependencies by running `yarn`.
 
 Ensure that `.env.example` is either copied and renamed to `.env`, or is simply renamed to `.env`.
 
-In this file, you'll need to supply the environment the app is running in under `NODE_ENV`, the key used to decrypt incoming requests over HTTP and WS, and the URI for MongoDB.
+In this file, you'll need some values. Documentation is available in the `.env.example` file.
 
 ### Running the app locally
 
