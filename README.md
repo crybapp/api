@@ -2,7 +2,7 @@
 
 _**API** - Core services_
 
-![GitHub contributors](https://img.shields.io/github/contributors/crybapp/api) ![GitHub](https://img.shields.io/github/license/crybapp/api) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
+[![GitHub contributors](https://img.shields.io/github/contributors/crybapp/api)](https://github.com/crybapp/api/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/api)](https://github.com/crybapp/api/blob/master/LICENSE) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
 
 ## Docs
 * [Info](#info)
@@ -14,7 +14,7 @@ _**API** - Core services_
     * [Running the app locally](#running-the-app-locally)
         * [Background services](#background-services)
         * [Starting @cryb/api](#starting-@cryb/api)
-* [Questions / Issues](#questions-/-issues)
+* [Questions / Issues](#questions--issues)
 
 ## Info
 `@cryb/api` is the core service used to handle requests from clients over REST and WebSocket.
@@ -83,4 +83,4 @@ It is recommended that in production you run `yarn build`, then `yarn start`.
 
 ## Questions / Issues
 
-If you have an issues with `@cryb/api`, please either open a GitHub issue, or contact a maintainer.
+If you have an issues with `@cryb/api`, please either open a GitHub issue, contact a maintainer or join the [Cryb Discord Server](https://discord.gg/ShTATH4) and ask in #tech-support.
