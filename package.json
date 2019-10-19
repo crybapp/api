@@ -32,7 +32,6 @@
     "qs": "^6.8.0",
     "query-string": "^6.8.2",
     "supertest": "^4.0.2",
-    "ts-jest": "^24.0.2",
     "tsc-watch": "^2.2.1",
     "typescript": "^3.5.3",
     "ws": "^7.1.1"
