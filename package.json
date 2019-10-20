@@ -16,7 +16,7 @@
     "biguint-format": "^1.0.1",
     "chance": "^1.0.18",
     "cors": "^2.8.5",
-    "dotenv": "^8.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "flake-idgen": "^1.1.2",
     "helmet": "^3.21.0",
