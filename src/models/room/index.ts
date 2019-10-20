@@ -246,6 +246,33 @@ export default class Room {
         }
     })
 
+    setPortalId = (id: string) => new Promise<Room>(async (resolve, reject) => {
+        try {
+            const allocation: PortalAllocation = {
+                id,
+                status: 'creating',
+                lastUpdatedAt: Date.now()
+            }
+
+            await StoredRoom.updateOne({
+                'info.id': this.id
+            }, {
+                $set: {
+                    'info.portal': allocation
+                }
+            })
+
+            const message = new WSMessage(0, allocation, 'PORTAL_UPDATE')
+            message.broadcastRoom(this)
+
+            this.portal = allocation
+
+            resolve(this)
+        } catch(error) {
+            reject(error)
+        }
+    })
+
     updatePortalAllocation = (allocation: PortalAllocation) => new Promise<Room>(async (resolve, reject) => {
         allocation.lastUpdatedAt = Date.now()
 
