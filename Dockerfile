@@ -1,9 +1,9 @@
-FROM node:10
+FROM node:lts-buster
 
 WORKDIR /usr/src/app
 COPY . .
 
-RUN yarn && yarn global add typescript
+RUN yarn
 RUN yarn build
 
 EXPOSE 4000

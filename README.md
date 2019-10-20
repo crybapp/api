@@ -2,7 +2,7 @@
 
 _**API** - Core services_
 
-![GitHub contributors](https://img.shields.io/github/contributors/crybapp/api) ![GitHub](https://img.shields.io/github/license/crybapp/api) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
+[![GitHub contributors](https://img.shields.io/github/contributors/crybapp/api)](https://github.com/crybapp/api/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/api)](https://github.com/crybapp/api/blob/master/LICENSE) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
 
 ## Docs
 * [Info](#info)
@@ -14,7 +14,7 @@ _**API** - Core services_
     * [Running the app locally](#running-the-app-locally)
         * [Background services](#background-services)
         * [Starting @cryb/api](#starting-@cryb/api)
-* [Questions / Issues](#questions-/-issues)
+* [Questions / Issues](#questions--issues)
 
 ## Info
 `@cryb/api` is the core service used to handle requests from clients over REST and WebSocket.
@@ -60,19 +60,11 @@ We recommend that you run the following services alongside `@cryb/api`, but it's
 * `@cryb/portals`
 * `@cryb/aperture`
 
-You also need to install the required dependencies, by running either:
+You also need to install the required dependencies by running `yarn`.
 
-```
-npm install
-```
-or
-```
-yarn
-```
+Ensure that `.env.example` is either copied and renamed to `.env`, or is simply renamed to `.env`.
 
-Ensure that `.env-example` is either copied and renamed to `.env`, or is simply renamed to `.env`.
-
-In this file, you'll need to supply the environment the app is running in under `NODE_ENV`, the key used to decrypt incoming requests over HTTP and WS, and the URI for MongoDB.
+In this file, you'll need some values. Documentation is available in the `.env.example` file.
 
 ### Running the app locally
 
@@ -80,20 +72,15 @@ In this file, you'll need to supply the environment the app is running in under 
 Make sure that you have installed MongoDB and Redis, and they are both running locally on port 27017 and 6379 respectively.
 
 The command to start MongoDB is `mongod`, and the command to start Redis is `redis-server`.
+Most Linux distros will have those packaged, and will start automatically with your system.
 
 If you're developing a feature that requires the VM infrastructure, then make sure `@cryb/portals` and `@cryb/aperture` are running.
 
 #### Starting @cryb/api
-To run `@cryb/api` in development mode, run either:
+To run `@cryb/api` in development mode, run `yarn dev`.
 
-```
-npm run dev
-```
-or
-```
-yarn dev
-```
+It is recommended that in production you run `yarn build`, then `yarn start`.
 
 ## Questions / Issues
 
-If you have an issues with `@cryb/api`, please either open a GitHub issue, or contact a maintainer.
+If you have an issues with `@cryb/api`, please either open a GitHub issue, contact a maintainer or join the [Cryb Discord Server](https://discord.gg/ShTATH4) and ask in #tech-support.
