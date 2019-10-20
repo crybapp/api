@@ -25,28 +25,13 @@ const fetchConfigItem = async (key: ConfigKey) => parseInt(await client.hget('so
 export default (wss: Server) => {
     sub.on('message', async (channel, data) => {
         try {
-            if(channel === 'ws') {
-                const { message, recipients, sync }: WSInternalEvent = JSON.parse(data)
+            const { message, recipients, sync }: WSInternalEvent = JSON.parse(data)
 
-                handleInternalMessage(message, recipients, sync, wss)
-            } else if(channel === 'portals') {
-                const { op, d, t }: PortalEvent = JSON.parse(data)
-                if(t !== 'PORTAL_CREATE' && t !== 'PORTAL_DESTROY') return
-
-                const { id, status, roomId } = d,
-                        room = await new Room().load(roomId),
-                        { portal: allocation } = await room.updatePortalAllocation({ id, status }),
-                        { online } = await room.fetchOnlineMemberIds()
-                
-                handleInternalMessage({ op, d: allocation, t }, online, true, wss)
-            } else return console.error(channel, data)
+            handleInternalMessage(message, recipients, sync, wss)
         } catch(error) {
             console.error('WS Error:', error)
         }
-    }).subscribe([
-        'ws',
-        'portals'
-    ])
+    }).subscribe('ws')
 
     wss.on('connection', async (ws: WebSocket) => {
         let socket = new WSSocket(ws)
