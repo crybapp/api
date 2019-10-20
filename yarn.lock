@@ -133,10 +133,10 @@
     "@types/passport" "*"
     "@types/passport-oauth2" "*"
 
-"@types/passport-jwt@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@types/passport-jwt/-/passport-jwt-3.0.1.tgz#bc4c2610815565de977ea1a580c047d71c646084"
-  integrity sha512-JwF9U/Rmr6YicHSu/MITmHNDy2KeiedxKW2bhz6wZts3y4cq48NiN0UD98zO56TyM5Vm6BpyjFxcs6jh68ni/A==
+"@types/passport-jwt@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/passport-jwt/-/passport-jwt-3.0.2.tgz#694bd88272472d6ec17c4eff6779e3716508995a"
+  integrity sha512-eUbpjmmLUbRKulDeR1y1G3t7uVfXRhTP3/TrtVS4F7s8AzvDPXr9DdHNWwQfx/KD2Mfos5UokqnpCjtp5Z/slg==
   dependencies:
     "@types/express" "*"
     "@types/jsonwebtoken" "*"
