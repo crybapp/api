@@ -16,7 +16,7 @@ import websocket from './websocket'
 import passport from '../config/passport.config'
 import { verify_env } from '../utils/verifications.utils'
 
-verify_env('JWT_KEY', 'PORTALS_API_URL', 'PORTALS_API_KEY', 'APERTURE_WS_URL', 'APERTURE_WS_KEY' 'MONGO_URI', 'DISCORD_CLIENT_ID',
+verify_env('JWT_KEY', 'PORTALS_API_URL', 'PORTALS_API_KEY', 'APERTURE_WS_URL', 'APERTURE_WS_KEY', 'MONGO_URI', 'DISCORD_CLIENT_ID',
             'DISCORD_CLIENT_SECRET', 'DISCORD_CALLBACK_URL', 'DISCORD_OAUTH_ORIGINS')
 
 const app = express()
