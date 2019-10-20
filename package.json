@@ -43,7 +43,7 @@
     "@types/ioredis": "^4.0.17",
     "@types/lodash": "^4.14.144",
     "@types/md5": "^2.1.33",
-    "@types/mongoose": "^5.5.12",
+    "@types/mongoose": "^5.5.22",
     "@types/morgan": "^1.7.37",
     "@types/passport": "^1.0.1",
     "@types/passport-discord": "^0.1.3",
