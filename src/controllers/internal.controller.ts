@@ -13,22 +13,6 @@ import authenticate from '../server/middleware/authenticate.internal.middleware'
 const app = express()
 
 /**
- * Assign New Portal ID to Room
- */
-app.post('/portal', authenticate, async (req, res) => {
-    const { id, roomId } = req.body as { id: string, roomId: string }
-
-    try {
-        const room = await new Room().load(roomId)
-        await room.setPortalId(id)
-
-        res.sendStatus(200)
-    } catch(error) {
-        handleError(error, res)
-    }
-})
-
-/**
  * Existing Portal Status Update
  */
 app.put('/portal', authenticate, async (req, res) => {

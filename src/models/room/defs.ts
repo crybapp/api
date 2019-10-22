@@ -1,18 +1,16 @@
 import { Document } from 'mongoose'
 
 /**
- * open - The portal is open
- * starting - The portal has been created and is now starting
- * creating - The portal is currently being created by the microservice
- * in-queue - The portal is in a queue to be created by the microservice
- * requested - A portal has been requested and is being allocated by the microservice
- * waiting - The room is waiting until the right conditions are met for the microservice to be contacted
+ * open - The portal is connected to a server
+ * starting - The portal is being connected to a server
+ * in-queue - The room is waiting to be connected with a VM
+ * waiting - The room is waiting for the right conditions to be met to request a VM
  * 
  * error - An error occured
  * closed - The portal was closed for one reason or another
  */
 
-export type PortalAllocationStatus = 'waiting' | 'requested' | 'in-queue' | 'creating' | 'starting' | 'open' | 'closed' | 'error'
+export type PortalAllocationStatus = 'open' | 'starting' | 'in-queue' | 'waiting' | 'closed' | 'error'
 
 export interface PortalAllocation {
     id?: string

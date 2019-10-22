@@ -6,7 +6,7 @@ import { InviteResolvable } from '../models/invite'
 import { TargetResolvable } from '../models/invite/defs'
 import { PortalAllocationStatus } from '../models/room/defs'
 
-export const UNALLOCATED_PORTALS_KEYS: PortalAllocationStatus[] = ['waiting', 'requested', 'error', 'closed']
+export const UNALLOCATED_PORTALS_KEYS: PortalAllocationStatus[] = ['waiting', 'closed', 'error']
 
 export const extractUserId = (user: UserResolvable) => user ? (typeof user === 'string' ? user : user.id) : null
 export const extractTargetId = (target: TargetResolvable) => target ? (typeof target === 'string' ? target : target.id) : null
