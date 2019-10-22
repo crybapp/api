@@ -6,7 +6,7 @@ import StoredUser from '../../schemas/user.schema'
 import StoredInvite from '../../schemas/invite.schema'
 import StoredMessage from '../../schemas/message.schema'
 
-import IRoom, { PortalAllocation } from './defs'
+import IRoom, { PortalAllocation, PortalAllocationStatus } from './defs'
 import StoredRoom from '../../schemas/room.schema'
 import { destroyPortal, createPortal } from '../../drivers/portals.driver'
 
@@ -246,11 +246,11 @@ export default class Room {
         }
     })
 
-    setPortalId = (id: string) => new Promise<Room>(async (resolve, reject) => {
+    setPortalId = (id: string, status: PortalAllocationStatus) => new Promise<Room>(async (resolve, reject) => {
         try {
             const allocation: PortalAllocation = {
                 id,
-                status: 'creating',
+                status,
                 lastUpdatedAt: Date.now()
             }
 

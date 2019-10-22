@@ -1,7 +1,5 @@
 import WebSocket, { Server } from 'ws'
 
-import Room from '../../models/room'
-
 import WSEvent from './models/event'
 import WSSocket from './models/socket'
 import WSMessage from './models/message'
@@ -10,7 +8,6 @@ import log from '../../utils/log.utils'
 import client, { createPubSubClient } from '../../config/redis.config'
 
 import handleMessage from './handlers/message'
-import { PortalEvent } from '../../models/portal/defs'
 import handleInternalMessage, { WSInternalEvent } from './handlers/internal'
 import { extractUserId, extractRoomId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
 

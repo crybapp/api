@@ -19,7 +19,10 @@ export const createPortal = (room: Room) => new Promise(async (resolve, reject) 
         const headers = await generateHeaders(room)
         log(`Sending request to ${url}create with room id: ${room.id}`, [ { content: 'portals', color: 'MAGENTA' }])
         
-        await axios.post(`${url}create`, { roomId: room.id }, { headers })
+        const { data: portal } = await axios.post(`${url}create`, { roomId: room.id }, { headers }),
+                { id, status } = portal
+        
+        await room.setPortalId(id, status)
 
         resolve()
     } catch(error) {
