@@ -1,5 +1,7 @@
 import { Document } from 'mongoose'
 
+export type RoomType = 'vm'
+
 /**
  * open - The portal is open
  * starting - The portal has been created and is now starting
@@ -27,7 +29,8 @@ export default interface IRoom {
         createdAt: number
         endedAt?: number
 
-        portal: PortalAllocation
+        type: RoomType
+        portal?: PortalAllocation
         
         owner: string
         controller: string
