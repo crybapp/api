@@ -96,8 +96,8 @@ export default class WSSocket {
                             room.createPortal()
                     })
                 else if(room.portal.id) {
-                    const token = signApertureToken(room.portal.id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-                    apertureMessage.broadcast([ extractUserId(user) ])
+                    const janusMessage = new WSMessage(0, { id: room.portal.janusId }, 'JANUS_CONFIG')
+                    janusMessage.broadcast([ extractUserId(user) ])
                 }
             }
 
