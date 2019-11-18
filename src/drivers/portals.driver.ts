@@ -30,7 +30,7 @@ export const createPortal = (room: Room) => new Promise(async (resolve, reject) 
 export const destroyPortal = (room: Room) => new Promise(async (resolve, reject) => {
     try {
         const headers = await generateHeaders(room), { portal } = room
-        if(!portal.id) throw NoPortalFound
+        if(!portal.id) return
     
         await axios.delete(`${url}${portal.id}`, { headers })
     

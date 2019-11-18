@@ -47,7 +47,7 @@ export default class Room {
     load = (id: string) => new Promise<Room>(async (resolve, reject) => {
         try {
             const doc = await StoredRoom.findOne({ 'info.id': id })
-            if(!doc) throw RoomNotFound
+            if(!doc) return reject(RoomNotFound)
 
             this.setup(doc)
 

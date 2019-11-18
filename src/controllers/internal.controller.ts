@@ -37,7 +37,7 @@ app.put('/portal', authenticate, async (req, res) => {
 
     try {
         const doc = await StoredRoom.findOne({ 'info.portal.id': id })
-        if(!doc) throw RoomNotFound
+        if(!doc) return RoomNotFound
 
         console.log('room found, updating status...')
         
