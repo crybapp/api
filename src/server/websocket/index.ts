@@ -97,7 +97,7 @@ export default (wss: Server) => {
             if(socket.user && socket.user.room) {
                 try {
                     const roomId = extractRoomId(socket.user.room)
-                } catch (error) return // Room doesn't exist
+                } catch (error) { return } // Room doesn't exist
 
                 // if(await client.hget('controller', roomId) === socket.id)
                 // We can use optimisation here in order to speed up the controller release cycle
