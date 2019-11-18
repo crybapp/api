@@ -95,8 +95,9 @@ export default (wss: Server) => {
             log(`Disconnection ${socket.authenticated ? `with id ${socket.id}` : ''}`, 'ws', 'CYAN')
 
             if(socket.user && socket.user.room) {
+                let roomId
                 try {
-                    const roomId = extractRoomId(socket.user.room)
+                    roomId = extractRoomId(socket.user.room)
                 } catch (error) { return } // Room doesn't exist
 
                 // if(await client.hget('controller', roomId) === socket.id)
