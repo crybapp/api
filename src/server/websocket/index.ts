@@ -109,6 +109,7 @@ export default (wss: Server) => {
                         await socket.user.fetchRoom()
                     } catch (error) { return } // Room doesn't exists
                 }
+                if (typeof socket.user.room === 'string') return
 
                 const { room } = socket.user
 
