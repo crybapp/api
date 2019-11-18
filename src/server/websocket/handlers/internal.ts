@@ -11,8 +11,8 @@ export interface WSInternalEvent {
 }
 
 export default (message: WSEvent, recipients: string[], sync: boolean, wss: Server) => {
-    if(recipients.length === 0) return
-    logMessage(message, recipients)
+    if (recipients.length === 0) return
+    if (process.env.NODE_ENV !== 'production') logMessage(message, recipients)
 
     let delivered = []
 

@@ -13,7 +13,7 @@ const pub = createPubSubClient(),
 
 export default async (message: WSEvent, socket: WSSocket) => {
     const { op, d, t } = message
-    logMessage(message)
+    if (process.env.NODE_ENV !== 'production') logMessage(message)
 
     if(op === 0) {
         if(t === 'TYPING_UPDATE') {

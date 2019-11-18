@@ -95,10 +95,7 @@ export default (wss: Server) => {
             log(`Disconnection ${socket.authenticated ? `with id ${socket.id}` : ''}`, 'ws', 'CYAN')
 
             if(socket.user && socket.user.room) {
-                let roomId
-                try {
-                    roomId = extractRoomId(socket.user.room)
-                } catch (error) { return } // Room doesn't exist
+                const roomId = extractRoomId(socket.user.room)
 
                 // if(await client.hget('controller', roomId) === socket.id)
                 // We can use optimisation here in order to speed up the controller release cycle
@@ -106,8 +103,12 @@ export default (wss: Server) => {
                 const message = new WSMessage(0, { u: socket.id, presence: 'offline' }, 'PRESENCE_UPDATE')
                 message.broadcastRoom(roomId, [ socket.id ])
             
-                if(typeof socket.user.room === 'string') await socket.user.fetchRoom()
-                if(typeof socket.user.room === 'string') return
+                if (typeof socket.user.room === 'string')
+                {
+                    try {
+                        await socket.user.fetchRoom()
+                    } catch (error) { return } // Room doesn't exists
+                }
 
                 const { room } = socket.user
 
