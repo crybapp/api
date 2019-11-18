@@ -13,6 +13,7 @@ const RoomSchema = new Schema({
         
         portal: {
             id: String,
+            janusId: Number, 
 
             status: String,
             lastUpdatedAt: String
