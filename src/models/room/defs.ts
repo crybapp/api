@@ -1,6 +1,6 @@
 import { Document } from 'mongoose'
 
-export type RoomType = 'vm'
+export type RoomType = 'vm' | 'media' | null
 
 /**
  * open - The portal is open
@@ -23,6 +23,15 @@ export interface PortalAllocation {
     lastUpdatedAt?: number
 }
 
+export type MediaProvider = 'youtube' | 'vimeo' | 'twitch' | 'soundcloud'
+export interface IMedia {
+    id?: string
+    url?: string
+    startedAt: number
+
+    provider: MediaProvider
+}
+
 export default interface IRoom {
     info: {
         id: string
@@ -30,8 +39,10 @@ export default interface IRoom {
         endedAt?: number
 
         type: RoomType
+
+        media?: IMedia
         portal?: PortalAllocation
-        
+
         owner: string
         controller: string
     }

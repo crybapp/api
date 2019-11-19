@@ -7,7 +7,7 @@ import StoredInvite from '../../schemas/invite.schema'
 import StoredMessage from '../../schemas/message.schema'
 
 import StoredRoom from '../../schemas/room.schema'
-import IRoom, { PortalAllocation, RoomType } from './defs'
+import IRoom, { PortalAllocation, RoomType, IMedia } from './defs'
 import { destroyPortal, createPortal } from '../../drivers/portals.driver'
 
 import client from '../../config/redis.config'
@@ -24,14 +24,17 @@ export default class Room {
     endedAt?: number
 
     type: RoomType
+    allowedTypes: RoomType[] = ['media', 'vm']
+
     active: boolean
     invites: Invite[]
-    owner: UserResolvable
 
+    media?: IMedia
     portal?: PortalAllocation
-    controller: UserResolvable
 
     name: string
+    owner: UserResolvable
+    controller: UserResolvable
 
     members: User[]
     messages: GroupedMessage[] = []
@@ -68,11 +71,7 @@ export default class Room {
                     id: generateFlake(),
                     createdAt: Date.now(),
 
-                    type: 'vm',
-                    portal: {
-                        status: 'waiting',
-                        lastUpdatedAt: Date.now()
-                    },
+                    type: null,
 
                     owner: creator.id,
                     controller: creator.id

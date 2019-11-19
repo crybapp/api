@@ -9,6 +9,13 @@ const RoomSchema = new Schema({
         endedAt: Number,
         
         type: String,
+        media: {
+            id: String,
+            url: String,
+            startedAt: Number,
+        
+            provider: String
+        },
         portal: {
             id: String,
 
