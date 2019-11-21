@@ -5,12 +5,12 @@ import Room from '../models/room'
 
 import { RoomType } from '../models/room/defs'
 
-import { extractUserId } from '../utils/helpers.utils'
+import { extractUserId, extractProvider, extractMediaId } from '../utils/helpers.utils'
 import { authenticate } from '../config/passport.config'
 import { handleError, UserNotInRoom, UserAlreadyInRoom } from '../utils/errors.utils'
 
 const app = express(),
-        AVAILABLE_TYPES: RoomType[] = ['vm']
+        AVAILABLE_TYPES: RoomType[] = ['vm', 'media', null]
 
 app.get('/', authenticate, async (req, res) => {
     const { user } = req as { user: User }
@@ -154,6 +154,35 @@ app.patch('/type', authenticate, async (req, res) => {
         res.sendStatus(200)
     } catch(error) {
         handleError(error, res)        
+    }
+})
+
+app.patch('/media', authenticate, async (req, res) => {
+    const { user } = req as { user: User }
+    if(!user.room) return handleError(UserNotInRoom, res)
+
+    if(typeof user.room === 'string')
+        return res.status(500)
+
+    let { id, url, provider } = req.body
+
+    try {
+        if(!provider && url) provider = extractProvider(url)
+
+        if(url)
+            await user.room.updateMedia({
+                id: extractMediaId(url),
+                provider
+            }, user)
+        else
+            await user.room.updateMedia({
+                id,
+                provider
+            }, user)
+
+        res.send(user.room)
+    } catch(error) {
+        handleError(error, res)
     }
 })
 

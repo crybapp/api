@@ -1,10 +1,11 @@
+import { URL } from 'url'
 import Message, { MessageResolvable } from '../models/message'
 
 import { UserResolvable } from '../models/user'
 import { RoomResolvable } from '../models/room'
 import { InviteResolvable } from '../models/invite'
 import { TargetResolvable } from '../models/invite/defs'
-import { PortalAllocationStatus } from '../models/room/defs'
+import { PortalAllocationStatus, MediaProvider } from '../models/room/defs'
 
 export const UNALLOCATED_PORTALS_KEYS: PortalAllocationStatus[] = ['waiting', 'requested', 'error', 'closed']
 
@@ -15,6 +16,24 @@ export const extractRoomId = (room: RoomResolvable) => room ? (typeof room === '
 export const extractMessageId = (message: MessageResolvable) => message ? (typeof message === 'string' ? message : message.id) : null
 
 export const extractInviteId = (invite: InviteResolvable) => invite ? (typeof invite === 'string' ? invite : invite.id) : null
+
+export const extractMediaId = (mediaUrl: string) => {
+    const url = new URL(mediaUrl), provider = extractProvider(mediaUrl)
+
+    switch(provider) {
+        case 'youtube':
+            return url.searchParams.get('v')
+        default:
+            return null
+    }
+}
+
+export const extractProvider = (url: string) => {
+    const { hostname } = new URL(url),
+            parts = hostname.split('.')
+
+    return parts[parts.length - 2]
+}
 
 export class GroupedMessage {
     id: string

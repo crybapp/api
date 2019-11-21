@@ -26,10 +26,9 @@ export interface PortalAllocation {
 export type MediaProvider = 'youtube' | 'vimeo' | 'twitch' | 'soundcloud'
 export interface IMedia {
     id?: string
-    url?: string
-    startedAt: number
+    provider?: MediaProvider
 
-    provider: MediaProvider
+    startedAt?: number
 }
 
 export default interface IRoom {

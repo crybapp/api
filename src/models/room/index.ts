@@ -24,7 +24,9 @@ export default class Room {
     endedAt?: number
 
     type: RoomType
-    allowedTypes: RoomType[] = ['media', 'vm']
+
+    types: RoomType[] = ['media', 'vm']
+    allowedTypes: RoomType[] = process.env.ALLOWED_ROOM_TYPES ? process.env.ALLOWED_ROOM_TYPES.split(',') as RoomType[] : []
 
     active: boolean
     invites: Invite[]
@@ -301,6 +303,32 @@ export default class Room {
         }
     })
 
+    updateMedia = (media: IMedia, user: User) => new Promise<Room>(async (resolve, reject) => {
+        const userId = extractUserId(user),
+                controllerId = extractUserId(this.controller)
+
+        if(userId !== controllerId) return reject(UserDoesNotHaveRemote)
+
+        try {
+            await StoredRoom.updateOne({
+                'info.id': this.id
+            }, {
+                $set: {
+                    'info.media': media
+                }
+            })
+
+            this.media = media
+
+            const message = new WSMessage(0, media, 'MEDIA_UPDATE')
+            message.broadcastRoom(this)
+
+            resolve(this)
+        } catch(error) {
+            reject(error)
+        }
+    })
+
     takeControl = (from: UserResolvable) => new Promise<Room>(async (resolve, reject) => {
         const fromId = extractUserId(from)
 
@@ -420,6 +448,9 @@ export default class Room {
             })
 
             this.type = type
+
+            const message = new WSMessage(0, { t: type }, 'ROOM_TYPE_UPDATE')
+            message.broadcastRoom(this, [ extractUserId(this.owner) ])
 
             resolve(this)
         } catch(error) {
