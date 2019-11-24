@@ -445,14 +445,19 @@ export default class Room {
     }
 
     updateType = (type: RoomType) => new Promise<Room>(async (resolve, reject) => {
+        const query = {
+            $set: {
+                'info.type': type
+            }
+        }
+
+        if(!type)
+            query['$unset'] = {
+                'info.media': ''
+            }
+
         try {
-            await StoredRoom.updateOne({
-                'info.id': this.id
-            }, {
-                $set: {
-                    'info.type': type
-                }
-            })
+            await StoredRoom.updateOne({ 'info.id': this.id }, query)
 
             this.type = type
 
