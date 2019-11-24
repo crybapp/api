@@ -304,10 +304,17 @@ export default class Room {
     })
 
     updateMedia = (media: IMedia, user: User) => new Promise<Room>(async (resolve, reject) => {
+        if(this.type !== 'media') return reject('RoomTypeNotValid')
+
         const userId = extractUserId(user),
                 controllerId = extractUserId(this.controller)
 
         if(userId !== controllerId) return reject(UserDoesNotHaveRemote)
+
+        media = {
+            ...media,
+            startedAt: Date.now()
+        }
 
         try {
             await StoredRoom.updateOne({
@@ -490,6 +497,8 @@ export default class Room {
         this.endedAt = json.info.endedAt
 
         this.type = json.info.type
+
+        this.media = json.info.media
         this.portal = json.info.portal
 
         this.owner = json.info.owner

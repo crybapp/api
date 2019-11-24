@@ -23,6 +23,12 @@ export const extractMediaId = (mediaUrl: string) => {
     switch(provider) {
         case 'youtube':
             return url.searchParams.get('v')
+        case 'vimeo':
+            return url.pathname.replace('/', '')
+        case 'soundcloud':
+            return url.pathname.replace('/', '')
+        case 'twitch':
+            return url.pathname.replace('/', '')
         default:
             return null
     }
