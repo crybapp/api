@@ -26,7 +26,7 @@ export default class User {
     username: string
 
     roles: Role[]
-    
+
     name: string
     icon: string
 
@@ -47,7 +47,7 @@ export default class User {
 
             if(this.room)
                 await this.fetchRoom()
-            
+
             resolve(this)
         } catch(error) {
             reject(error)
@@ -85,7 +85,7 @@ export default class User {
                         'security.credentials.refreshToken': refreshToken
                     }
                 })
-                
+
                 resolve(this)
             } else {
                 const json: IUser = {

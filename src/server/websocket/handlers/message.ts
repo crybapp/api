@@ -21,9 +21,10 @@ export default async (message: WSEvent, socket: WSSocket) => {
             message.broadcastRoom(socket.user.room, [ socket.user.id ])
         } else if(CONTROLLER_EVENT_TYPES.indexOf(t) > -1){
             if(!validateControllerEvent(d, t)) return
-            
+
             if(!socket.user) return // Check if the socket is actually authenticated
             if(!socket.user.room) return // Check if the user is in a room
+            if(!socket.user.room.portal.id) socket.set('user', await new User().load(socket.user.id)) // Workaround for controller bug
             if(typeof socket.user.room === 'string') return // Check if room is unreadable
             if(await client.hget('controller', extractRoomId(socket.user.room)) !== extractUserId(socket.user)) return // Check if the user has the controller
 

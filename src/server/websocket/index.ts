@@ -102,7 +102,7 @@ export default (wss: Server) => {
 
                 const message = new WSMessage(0, { u: socket.id, presence: 'offline' }, 'PRESENCE_UPDATE')
                 message.broadcastRoom(roomId, [ socket.id ])
-            
+
                 if (typeof socket.user.room === 'string')
                 {
                     try {

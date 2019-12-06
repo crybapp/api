@@ -9,7 +9,7 @@ export type RoomType = 'vm'
  * in-queue - The portal is in a queue to be created by the microservice
  * requested - A portal has been requested and is being allocated by the microservice
  * waiting - The room is waiting until the right conditions are met for the microservice to be contacted
- * 
+ *
  * error - An error occured
  * closed - The portal was closed for one reason or another
  */
@@ -31,7 +31,7 @@ export default interface IRoom {
 
         type: RoomType
         portal?: PortalAllocation
-        
+
         owner: string
         controller: string
     }
