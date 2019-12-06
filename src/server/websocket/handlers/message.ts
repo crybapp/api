@@ -3,6 +3,7 @@ import client, { createPubSubClient } from '../../../config/redis.config'
 import WSEvent, { WSEventType } from '../models/event'
 import WSSocket from '../models/socket'
 import WSMessage from '../models/message'
+import User from '../../../models/user'
 
 import logMessage from '../log'
 import { validateControllerEvent } from '../../../utils/validate.utils'
@@ -24,8 +25,8 @@ export default async (message: WSEvent, socket: WSSocket) => {
 
             if(!socket.user) return // Check if the socket is actually authenticated
             if(!socket.user.room) return // Check if the user is in a room
-            if(!socket.user.room.portal.id) socket.set('user', await new User().load(socket.user.id)) // Workaround for controller bug
             if(typeof socket.user.room === 'string') return // Check if room is unreadable
+            if(!socket.user.room.portal.id) socket.set('user', await new User().load(socket.user.id)) // Workaround for controller bug
             if(await client.hget('controller', extractRoomId(socket.user.room)) !== extractUserId(socket.user)) return // Check if the user has the controller
 
             pub.publish('portals', JSON.stringify({
