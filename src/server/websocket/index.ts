@@ -8,6 +8,7 @@ import WSMessage from './models/message'
 
 import log from '../../utils/log.utils'
 import client, { createPubSubClient } from '../../config/redis.config'
+import config from '../../config/defaults'
 
 import handleMessage from './handlers/message'
 import { PortalEvent } from '../../models/portal/defs'
@@ -101,25 +102,31 @@ export default (wss: Server) => {
 
                 const message = new WSMessage(0, { u: socket.id, presence: 'offline' }, 'PRESENCE_UPDATE')
                 message.broadcastRoom(roomId, [ socket.id ])
-            
-                if(typeof socket.user.room === 'string') await socket.user.fetchRoom()
-                if(typeof socket.user.room === 'string') return
+
+                if (typeof socket.user.room === 'string')
+                {
+                    try {
+                        await socket.user.fetchRoom()
+                    } catch (error) { return } // Room doesn't exists
+                }
+                if (typeof socket.user.room === 'string') return
 
                 const { room } = socket.user
 
                 if(extractUserId(room.controller) === socket.user.id)
                     room.releaseControl(socket.user)
 
-                setTimeout(async () =>
-                    (await room.load(room.id)).fetchOnlineMemberIds().then(({ portal, online }) => {
-                        if(online.length > 0) return
-                        if(UNALLOCATED_PORTALS_KEYS.indexOf(portal.status) > -1) return
+                if (config.destroy_portal_when_empty) {
+                    setTimeout(async () =>
+                        (await room.load(room.id)).fetchOnlineMemberIds().then(({ portal, online }) => {
+                            if(online.length > 0) return
+                            if(UNALLOCATED_PORTALS_KEYS.indexOf(portal.status) > -1) return
 
-                        room.destroyPortal()
-                    }).catch(console.error)
-                , 1000 * 5)
-            } else
-                socket = null
+                            room.destroyPortal()
+                        }).catch(console.error), config.empty_room_portal_destroy * 1000
+                    )
+                }
+            }
         })
     })
 }

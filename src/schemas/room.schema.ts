@@ -7,16 +7,17 @@ const RoomSchema = new Schema({
         id: String,
         createdAt: Number,
         endedAt: Number,
-
-        owner: String,
-        invite: String,
         
+        type: String,
         portal: {
             id: String,
 
             status: String,
             lastUpdatedAt: String
         },
+
+        owner: String,
+        invite: String,
         controller: String
     },
     profile: {

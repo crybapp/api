@@ -21,7 +21,7 @@ export class GroupedMessage {
     createdAt: number
 
     author: UserResolvable
-    
+
 	messages: Message[]
     messageIds: string[]
 
@@ -30,7 +30,7 @@ export class GroupedMessage {
         this.createdAt = message.createdAt
 
         this.author = author
-        
+
         this.messages = [message]
         this.messageIds = [message.id]
     }

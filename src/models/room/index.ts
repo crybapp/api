@@ -6,8 +6,8 @@ import StoredUser from '../../schemas/user.schema'
 import StoredInvite from '../../schemas/invite.schema'
 import StoredMessage from '../../schemas/message.schema'
 
-import IRoom, { PortalAllocation } from './defs'
 import StoredRoom from '../../schemas/room.schema'
+import IRoom, { PortalAllocation, RoomType } from './defs'
 import { destroyPortal, createPortal } from '../../drivers/portals.driver'
 
 import client from '../../config/redis.config'
@@ -22,12 +22,13 @@ export default class Room {
     id: string
     createdAt: number
     endedAt?: number
-    
+
+    type: RoomType
     active: boolean
     invites: Invite[]
     owner: UserResolvable
 
-    portal: PortalAllocation
+    portal?: PortalAllocation
     controller: UserResolvable
 
     name: string
@@ -46,7 +47,7 @@ export default class Room {
     load = (id: string) => new Promise<Room>(async (resolve, reject) => {
         try {
             const doc = await StoredRoom.findOne({ 'info.id': id })
-            if(!doc) throw RoomNotFound
+            if(!doc) return reject(RoomNotFound)
 
             this.setup(doc)
 
@@ -66,6 +67,8 @@ export default class Room {
                 info: {
                     id: generateFlake(),
                     createdAt: Date.now(),
+
+                    type: 'vm',
                     portal: {
                         status: 'waiting',
                         lastUpdatedAt: Date.now()
@@ -407,6 +410,24 @@ export default class Room {
         delete this.portal
     }
 
+    updateType = (type: RoomType) => new Promise<Room>(async (resolve, reject) => {
+        try {
+            await StoredRoom.updateOne({
+                'info.id': this.id
+            }, {
+                $set: {
+                    'info.type': type
+                }
+            })
+
+            this.type = type
+
+            resolve(this)
+        } catch(error) {
+            reject(error)
+        }
+    })
+
     destroy = () => new Promise(async (resolve, reject) => {
         try {
             const message = new WSMessage(0, {}, 'ROOM_DESTROY')
@@ -438,6 +459,7 @@ export default class Room {
         this.createdAt = json.info.createdAt
         this.endedAt = json.info.endedAt
 
+        this.type = json.info.type
         this.portal = json.info.portal
 
         this.owner = json.info.owner

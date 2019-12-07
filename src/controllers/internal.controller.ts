@@ -37,10 +37,10 @@ app.put('/portal', authenticate, async (req, res) => {
 
     try {
         const doc = await StoredRoom.findOne({ 'info.portal.id': id })
-        if(!doc) throw RoomNotFound
+        if(!doc) return RoomNotFound
 
         console.log('room found, updating status...')
-        
+
         const room = new Room(doc)
         const { portal: allocation } = await room.updatePortalAllocation({ status }),
                 { online } = await room.fetchOnlineMemberIds()
@@ -57,7 +57,7 @@ app.put('/portal', authenticate, async (req, res) => {
             if(status === 'open') {
                 const token = signApertureToken(id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
                 apertureMessage.broadcast(online)
-            } 
+            }
         }
 
         res.sendStatus(200)
@@ -73,7 +73,7 @@ app.post('/queue', authenticate, (req, res) => {
         try {
             const op = 0, d = { pos: i, len: queue.length }, t = 'PORTAL_QUEUE_UPDATE',
                     message = new WSMessage(op, d, t)
-            
+
             message.broadcastRoom(id)
         } catch(error) {
             console.error(error)
