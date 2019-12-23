@@ -251,6 +251,7 @@ export default class Room {
             const allocation: PortalAllocation = {
                 id,
                 janusId: 1,
+                janusIp: "0.0.0.0", 
                 status: 'creating',
                 lastUpdatedAt: Date.now()
             }

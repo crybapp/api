@@ -9,7 +9,6 @@ import { PortalAllocationStatus } from '../models/room/defs'
 import { signApertureToken } from '../utils/aperture.utils'
 import { handleError, RoomNotFound } from '../utils/errors.utils'
 import authenticate from '../server/middleware/authenticate.internal.middleware'
-import Axios from 'axios'
 
 const app = express()
 
@@ -33,7 +32,7 @@ app.post('/portal', authenticate, async (req, res) => {
  * Existing Portal Status Update
  */
 app.put('/portal', authenticate, async (req, res) => {
-    const { id, status, janusId } = req.body as { id: string, status: PortalAllocationStatus, janusId?: number }
+    const { id, status, janusId, janusIp } = req.body as { id: string, status: PortalAllocationStatus, janusId?: number, janusIp?: string }
     console.log('recieved', id, status, 'from portal microservice, finding room...')
 
     try {
@@ -43,7 +42,7 @@ app.put('/portal', authenticate, async (req, res) => {
         console.log('room found, updating status...')
         
         const room = new Room(doc)
-        const { portal: allocation } = await room.updatePortalAllocation({ janusId: janusId, status }),
+        const { portal: allocation } = await room.updatePortalAllocation({ janusId, janusIp, status }),
                 { online } = await room.fetchOnlineMemberIds()
 
         console.log('status updated and online members fetched:', online)
@@ -56,6 +55,11 @@ app.put('/portal', authenticate, async (req, res) => {
             updateMessage.broadcast(online)
 
             if(status === 'open') {
+                //JanusId is -1 when a janus instance is not running. 
+                if(allocation.janusId == -1) {
+                    const token = signApertureToken(id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+                    apertureMessage.broadcast(online)
+                }
                 const janusMessage = new WSMessage(0, { id: janusId }, 'JANUS_CONFIG')
                 janusMessage.broadcast(online)
             } 

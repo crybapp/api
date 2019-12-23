@@ -19,7 +19,13 @@ export const createPortal = (room: Room) => new Promise(async (resolve, reject) 
         const headers = await generateHeaders(room)
         log(`Sending request to ${url}create with room id: ${room.id}`, [ { content: 'portals', color: 'MAGENTA' }])
         
-        await axios.post(`${url}create`, { roomId: room.id }, { headers })
+        console.log("Change Testing.")
+        await axios.post(`${url}create`, { roomId: room.id }, { headers }).catch((reason) => {
+            console.log(`AXIOS POST FAILED: ${reason}`)
+            throw reason
+        })
+
+        console.log("Axios post finished.")
 
         resolve()
     } catch(error) {
