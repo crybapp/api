@@ -167,7 +167,7 @@ export default class User {
 
     signToken = () => new Promise<string>(async (resolve, reject) => {
         try {
-            const { id } = this, token = await signToken({ id })
+            const { id } = this, token = await signToken({ id, type: 'user' })
 
             resolve(token)
         } catch(error) {
