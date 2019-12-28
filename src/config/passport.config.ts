@@ -1,3 +1,4 @@
+import axios from 'axios'
 import passport from 'passport'
 import { Strategy, ExtractJwt } from 'passport-jwt'
 import { Request, Response, NextFunction } from 'express'
@@ -28,14 +29,34 @@ const BAN_SAFE_ENDPOINTS = [
 
 const fetchEndpoint = (req: Request) => `${req.method} ${req.baseUrl}${req.route.path}`
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) =>
-    passport.authenticate('jwt', { session: false }, async (err, user: User) => {
-        if(err) return res.sendStatus(500)
-        if(!user) return res.sendStatus(401)
+const fetchUser = async (req: Request, res: Response, next: NextFunction) => new Promise<User>(async (resolve, reject) => {
+    try {
+        if(process.env.AUTH_BASE_URL) {
+            const { authorization } = req.headers,
+                    token = authorization.split(' ')[1],
+                    { data } = await axios.post(process.env.AUTH_BASE_URL, { token }),
+                    user = new User(data)
+    
+            resolve(user)
+        } else {
+            passport.authenticate('jwt', { session: false }, async (err, user: User) => {
+                if(err) return res.sendStatus(500)
+                if(!user) return res.sendStatus(401)
+        
+                resolve(user)
+            })(req, res, next)
+        }
+    } catch(error) {
+        reject(error)
+    }
+})
 
-        const endpoint = fetchEndpoint(req)
-
-        const ban = await user.fetchBan()
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await fetchUser(req, res, next),
+                endpoint = fetchEndpoint(req),
+                ban = await user.fetchBan()
+        
         if(ban && BAN_SAFE_ENDPOINTS.indexOf(endpoint) > -1)
             return handleError('UserBanned', res)
 
@@ -45,6 +66,9 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
         req.user = user
 
         next()
-    })(req, res, next)
+    } catch(error) {
+        handleError(error, res)
+    }
+}
 
 export default passport

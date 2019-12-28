@@ -1,9 +1,8 @@
 import IUser, { Role, DiscordCredentials } from './defs'
+import StoredUser from '../../schemas/user.schema'
 
 import Ban from './ban'
 import Room from '../room'
-
-import StoredUser from '../../schemas/user.schema'
 
 import StoredBan from '../../schemas/ban.schema'
 import { createPortal } from '../../drivers/portals.driver'
