@@ -1,0 +1,18 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.0.0
+    - name: GitHub Docker Action
+      uses: matootie/github-docker@v2.0.0
+      with:
+        imageName: ${{ github.event.repository.name }}-master
+        accessToken: ${{ secrets.GITHUB_TOKEN }}
