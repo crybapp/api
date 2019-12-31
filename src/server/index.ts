@@ -23,7 +23,7 @@ const app = express()
 const server = createServer(app)
 const wss = new Server({ server })
 
-connect(process.env.MONGO_URI, { useNewUrlParser: true })
+connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 app.use(helmet())
 

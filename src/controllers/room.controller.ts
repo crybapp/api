@@ -3,11 +3,14 @@ import express from 'express'
 import User from '../models/user'
 import Room from '../models/room'
 
+import config from '../config/defaults'
+
 import { RoomType } from '../models/room/defs'
 
 import { extractUserId } from '../utils/helpers.utils'
 import { authenticate } from '../config/passport.config'
-import { handleError, UserNotInRoom, UserAlreadyInRoom } from '../utils/errors.utils'
+import { handleError, UserNotInRoom, UserAlreadyInRoom,
+         UserNotAuthorized, RoomNameTooShort, RoomNameTooLong } from '../utils/errors.utils'
 
 const app = express(),
         AVAILABLE_TYPES: RoomType[] = ['vm']
@@ -37,10 +40,11 @@ app.get('/', authenticate, async (req, res) => {
 app.post('/', authenticate, async (req, res) => {
     const { user } = req as { user: User }
     if(user.room) return handleError(UserAlreadyInRoom, res)
+    if(config.room_whitelist && !config.allowed_user_ids.includes(user.id)) return handleError(UserNotAuthorized, res)
 
     const { name } = req.body
-    if(name.length === 0) return handleError('RoomNameTooShort', res)
-    if(name.length >= 30) return handleError('RoomNameTooLong', res)
+    if(name.length === 0) return handleError(RoomNameTooShort, res)
+    if(name.length >= 30) return handleError(RoomNameTooLong, res)
 
     try {
         const room = await new Room().create(name, user)
@@ -80,7 +84,7 @@ app.post('/portal/restart', authenticate, async (req, res) => {
 
         res.sendStatus(200)
     } catch(error) {
-        handleError(error, res)        
+        handleError(error, res)
     }
 })
 
@@ -99,7 +103,7 @@ app.get('/invites', authenticate, async (req, res) => {
 
         res.send(invites)
     } catch(error) {
-        handleError(error, res)        
+        handleError(error, res)
     }
 })
 
@@ -118,7 +122,7 @@ app.post('/invite/refresh', authenticate, async (req, res) => {
 
         res.send(invite)
     } catch(error) {
-        handleError(error, res)        
+        handleError(error, res)
     }
 })
 
@@ -131,7 +135,7 @@ app.post('/leave', authenticate, async (req, res) => {
 
         res.sendStatus(200)
     } catch(error) {
-        handleError(error, res)        
+        handleError(error, res)
     }
 })
 
@@ -153,7 +157,7 @@ app.patch('/type', authenticate, async (req, res) => {
 
         res.sendStatus(200)
     } catch(error) {
-        handleError(error, res)        
+        handleError(error, res)
     }
 })
 

@@ -23,7 +23,7 @@ app.post('/profile/refresh', authenticate, async (req, res) => {
 
 app.delete('/me', authenticate, async (req, res) => {
     const { user } = req as { user: User }
-    
+
     try {
         await user.destroy()
 

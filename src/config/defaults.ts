@@ -18,5 +18,15 @@ export default {
     /**
      * The timeout before an empty room gets their portal destroyed in seconds (default 5)
      */
-    empty_room_portal_destroy: parseInt(process.env.EMPTY_ROOM_PORTAL_DESTROY || '5')
+    empty_room_portal_destroy: parseInt(process.env.EMPTY_ROOM_PORTAL_DESTROY || '5'),
+
+    /**
+     * The user IDs that are allowed to create rooms, comma (,) separated
+     */
+    room_whitelist: (process.env.ROOM_WHITELIST === 'true'),
+
+    /**
+     * The user IDs that are allowed to create rooms, comma (,) separated
+     */
+    allowed_user_ids: (process.env.ALLOWED_USER_IDS || '').split(',')
 }

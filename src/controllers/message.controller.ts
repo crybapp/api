@@ -7,7 +7,7 @@ import Message from '../models/message'
 
 import { extractUserId } from '../utils/helpers.utils'
 import { authenticate } from '../config/passport.config'
-import { handleError, UserNotInRoom, MessageTooLong } from '../utils/errors.utils'
+import { handleError, UserNotInRoom, MessageTooShort, MessageTooLong } from '../utils/errors.utils'
 
 const app = express()
 
@@ -16,7 +16,7 @@ app.post('/', authenticate, async (req, res) => {
     if(!user.room) return handleError(UserNotInRoom, res)
 
     const { content } = req.body
-    if(content.length === 0) return handleError('MessageTooShort', res)
+    if(content.length === 0) return handleError(MessageTooShort, res)
     if(content.length >= 255) return handleError(MessageTooLong, res)
 
     try {
@@ -53,7 +53,7 @@ app.delete('/:id', authenticate, async (req, res) => {
 
         if(extractUserId(message.author) !== user.id && extractUserId((user.room as Room).owner) !== user.id)
             return res.sendStatus(401)
-        
+
         await message.destroy(req.user)
 
         res.sendStatus(200)
