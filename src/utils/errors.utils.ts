@@ -13,7 +13,7 @@ export const UserNoAuth: APIResponse = {
     response: 'USER_NO_AUTH',
     error: {
         title: 'User No Auth',
-        description: 'You are not authenticated. Please log out and try again.'
+        description: 'You\'re not authenticated. Please log out and try again.'
     },
     status: 401
 }
@@ -22,7 +22,7 @@ export const UserBanned: APIResponse = {
     response: 'USER_BANNED',
     error: {
         title: 'User Banned',
-        description: 'You are banned from this instance.'
+        description: 'You\'re banned from this instance.'
     },
     status: 401
 }
@@ -31,7 +31,7 @@ export const UserNotAuthorized: APIResponse = {
     response: 'USER_NOT_AUTHORIZED',
     error: {
         title: 'User Not Authorized',
-        description: 'You are not allowed to create rooms.'
+        description: 'You\'re not allowed to create rooms.'
     },
     status: 401
 }
