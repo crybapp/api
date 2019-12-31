@@ -1,30 +1,30 @@
-import { Schema, model } from 'mongoose'
+import { model, Schema } from 'mongoose'
 
 import { IStoredRoom } from '../models/room/defs'
 
 const RoomSchema = new Schema({
-    info: {
-        id: String,
-        createdAt: Number,
-        endedAt: Number,
-        
-        type: String,
-        portal: {
-            id: String,
+	info: {
+		id: String,
+		createdAt: Number,
+		endedAt: Number,
 
-            status: String,
-            lastUpdatedAt: String
-        },
+		type: String,
+		portal: {
+			id: String,
 
-        owner: String,
-        invite: String,
-        controller: String
-    },
-    profile: {
-        name: String
-    }
+			status: String,
+			lastUpdatedAt: String
+		},
+
+		owner: String,
+		invite: String,
+		controller: String
+	},
+	profile: {
+		name: String
+	}
 }, {
-    typeKey: '$type'
+	typeKey: '$type'
 })
 
 const StoredRoom = model<IStoredRoom>('Room', RoomSchema)

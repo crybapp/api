@@ -5,9 +5,11 @@
       "lib": [
         "es2017"
       ],
+      "noUnusedLocals": true,
       "noImplicitAny": false,
       "esModuleInterop": true,
       "inlineSourceMap": true,
+      "noUnusedParameters": true,
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
       "allowSyntheticDefaultImports": true,

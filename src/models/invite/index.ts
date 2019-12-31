@@ -15,174 +15,174 @@ import { UserAlreadyInRoom, InviteNotFound, TargetTypeNotFound } from '../../uti
 export type InviteResolvable = Invite | string
 
 export default class Invite {
-    id: string
-    createdAt: number
-    createdBy?: UserResolvable
-    
-    active: boolean
+	id: string
+	createdAt: number
+	createdBy?: UserResolvable
 
-    target?: TargetResolvable
-    targetType: TargetType
+	active: boolean
 
-    code: string
-    uses: string[]
-    options: InviteOptions
+	target?: TargetResolvable
+	targetType: TargetType
 
-    constructor(json?: IInvite) {
-        if(!json) return
+	code: string
+	uses: string[]
+	options: InviteOptions
 
-        this.setup(json)
-    }
+	constructor(json?: IInvite) {
+		if (!json) return
 
-    load = (id: string) => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const doc = await StoredInvite.findOne({ 'info.id': id })
-            if(!doc) throw InviteNotFound
+		this.setup(json)
+	}
 
-            this.setup(doc)
+	load = (id: string) => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const doc = await StoredInvite.findOne({ 'info.id': id })
+			if (!doc) throw InviteNotFound
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			this.setup(doc)
 
-    findFromCode = (code: string) => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const doc = await StoredInvite.findOne({
-                $and: [
-                    {
-                        'info.active': true
-                    },
-                    {
-                        'data.code': code
-                    }
-                ]
-            })
-            if(!doc) throw InviteNotFound
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            this.setup(doc)
+	findFromCode = (code: string) => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const doc = await StoredInvite.findOne({
+				$and: [
+					{
+						'info.active': true
+					},
+					{
+						'data.code': code
+					}
+				]
+			})
+			if (!doc) throw InviteNotFound
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			this.setup(doc)
 
-    use = (user: User, type?: TargetType) => new Promise<TargetResolvable>(async (resolve, reject) => {
-        if(type && type !== this.targetType) return reject(TargetTypeNotFound)
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-        if(this.targetType === 'room' && user.room)
-            return reject(UserAlreadyInRoom)
+	use = (user: User, type?: TargetType) => new Promise<TargetResolvable>(async (resolve, reject) => {
+		if (type && type !== this.targetType) return reject(TargetTypeNotFound)
 
-        try {
-            const targetId = extractTargetId(this.target),
-                    query = { $set: {}, $push: { 'data.uses': user.id } }
+		if (this.targetType === 'room' && user.room)
+			return reject(UserAlreadyInRoom)
 
-            if((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
-                query.$set['info.active'] = false
+		try {
+			const targetId = extractTargetId(this.target),
+				query = { $set: {}, $push: { 'data.uses': user.id } }
 
-            await StoredInvite.updateOne({ 'info.id': this.id }, query)
+			if ((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
+				query.$set['info.active'] = false
 
-            switch(this.targetType) {
-                case 'room':
-                    const room = await new Room().load(targetId)
-                    await user.joinRoom(room)
-    
-                    resolve(room)
-                    break
-                default:
-                    throw TargetTypeNotFound
-            }
-        } catch(error) {
-            reject(error)
-        }
-    })
+			await StoredInvite.updateOne({ 'info.id': this.id }, query)
 
-    create = (target: TargetResolvable, targetType: TargetType, options?: InviteOptions, headers?: InviteHeaders, creator?: UserResolvable) => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const json: IInvite = {
-                info: {
-                    id: generateFlake(),
-                    createdAt: Date.now(),
-                    createdBy: extractUserId(creator),
+			switch (this.targetType) {
+				case 'room':
+					const room = await new Room().load(targetId)
+					await user.joinRoom(room)
 
-                    active: true,
-                    system: headers ? headers.system || false : false,
+					resolve(room)
+					break
+				default:
+					throw TargetTypeNotFound
+			}
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-                    targetId: extractTargetId(target),
-                    targetType
-                },
-                data: {
-                    code: !options.random && options.code ? options.code : chance.string({
-                        pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-                        length: 5
-                    }),
-                    uses: [],
+	create = (target: TargetResolvable, targetType: TargetType, options?: InviteOptions, headers?: InviteHeaders, creator?: UserResolvable) => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const json: IInvite = {
+				info: {
+					id: generateFlake(),
+					createdAt: Date.now(),
+					createdBy: extractUserId(creator),
 
-                    options: options ? {
-                        maxUses: options.maxUses,
-                        unlimitedUses: options.unlimitedUses
-                    } : {
-                        maxUses: 0,
-                        unlimitedUses: true
-                    }
-                }
-            }
+					active: true,
+					system: headers ? headers.system || false : false,
 
-            const stored = new StoredInvite(json)
-            await stored.save()
+					targetId: extractTargetId(target),
+					targetType
+				},
+				data: {
+					code: !options.random && options.code ? options.code : chance.string({
+						pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+						length: 5
+					}),
+					uses: [],
 
-            this.setup(json)
+					options: options ? {
+						maxUses: options.maxUses,
+						unlimitedUses: options.unlimitedUses
+					} : {
+							maxUses: 0,
+							unlimitedUses: true
+						}
+				}
+			}
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			const stored = new StoredInvite(json)
+			await stored.save()
 
-    fetchTarget = () => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const targetId = extractTargetId(this.target)
+			this.setup(json)
 
-            switch(this.targetType) {
-                case 'room':
-                    const room = await new Room().load(targetId)
-                    await room.fetchMembers()
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-                    this.target = room
-            }
+	fetchTarget = () => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const targetId = extractTargetId(this.target)
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			switch (this.targetType) {
+				case 'room':
+					const room = await new Room().load(targetId)
+					await room.fetchMembers()
 
-    destroy = () => new Promise(async (resolve, reject) => {
-        try {
-            await StoredInvite.deleteOne({
-                'info.id': this.id
-            })
+					this.target = room
+			}
 
-            resolve()
-        } catch(error) {
-            reject(error)
-        }
-    })
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-    setup = (json: IInvite) => {
-        this.id = json.info.id
-        this.createdAt = json.info.createdAt
-        this.createdBy = json.info.createdBy
+	destroy = () => new Promise(async (resolve, reject) => {
+		try {
+			await StoredInvite.deleteOne({
+				'info.id': this.id
+			})
 
-        this.active = json.info.active
+			resolve()
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-        this.target = json.info.targetId
-        this.targetType = json.info.targetType
+	setup = (json: IInvite) => {
+		this.id = json.info.id
+		this.createdAt = json.info.createdAt
+		this.createdBy = json.info.createdBy
 
-        this.code = json.data.code
-        this.uses = json.data.uses
-        this.options = json.data.options
-    }
+		this.active = json.info.active
+
+		this.target = json.info.targetId
+		this.targetType = json.info.targetType
+
+		this.code = json.data.code
+		this.uses = json.data.uses
+		this.options = json.data.options
+	}
 }
