@@ -76,7 +76,7 @@ export const RoomNameTooLong: APIResponse = {
     response: 'ROOM_NAME_TOO_LONG',
     error: {
         title: 'Room Name Too Long',
-        description: 'This room name is too short. Please specify a name with up to 30 characters.'
+        description: 'This room name is too short. Please specify a name up to 30 characters.'
     },
     status: 413
 }
@@ -85,7 +85,7 @@ export const RoomNameTooShort: APIResponse = {
     response: 'ROOM_NAME_TOO_SHORT',
     error: {
         title: 'Room Name Too Long',
-        description: 'This room name is too short. Please specify a name with up to 30 characters.'
+        description: 'This room name is too short. Please specify a name up to 30 characters.'
     },
     status: 413
 }
