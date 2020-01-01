@@ -1,4 +1,4 @@
-import WSEvent, { WSEventType } from '../models/event'
+import IWSEvent, { WSEventType } from '../models/event'
 
 import client from '../../../config/redis.config'
 
@@ -7,15 +7,17 @@ const DISALLOWED_UNDELIVERABLE_EVENT_TYPES: WSEventType[] = [
 	'TYPING_UPDATE'
 ]
 
-export default (message: WSEvent, recipients: string[]) => {
-	if (DISALLOWED_UNDELIVERABLE_EVENT_TYPES.indexOf(message.t) > -1) return
+export default (message: IWSEvent, recipients: string[]) => {
+	if (DISALLOWED_UNDELIVERABLE_EVENT_TYPES.indexOf(message.t) > -1)
+		return
 
 	recipients.forEach(async id => {
-		if (!id) return
+		if (!id)
+			return
 
 		try {
 			const _undelivered = await client.hget('undelivered_events', id)
-			let undelivered: WSEvent[] = []
+			let undelivered: IWSEvent[] = []
 
 			if (_undelivered)
 				undelivered = JSON.parse(_undelivered)

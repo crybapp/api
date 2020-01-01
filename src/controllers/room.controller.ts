@@ -12,16 +12,18 @@ import {
 	handleError, RoomNameTooLong, RoomNameTooShort,
 	UserAlreadyInRoom, UserNotAuthorized, UserNotInRoom
 } from '../utils/errors.utils'
-import { extractUserId } from '../utils/helpers.utils'
+import { extractRoomId, extractUserId } from '../utils/helpers.utils'
 
 const app = express(),
 	AVAILABLE_TYPES: RoomType[] = ['vm']
 
 app.get('/', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (!user.room) return handleError(UserNotInRoom, res)
 
-	const roomId = typeof user.room === 'string' ? user.room : user.room.id
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
+
+	const roomId = extractRoomId(user.room)
 
 	try {
 		const room = await new Room().load(roomId)
@@ -31,7 +33,9 @@ app.get('/', authenticate, async (req, res) => {
 		await room.fetchOnlineMemberIds()
 
 		const ownerId = extractUserId(room.owner)
-		if (ownerId === user.id) await room.fetchInvites()
+
+		if (ownerId === user.id)
+			await room.fetchInvites()
 
 		res.send(room.prepare())
 	} catch (error) {
@@ -41,12 +45,20 @@ app.get('/', authenticate, async (req, res) => {
 
 app.post('/', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (user.room) return handleError(UserAlreadyInRoom, res)
-	if (config.room_whitelist && !config.allowed_user_ids.includes(user.id)) return handleError(UserNotAuthorized, res)
+
+	if (user.room)
+		return handleError(UserAlreadyInRoom, res)
+
+	if (config.room_whitelist && !config.allowed_user_ids.includes(user.id))
+		return handleError(UserNotAuthorized, res)
 
 	const { name } = req.body
-	if (name.length === 0) return handleError(RoomNameTooShort, res)
-	if (name.length >= 30) return handleError(RoomNameTooLong, res)
+
+	if (name.length === 0)
+		return handleError(RoomNameTooShort, res)
+
+	if (name.length >= 30)
+		return handleError(RoomNameTooLong, res)
 
 	try {
 		const room = await new Room().create(name, user)
@@ -59,7 +71,9 @@ app.post('/', authenticate, async (req, res) => {
 
 app.delete('/', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (!user.room) return handleError(UserNotInRoom, res)
+
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
 	try {
 		const { room } = await user.fetchRoom() as { room: Room }
@@ -73,7 +87,9 @@ app.delete('/', authenticate, async (req, res) => {
 
 app.post('/portal/restart', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (!user.room) return handleError(UserNotInRoom, res)
+
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
 	if (typeof user.room === 'string')
 		return res.status(500)
@@ -92,7 +108,9 @@ app.post('/portal/restart', authenticate, async (req, res) => {
 
 app.get('/invites', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (!user.room) return handleError(UserNotInRoom, res)
+
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
 	if (typeof user.room === 'string')
 		return res.status(500)
@@ -111,7 +129,9 @@ app.get('/invites', authenticate, async (req, res) => {
 
 app.post('/invite/refresh', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (!user.room) return handleError(UserNotInRoom, res)
+
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
 	if (typeof user.room === 'string')
 		return res.status(500)
@@ -130,7 +150,9 @@ app.post('/invite/refresh', authenticate, async (req, res) => {
 
 app.post('/leave', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (!user.room) return handleError(UserNotInRoom, res)
+
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
 	try {
 		await user.leaveRoom()
@@ -143,7 +165,9 @@ app.post('/leave', authenticate, async (req, res) => {
 
 app.patch('/type', authenticate, async (req, res) => {
 	const { user } = req as { user: User }, { type } = req.body as { type: RoomType }
-	if (!user.room) return handleError(UserNotInRoom, res)
+
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
 	if (typeof user.room === 'string')
 		return res.status(500)

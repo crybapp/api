@@ -14,4 +14,4 @@ export default interface IBan {
 	}
 }
 
-export interface IStoredBan extends IBan, Document { }
+export interface IStoredBan extends IBan, Document {}

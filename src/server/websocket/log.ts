@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash'
 
-import WSEvent from './models/event'
+import IWSEvent from './models/event'
 
 import log, { ILogPrefix } from '../../utils/log.utils'
 
@@ -9,7 +9,7 @@ export const WSLogPrefix: ILogPrefix = {
 	color: 'CYAN'
 }
 
-export default (message: WSEvent, recipients?: string[]) => {
+export default (message: IWSEvent, recipients?: string[]) => {
 	const { op, d, t } = cloneDeep(message)
 
 	let logline = `Opcode: ${op}, `

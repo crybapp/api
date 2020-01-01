@@ -7,11 +7,10 @@ import log from '../utils/log.utils'
 
 const url = `${process.env.PORTALS_API_URL}/`, key = process.env.PORTALS_API_KEY
 
-const generateRoomToken = (room: Room) => jwt.sign({ roomId: room.id }, key)
-
-const generateHeaders = async (room: Room) => ({
-	Authorization: `Valve ${generateRoomToken(room)}`
-})
+const generateRoomToken = (room: Room) => jwt.sign({ roomId: room.id }, key),
+	generateHeaders = async (room: Room) => ({
+		Authorization: `Valve ${generateRoomToken(room)}`
+	})
 
 export const createPortal = (room: Room) => new Promise(async (resolve, reject) => {
 	try {
@@ -28,8 +27,11 @@ export const createPortal = (room: Room) => new Promise(async (resolve, reject) 
 
 export const destroyPortal = (room: Room) => new Promise(async (resolve, reject) => {
 	try {
-		const headers = await generateHeaders(room), { portal } = room
-		if (!portal.id) return
+		const headers = await generateHeaders(room),
+			{ portal } = room
+
+		if (!portal.id)
+			return
 
 		await axios.delete(`${url}${portal.id}`, { headers })
 

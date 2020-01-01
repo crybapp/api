@@ -2,32 +2,31 @@ import { camelCase } from 'lodash'
 
 import WebSocket from 'ws'
 
-import WSEvent from './event'
+import IWSEvent from './event'
 import WSMessage from './message'
 
-import User from '../../../models/user'
 import Room from '../../../models/room'
+import User from '../../../models/user'
 
 import client from '../../../config/redis.config'
 
-import { WSLogPrefix } from '../log'
-import log from '../../../utils/log.utils'
 import config from '../../../config/defaults'
-import { verifyToken } from '../../../utils/generate.utils'
 import { signApertureToken } from '../../../utils/aperture.utils'
-import { UNALLOCATED_PORTALS_KEYS, extractUserId } from '../../../utils/helpers.utils'
-
+import { verifyToken } from '../../../utils/generate.utils'
+import { extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../../utils/helpers.utils'
+import log from '../../../utils/log.utils'
+import { WSLogPrefix } from '../log'
 
 type SocketConfigKey = 'id' | 'type' | 'user' | 'group' | 'authenticated' | 'last_heartbeat_at'
 const socketKeys: SocketConfigKey[] = ['id', 'type', 'user', 'group', 'authenticated', 'last_heartbeat_at']
 
 export default class WSSocket {
-	id: string
+	public id: string
 
-	user?: User
-	room?: Room
-	authenticated: boolean = false
-	lastHeartbeatAt: number
+	public user?: User
+	public room?: Room
+	public authenticated: boolean = false
+	public lastHeartbeatAt: number
 
 	private socket: WebSocket
 
@@ -40,45 +39,32 @@ export default class WSSocket {
 		})
 	}
 
-	set(key: SocketConfigKey, value: any, save: boolean = true) {
+	public set(key: SocketConfigKey, value: any, save: boolean = true) {
 		this.socket[key] = value
 		this[camelCase(key)] = value
 
 		if (save) this.save()
 	}
 
-	save() {
+	public save() {
 		const { id, authenticated, lastHeartbeatAt } = this
-		if (!id) return
+
+		if (!id)
+			return
 
 		client.hset('client_sessions', id, JSON.stringify({ id, authenticated, lastHeartbeatAt }))
 	}
 
-	send = (message: WSMessage) => this.socket.send(JSON.stringify(message.serialize()))
+	public send = (message: WSMessage) => this.socket.send(JSON.stringify(message.serialize()))
 
-	private sendUndeliverableMessages = async () => {
-		try {
-			const _undelivered = await client.hget('undelivered_events', this.id)
-			let undelivered: WSEvent[] = []
-
-			if (_undelivered)
-				undelivered = JSON.parse(_undelivered)
-
-			undelivered.forEach((event, s) => this.socket.send(JSON.stringify({ ...event, s })))
-
-			client.hset('undelivered_events', this.id, JSON.stringify([]))
-		} catch (error) {
-			console.error(error)
-		}
-	}
-
-	authenticate = async (token: string) => {
-		const { id }: { id: string } = await verifyToken(token).catch(console.error)
+	public authenticate = async (_token: string) => {
+		const { id } = verifyToken(_token) as { id: string }
 
 		try {
-			// Fetch user
 			const user = await new User().load(id)
-			if (!user) return
+
+			if (!user)
+				return
 
 			// Set user
 			this.set('user', user)
@@ -92,12 +78,16 @@ export default class WSSocket {
 
 				if (room.portal.status !== 'open')
 					room.fetchMembers().then(({ members }) => {
-						if (members.length > (config.min_member_portal_creation_count - 1) && UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1)
+						if (
+							members.length > (config.min_member_portal_creation_count - 1) &&
+							UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1
+						)
 							room.createPortal()
 					})
 				else if (room.portal.id) {
 					const token = signApertureToken(room.portal.id),
 						apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+
 					apertureMessage.broadcast([extractUserId(user)])
 				}
 			}
@@ -107,11 +97,7 @@ export default class WSSocket {
 
 			this.sendUndeliverableMessages()
 		} catch (error) {
-			console.error(error)
-
-			this.socket.close(1013)
-
-			return error
+			return this.socket.close(1013)
 		}
 
 		const save = false
@@ -126,8 +112,25 @@ export default class WSSocket {
 			console.error(error)
 		}
 
-		if (!save) this.save()
+		if (!save)
+			this.save()
 	}
 
-	close = (code: number) => this.socket.close(code)
+	public close = (code: number) => this.socket.close(code)
+
+	private sendUndeliverableMessages = async () => {
+		try {
+			const _undelivered = await client.hget('undelivered_events', this.id)
+			let undelivered: IWSEvent[] = []
+
+			if (_undelivered)
+				undelivered = JSON.parse(_undelivered)
+
+			undelivered.forEach((event, s) => this.socket.send(JSON.stringify({ ...event, s })))
+
+			client.hset('undelivered_events', this.id, JSON.stringify([]))
+		} catch (error) {
+			console.error(error)
+		}
+	}
 }

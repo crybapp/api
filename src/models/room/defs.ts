@@ -14,9 +14,17 @@ export type RoomType = 'vm'
  * closed - The portal was closed for one reason or another
  */
 
-export type PortalAllocationStatus = 'waiting' | 'requested' | 'in-queue' | 'creating' | 'starting' | 'open' | 'closed' | 'error'
+export type PortalAllocationStatus =
+	'waiting' |
+	'requested' |
+	'in-queue' |
+	'creating' |
+	'starting' |
+	'open' |
+	'closed' |
+	'error'
 
-export interface PortalAllocation {
+export interface IPortalAllocation {
 	id?: string
 
 	status: PortalAllocationStatus
@@ -30,7 +38,7 @@ export default interface IRoom {
 		endedAt?: number
 
 		type: RoomType
-		portal?: PortalAllocation
+		portal?: IPortalAllocation
 
 		owner: string
 		controller: string
@@ -40,4 +48,4 @@ export default interface IRoom {
 	}
 }
 
-export interface IStoredRoom extends IRoom, Document { }
+export interface IStoredRoom extends IRoom, Document {}

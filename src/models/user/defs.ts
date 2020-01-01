@@ -4,21 +4,21 @@ export type Role = 'admin' | 'invited'
 
 export type CredentialType = 'regular' | 'discord'
 
-export interface RegularCredentials {
+export interface IRegularCredentials {
 	email: string
 	password: string
 }
 
-export interface DiscordCredentials {
+export interface IDiscordCredentials {
 	userId: string
 	accessToken: string
 	refreshToken: string
 	scopes: string[]
 }
 
-export type Credentials = RegularCredentials | DiscordCredentials
+export type Credentials = IRegularCredentials | IDiscordCredentials
 
-export interface Profile {
+export interface IProfile {
 	name: string
 	icon: string
 }
@@ -37,7 +37,7 @@ export default interface IUser {
 		type: CredentialType
 		credentials: Credentials
 	}
-	profile: Profile
+	profile: IProfile
 }
 
-export interface IStoredUser extends IUser, Document { }
+export interface IStoredUser extends IUser, Document {}

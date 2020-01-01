@@ -1,46 +1,49 @@
-import IUser, { Role, DiscordCredentials } from './defs'
 import StoredUser from '../../schemas/user.schema'
+import IUser, { IDiscordCredentials, Role } from './defs'
 
-import Ban from './ban'
 import Room from '../room'
+import Ban from './ban'
 
-import StoredBan from '../../schemas/ban.schema'
 import { createPortal } from '../../drivers/portals.driver'
+import StoredBan from '../../schemas/ban.schema'
 
 import StoredMessage from '../../schemas/message.schema'
 
 import config from '../../config/defaults.js'
 import client from '../../config/redis.config'
 import WSMessage from '../../server/websocket/models/message'
-import { signToken, generateFlake } from '../../utils/generate.utils'
-import { extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
-import { UserNotFound, UserNotInRoom, TooManyMembers } from '../../utils/errors.utils'
-import { fetchUserProfile, exchangeRefreshToken, constructAvatar } from '../../services/oauth2/discord.service'
+import { constructAvatar, exchangeRefreshToken, fetchUserProfile } from '../../services/oauth2/discord.service'
+import { TooManyMembers, UserNotFound, UserNotInRoom } from '../../utils/errors.utils'
+import { generateFlake, signToken } from '../../utils/generate.utils'
+import { extractUserId, UNALLOCATED_PORTALS_KEYS, extractRoomId } from '../../utils/helpers.utils'
 
 export type UserResolvable = User | string
 
 export default class User {
-	id: string
-	joinedAt: number
-	username: string
+	public id: string
+	public joinedAt: number
+	public username: string
 
-	roles: Role[]
+	public roles: Role[]
 
-	name: string
-	icon: string
+	public name: string
+	public icon: string
 
-	room?: Room | string
+	public room?: Room | string
 
 	constructor(json?: IUser) {
-		if (!json) return
+		if (!json)
+			return
 
 		this.setup(json)
 	}
 
-	load = (id: string) => new Promise<User>(async (resolve, reject) => {
+	public load = (id: string) => new Promise<User>(async (resolve, reject) => {
 		try {
 			const doc = await StoredUser.findOne({ 'info.id': id })
-			if (!doc) throw UserNotFound
+
+			if (!doc)
+				throw UserNotFound
 
 			this.setup(doc)
 
@@ -53,20 +56,33 @@ export default class User {
 		}
 	})
 
-	findOrCreate = (accessToken: string, refreshToken?: string, scopes?: string[]) => new Promise<User>(async (resolve, reject) => {
+	public findOrCreate = (
+		accessToken: string,
+		refreshToken?: string,
+		scopes?: string[]
+	) => new Promise<User>(async (resolve, reject) => {
 		try {
-			const { id, email, username: name, avatar: avatarHash } = await fetchUserProfile(accessToken)
-
-			const existing = await StoredUser.findOne({
-				$and: [
-					{
-						'security.type': 'discord'
-					},
-					{
-						'security.credentials.userId': id
-					}
-				]
-			}), avatar = constructAvatar({ userId: id, email, hash: avatarHash })
+			const {
+				id,
+				email,
+				username: name,
+				avatar: avatarHash
+			} = await fetchUserProfile(accessToken),
+				existing = await StoredUser.findOne({
+					$and: [
+						{
+							'security.type': 'discord'
+						},
+						{
+							'security.credentials.userId': id
+						}
+					]
+				}),
+				avatar = constructAvatar({
+					userId: id,
+					email, hash:
+					avatarHash
+				})
 
 			if (existing) {
 				this.setup(existing)
@@ -123,20 +139,18 @@ export default class User {
 		}
 	})
 
-	refreshProfile = () => new Promise<User>(async (resolve, reject) => {
+	public refreshProfile = () => new Promise<User>(async (resolve, reject) => {
 		try {
-			const { security: { credentials } } = await StoredUser.findOne({ 'info.id': this.id })
-			const { refreshToken } = (credentials as DiscordCredentials)
+			const { security: { credentials } } = await StoredUser.findOne({ 'info.id': this.id }),
+				{ refreshToken } = (credentials as IDiscordCredentials),
+				{ access_token, refresh_token } = await exchangeRefreshToken(refreshToken),
+				{ id, username: name, email, avatar: avatarHash } = await fetchUserProfile(access_token),
+				icon = constructAvatar({
+					userId: id,
+					email,
 
-			const { access_token, refresh_token } = await exchangeRefreshToken(refreshToken)
-			const { id, username: name, email, avatar: avatarHash } = await fetchUserProfile(access_token)
-
-			const icon = constructAvatar({
-				userId: id,
-				email,
-
-				hash: avatarHash
-			})
+					hash: avatarHash
+				})
 
 			await StoredUser.updateOne({
 				'info.id': this.id
@@ -164,9 +178,10 @@ export default class User {
 		}
 	})
 
-	signToken = () => new Promise<string>(async (resolve, reject) => {
+	public signToken = () => new Promise<string>(async (resolve, reject) => {
 		try {
-			const { id } = this, token = await signToken({ id, type: 'user' })
+			const { id } = this,
+				token = await signToken({ id, type: 'user' })
 
 			resolve(token)
 		} catch (error) {
@@ -174,10 +189,11 @@ export default class User {
 		}
 	})
 
-	fetchRoom = () => new Promise<User>(async (resolve, reject) => {
-		if (!this.room) return reject(UserNotInRoom)
+	public fetchRoom = () => new Promise<User>(async (resolve, reject) => {
+		if (!this.room)
+			return reject(UserNotInRoom)
 
-		const roomId = typeof this.room === 'string' ? this.room : this.room.id
+		const roomId = extractRoomId(this.room)
 
 		try {
 			const room = await new Room().load(roomId)
@@ -189,7 +205,7 @@ export default class User {
 		}
 	})
 
-	fetchBan = () => new Promise<Ban>(async (resolve, reject) => {
+	public fetchBan = () => new Promise<Ban>(async (resolve, reject) => {
 		try {
 			const doc = await StoredBan.findOne({
 				$and: [
@@ -201,7 +217,9 @@ export default class User {
 					}
 				]
 			})
-			if (!doc) return resolve(null)
+
+			if (!doc)
+				return resolve(null)
 
 			const ban = new Ban(doc)
 			resolve(ban)
@@ -210,7 +228,7 @@ export default class User {
 		}
 	})
 
-	joinRoom = (room: Room, isInitialMember: boolean = false) => new Promise<User>(async (resolve, reject) => {
+	public joinRoom = (room: Room, isInitialMember: boolean = false) => new Promise<User>(async (resolve, reject) => {
 		try {
 			if (!room.members)
 				await room.fetchMembers()
@@ -231,10 +249,12 @@ export default class User {
 			 * so we will check if there is only 1 member in the room before the update
 			 */
 
-			if (!isInitialMember &&
+			if (
+				!isInitialMember &&
 				room.members &&
 				room.members.length === (config.min_member_portal_creation_count - 1) &&
-				UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1)
+				UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1
+			)
 				createPortal(room)
 
 			const message = new WSMessage(0, { ...this, room: undefined }, 'USER_JOIN')
@@ -248,10 +268,13 @@ export default class User {
 		}
 	})
 
-	leaveRoom = () => new Promise<User>(async (resolve, reject) => {
+	public leaveRoom = () => new Promise<User>(async (resolve, reject) => {
 		try {
-			if (typeof this.room === 'string') await this.fetchRoom()
-			if (typeof this.room === 'string') return
+			if (typeof this.room === 'string')
+				await this.fetchRoom()
+
+			if (typeof this.room === 'string')
+				return
 
 			await this.room.fetchMembers()
 
@@ -294,7 +317,7 @@ export default class User {
 		}
 	})
 
-	destroy = () => new Promise(async (resolve, reject) => {
+	public destroy = () => new Promise(async (resolve, reject) => {
 		try {
 			if (this.room)
 				await this.leaveRoom()
@@ -313,7 +336,7 @@ export default class User {
 		}
 	})
 
-	setup = (json: IUser) => {
+	public setup = (json: IUser) => {
 		this.id = json.info.id
 		this.joinedAt = json.info.joinedAt
 		this.username = json.info.username
@@ -323,8 +346,9 @@ export default class User {
 		this.name = json.profile.name
 		this.icon = json.profile.icon
 
-		if (!this.room) this.room = json.info.room
+		if (!this.room)
+			this.room = json.info.room
 	}
 
-	prepare = () => ({ ...this } as User)
+	public prepare = () => ({ ...this } as User)
 }

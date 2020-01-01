@@ -1,7 +1,7 @@
 import handleUndeliverableMessage from '../handlers/undeliverable'
 
-import WSEvent, { WSEventType } from './event'
-import { WSInternalEvent } from '../handlers/internal'
+import { IWSInternalEvent } from '../handlers/internal'
+import IWSEvent, { WSEventType } from './event'
 
 import Room from '../../../models/room'
 import StoredUser from '../../../schemas/user.schema'
@@ -11,9 +11,9 @@ import client, { createPubSubClient } from '../../../config/redis.config'
 const pub = createPubSubClient()
 
 export default class WSMessage {
-	opcode: number
-	data: any
-	type?: WSEventType
+	public opcode: number
+	public data: any
+	public type?: WSEventType
 
 	constructor(opcode: number, data: any = {}, type?: WSEventType) {
 		this.opcode = opcode
@@ -21,30 +21,34 @@ export default class WSMessage {
 		this.type = type
 	}
 
-	broadcast = async (recipients: string[] = ['*'], excluding: string[] = [], sync: boolean = true) => {
+	public broadcast = async (recipients: string[] = ['*'], excluding: string[] = [], sync: boolean = true) => {
 		recipients = recipients.filter(id => excluding.indexOf(id) === -1)
-		if (recipients.length === 0) return
 
-		const message = this.serialize()
-		const internalMessage: WSInternalEvent = { message, recipients, sync }
+		if (recipients.length === 0)
+			return
+
+		const message = this.serialize(),
+			internalMessage: IWSInternalEvent = { message, recipients, sync }
 
 		pub.publish('ws', JSON.stringify(internalMessage))
 
-		if (recipients.length > 0) {
+		if (recipients.length > 0)
 			try {
 				const online = await client.smembers('connected_clients')
-				if (!online) return
+
+				if (!online)
+					return
 
 				const undelivered = recipients.filter(id => online.indexOf(id) === -1)
 				handleUndeliverableMessage(message, undelivered)
 			} catch (error) {
 				console.error(error)
 			}
-		}
 	}
 
-	broadcastRoom = async (room: Room | string, excluding: string[] = []) => {
-		if (!room) return
+	public broadcastRoom = async (room: Room | string, excluding: string[] = []) => {
+		if (!room)
+			return
 
 		let id: string
 
@@ -54,8 +58,14 @@ export default class WSMessage {
 			id = room.id
 
 		try {
-			const recipients = (await StoredUser.distinct('info.id', { 'info.room': id })).filter(id => excluding.indexOf(id) === -1)
-			if (recipients.length === 0) return
+			const recipients = (
+				await StoredUser.distinct('info.id', { 'info.room': id })
+			).filter(
+				id => excluding.indexOf(id) === -1
+			)
+
+			if (recipients.length === 0)
+				return
 
 			this.broadcast(recipients)
 		} catch (error) {
@@ -63,9 +73,11 @@ export default class WSMessage {
 		}
 	}
 
-	serialize = () => {
-		let object: WSEvent = { op: this.opcode, d: this.data }
-		if (this.type) object.t = this.type
+	public serialize = () => {
+		const object: IWSEvent = { op: this.opcode, d: this.data }
+
+		if (this.type)
+			object.t = this.type
 
 		return object
 	}

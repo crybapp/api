@@ -12,10 +12,12 @@ const validateKeyControllerEvent = data => {
 }
 
 const validateControllerPositionCoord = (pos: number) => typeof pos === 'number' && pos > 0
+
 const validateControllerPosition = data => (
 	validateControllerPositionCoord(data.x) &&
 	validateControllerPositionCoord(data.y)
 )
+
 const validateControllerButton = (button: number) => button === 1 || button === 3
 
 export const validateControllerEvent = (data, type: WSEventType) => {

@@ -1,20 +1,23 @@
 import { Server } from 'ws'
 
-import WSEvent from '../models/event'
+import IWSEvent from '../models/event'
 
 import logMessage from '../log'
 
-export interface WSInternalEvent {
-	message: WSEvent
+export interface IWSInternalEvent {
+	message: IWSEvent
 	recipients: string[]
 	sync: boolean
 }
 
-export default (message: WSEvent, recipients: string[], _: boolean, wss: Server) => {
-	if (recipients.length === 0) return
-	if (process.env.NODE_ENV !== 'production') logMessage(message, recipients)
+export default (message: IWSEvent, recipients: string[], _: boolean, wss: Server) => {
+	if (recipients.length === 0)
+		return
 
-	let delivered = []
+	if (process.env.NODE_ENV !== 'production')
+		logMessage(message, recipients)
+
+	const delivered = []
 
 	// TODO: Sync for clients not on ws when event is global
 	if (recipients[0] === '*')

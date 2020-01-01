@@ -1,36 +1,39 @@
-import User from '../user'
-import Room from '../room'
+import Room, { RoomResolvable } from '../room'
+import User, { UserResolvable } from '../user'
 
 import WSMessage from '../../server/websocket/models/message'
 
-import IMessage from './defs'
 import StoredMessage from '../../schemas/message.schema'
+import IMessage from './defs'
 
-import { extractUserId } from '../../utils/helpers.utils'
+import { MessageNotFound, UserNotInRoom } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
-import { UserNotInRoom, MessageNotFound } from '../../utils/errors.utils'
+import { extractRoomId, extractUserId } from '../../utils/helpers.utils'
 
 export type MessageResolvable = Message | string
 
 export default class Message {
-	id: string
-	createdAt: number
+	public id: string
+	public createdAt: number
 
-	author: User | string
-	room: Room | string
+	public author: UserResolvable
+	public room: RoomResolvable
 
-	content: string
+	public content: string
 
 	constructor(json?: IMessage) {
-		if (!json) return
+		if (!json)
+			return
 
 		this.setup(json)
 	}
 
-	load = (id: string) => new Promise<Message>(async (resolve, reject) => {
+	public load = (id: string) => new Promise<Message>(async (resolve, reject) => {
 		try {
 			const doc = await StoredMessage.findOne({ 'info.id': id })
-			if (!doc) throw MessageNotFound
+
+			if (!doc)
+				throw MessageNotFound
 
 			this.setup(doc)
 
@@ -40,10 +43,11 @@ export default class Message {
 		}
 	})
 
-	create = (content: string, author: User) => new Promise<Message>(async (resolve, reject) => {
-		if (!author.room) return reject(UserNotInRoom)
+	public create = (content: string, author: User) => new Promise<Message>(async (resolve, reject) => {
+		if (!author.room)
+			return reject(UserNotInRoom)
 
-		const roomId = typeof author.room === 'string' ? author.room : author.room.id
+		const roomId = extractRoomId(this.room)
 
 		try {
 			const json: IMessage = {
@@ -72,8 +76,8 @@ export default class Message {
 		}
 	})
 
-	fetchAuthor = () => new Promise<Message>(async (resolve, reject) => {
-		const authorId = typeof this.author === 'string' ? this.author : this.author.id
+	public fetchAuthor = () => new Promise<Message>(async (resolve, reject) => {
+		const authorId = extractUserId(this.author)
 
 		try {
 			const author = await new User().load(authorId)
@@ -85,8 +89,8 @@ export default class Message {
 		}
 	})
 
-	fetchRoom = () => new Promise<Message>(async (resolve, reject) => {
-		const roomId = typeof this.room === 'string' ? this.room : this.room.id
+	public fetchRoom = () => new Promise<Message>(async (resolve, reject) => {
+		const roomId = extractRoomId(this.room)
 
 		try {
 			const room = await new Room().load(roomId)
@@ -98,7 +102,7 @@ export default class Message {
 		}
 	})
 
-	destroy = (requester?: User) => new Promise(async (resolve, reject) => {
+	public destroy = (requester?: User) => new Promise(async (resolve, reject) => {
 		try {
 			await StoredMessage.deleteOne({
 				'info.id': this.id
@@ -113,13 +117,16 @@ export default class Message {
 		}
 	})
 
-	setup = (json: IMessage) => {
+	public setup = (json: IMessage) => {
 		this.id = json.info.id
 		this.createdAt = json.info.createdAt
 
 		this.content = json.data.content
 
-		if (!this.author) this.author = json.info.author
-		if (!this.room) this.room = json.info.room
+		if (!this.author)
+			this.author = json.info.author
+
+		if (!this.room)
+			this.room = json.info.room
 	}
 }

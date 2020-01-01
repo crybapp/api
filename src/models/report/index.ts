@@ -1,32 +1,35 @@
-import { UserResolvable } from '../user'
-import { RoomResolvable } from '../room'
 import { MessageResolvable } from '../message'
+import { RoomResolvable } from '../room'
+import { UserResolvable } from '../user'
 
-import IReport from './defs'
 import StoredReport from '../../schemas/report.schema'
+import IReport from './defs'
 
 import { ReportNotFound } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractMessageId, extractRoomId, extractUserId } from '../../utils/helpers.utils'
 
 export default class Report {
-	id: string
-	createdAt: number
-	createdBy: UserResolvable
+	public id: string
+	public createdAt: number
+	public createdBy: UserResolvable
 
-	message: MessageResolvable
-	room: RoomResolvable
+	public message: MessageResolvable
+	public room: RoomResolvable
 
 	constructor(json?: IReport) {
-		if (!json) return
+		if (!json)
+			return
 
 		this.setup(json)
 	}
 
-	load = () => new Promise<Report>(async (resolve, reject) => {
+	public load = () => new Promise<Report>(async (resolve, reject) => {
 		try {
 			const doc = await StoredReport.findOne({ 'info.id': this.id })
-			if (!doc) throw ReportNotFound
+
+			if (!doc)
+				throw ReportNotFound
 
 			this.setup(doc)
 
@@ -36,7 +39,11 @@ export default class Report {
 		}
 	})
 
-	create = (message: MessageResolvable, room: RoomResolvable, reporter?: UserResolvable) => new Promise<Report>(async (resolve, reject) => {
+	public create = (
+		message: MessageResolvable,
+		room: RoomResolvable,
+		reporter?: UserResolvable
+	) => new Promise<Report>(async (resolve, reject) => {
 		try {
 			const messageId = extractMessageId(message),
 				roomId = extractRoomId(room)
@@ -64,7 +71,7 @@ export default class Report {
 		}
 	})
 
-	destroy = () => new Promise(async (resolve, reject) => {
+	public destroy = () => new Promise(async (resolve, reject) => {
 		try {
 			await StoredReport.deleteOne({
 				'info.id': this.id
@@ -76,12 +83,17 @@ export default class Report {
 		}
 	})
 
-	setup = (json: IReport) => {
+	public setup = (json: IReport) => {
 		this.id = json.info.id
 		this.createdAt = json.info.createdAt
 
-		if (!this.createdBy) this.createdBy = json.info.createdBy
-		if (!this.message) this.message = json.data.messageId
-		if (!this.room) this.room = json.data.roomId
+		if (!this.createdBy)
+			this.createdBy = json.info.createdBy
+
+		if (!this.message)
+			this.message = json.data.messageId
+
+		if (!this.room)
+			this.room = json.data.roomId
 	}
 }

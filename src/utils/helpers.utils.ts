@@ -12,16 +12,24 @@ export const UNALLOCATED_PORTALS_KEYS: PortalAllocationStatus[] = ['waiting', 'r
 export const extractUserId = (user: UserResolvable) => (
 	user ? (typeof user === 'string' ? user : user.id) : null
 // Extract Target id
-), extractTargetId = (target: TargetResolvable) => (
+)
+
+export const extractTargetId = (target: TargetResolvable) => (
 	target ? (typeof target === 'string' ? target : target.id) : null
 // Extract Room id
-), extractRoomId = (room: RoomResolvable) => (
+)
+
+export const extractRoomId = (room: RoomResolvable) => (
 	room ? (typeof room === 'string' ? room : room.id) : null
 // Extract Message id
-), extractMessageId = (message: MessageResolvable) => (
+)
+
+export const extractMessageId = (message: MessageResolvable) => (
 	message ? (typeof message === 'string' ? message : message.id) : null
 // Extract Invite id
-), extractInviteId = (invite: InviteResolvable) => (
+)
+
+export const extractInviteId = (invite: InviteResolvable) => (
 	invite ? (typeof invite === 'string' ? invite : invite.id) : null
 )
 
@@ -51,9 +59,11 @@ export class GroupedMessage {
 }
 
 export const groupMessages = (messages: Message[]) => {
-	if (messages.length === 0) return
+	if (messages.length === 0)
+		return
 
 	const grouped: GroupedMessage[] = []
+
 	let lastGroupedUserId: string = extractUserId(messages[0].author)
 
 	messages.forEach(message => {

@@ -3,12 +3,13 @@ import ISettings from './defs'
 import client from '../../config/redis.config'
 
 export default class Settings {
-	patch = (update: ISettings) => new Promise<ISettings>(async (resolve, reject) => {
+	public patch = (update: ISettings) => new Promise<ISettings>(async (resolve, reject) => {
 		try {
 			const current = await client.hgetall('settings') as ISettings
 
 			Object.keys(update).forEach(key => {
-				if (!update[key]) return
+				if (!update[key])
+					return
 
 				current[key] = update[key]
 			})

@@ -10,7 +10,9 @@ const app = express()
 
 app.post('/', authenticate, async (req, res) => {
 	const { user } = req as { user: User }
-	if (!user.room) return handleError(UserNotInRoom, res)
+
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
 	try {
 		const invite = await new Invite().create(null, 'room', null, { system: false }, req.user)
@@ -22,15 +24,16 @@ app.post('/', authenticate, async (req, res) => {
 })
 
 app.post('/:code', authenticate, async (req, res) => {
-	const { user } = req as { user: User }
-	const { code } = req.params
-	const { type } = req.body
+	const { user } = req as { user: User },
+		{ code } = req.params,
+		{ type } = req.body
 
 	try {
-		const invite = await new Invite().findFromCode(code)
+		const invite = await new Invite().findFromCode(code),
+			target = await invite.use(user, type)
 
-		const target = await invite.use(user, type)
-		if (!target) return res.sendStatus(200)
+		if (!target)
+			return res.sendStatus(200)
 
 		res.send(target)
 	} catch (error) {
@@ -42,10 +45,11 @@ app.get('/:code/peek', async (req, res) => {
 	const { code } = req.params
 
 	try {
-		const invite = await new Invite().findFromCode(code)
+		const invite = await new Invite().findFromCode(code),
+			{ target } = await invite.fetchTarget()
 
-		const { target } = await invite.fetchTarget()
-		if (!target) return res.sendStatus(401)
+		if (!target)
+			return res.sendStatus(401)
 
 		res.send(target)
 	} catch (error) {

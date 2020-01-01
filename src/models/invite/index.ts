@@ -1,43 +1,46 @@
 import Chance from 'chance'
 
-const chance = new Chance()
-
-import User, { UserResolvable } from '../user'
 import Room from '../room'
+import User, { UserResolvable } from '../user'
 
-import IInvite, { TargetResolvable, TargetType, InviteOptions, InviteHeaders } from './defs'
 import StoredInvite from '../../schemas/invite.schema'
+import IInvite, { IInviteHeaders, IInviteOptions, TargetResolvable, TargetType } from './defs'
 
+import { InviteNotFound, TargetTypeNotFound, UserAlreadyInRoom } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractTargetId, extractUserId } from '../../utils/helpers.utils'
-import { UserAlreadyInRoom, InviteNotFound, TargetTypeNotFound } from '../../utils/errors.utils'
 
 export type InviteResolvable = Invite | string
 
+const chance = new Chance()
+
 export default class Invite {
-	id: string
-	createdAt: number
-	createdBy?: UserResolvable
+	public id: string
+	public createdAt: number
+	public createdBy?: UserResolvable
 
-	active: boolean
+	public active: boolean
 
-	target?: TargetResolvable
-	targetType: TargetType
+	public target?: TargetResolvable
+	public targetType: TargetType
 
-	code: string
-	uses: string[]
-	options: InviteOptions
+	public code: string
+	public uses: string[]
+	public options: IInviteOptions
 
 	constructor(json?: IInvite) {
-		if (!json) return
+		if (!json)
+			return
 
 		this.setup(json)
 	}
 
-	load = (id: string) => new Promise<Invite>(async (resolve, reject) => {
+	public load = (id: string) => new Promise<Invite>(async (resolve, reject) => {
 		try {
 			const doc = await StoredInvite.findOne({ 'info.id': id })
-			if (!doc) throw InviteNotFound
+
+			if (!doc)
+				throw InviteNotFound
 
 			this.setup(doc)
 
@@ -47,7 +50,7 @@ export default class Invite {
 		}
 	})
 
-	findFromCode = (code: string) => new Promise<Invite>(async (resolve, reject) => {
+	public findFromCode = (code: string) => new Promise<Invite>(async (resolve, reject) => {
 		try {
 			const doc = await StoredInvite.findOne({
 				$and: [
@@ -59,7 +62,9 @@ export default class Invite {
 					}
 				]
 			})
-			if (!doc) throw InviteNotFound
+
+			if (!doc)
+				throw InviteNotFound
 
 			this.setup(doc)
 
@@ -69,8 +74,9 @@ export default class Invite {
 		}
 	})
 
-	use = (user: User, type?: TargetType) => new Promise<TargetResolvable>(async (resolve, reject) => {
-		if (type && type !== this.targetType) return reject(TargetTypeNotFound)
+	public use = (user: User, type?: TargetType) => new Promise<TargetResolvable>(async (resolve, reject) => {
+		if (type && type !== this.targetType)
+			return reject(TargetTypeNotFound)
 
 		if (this.targetType === 'room' && user.room)
 			return reject(UserAlreadyInRoom)
@@ -99,7 +105,13 @@ export default class Invite {
 		}
 	})
 
-	create = (target: TargetResolvable, targetType: TargetType, options?: InviteOptions, headers?: InviteHeaders, creator?: UserResolvable) => new Promise<Invite>(async (resolve, reject) => {
+	public create = (
+		target: TargetResolvable,
+		targetType: TargetType,
+		options?: IInviteOptions,
+		headers?: IInviteHeaders,
+		creator?: UserResolvable
+	) => new Promise<Invite>(async (resolve, reject) => {
 		try {
 			const json: IInvite = {
 				info: {
@@ -141,7 +153,7 @@ export default class Invite {
 		}
 	})
 
-	fetchTarget = () => new Promise<Invite>(async (resolve, reject) => {
+	public fetchTarget = () => new Promise<Invite>(async (resolve, reject) => {
 		try {
 			const targetId = extractTargetId(this.target)
 
@@ -159,7 +171,7 @@ export default class Invite {
 		}
 	})
 
-	destroy = () => new Promise(async (resolve, reject) => {
+	public destroy = () => new Promise(async (resolve, reject) => {
 		try {
 			await StoredInvite.deleteOne({
 				'info.id': this.id
@@ -171,7 +183,7 @@ export default class Invite {
 		}
 	})
 
-	setup = (json: IInvite) => {
+	public setup = (json: IInvite) => {
 		this.id = json.info.id
 		this.createdAt = json.info.createdAt
 		this.createdBy = json.info.createdBy

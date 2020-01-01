@@ -13,14 +13,14 @@ interface IDiscordAuthentication {
 export const DISCORD_OAUTH_BASE_URL = 'https://discordapp.com/api/oauth2/authorize'
 export const DISCORD_OAUTH_SCOPES = ['identify', 'email']
 
-interface AvatarConstruction {
+interface IAvatarConstruction {
 	userId: string
 	email: string
 
 	hash?: string
 }
 
-export const constructAvatar = (data: AvatarConstruction) => {
+export const constructAvatar = (data: IAvatarConstruction) => {
 	if (!data.hash)
 		return `https://www.gravatar.com/avatar/${md5(data.email || '')}?d=retro&s=128`
 
@@ -66,7 +66,9 @@ const sendOauthRequest = (opts: object) => axios({
 	})
 })
 
-export const exchangeRefreshToken = (refresh_token: string) => new Promise<IDiscordAuthentication>(async (resolve, reject) => {
+export const exchangeRefreshToken = (
+	refresh_token: string
+) => new Promise<IDiscordAuthentication>(async (resolve, reject) => {
 	try {
 		const { data } = await sendOauthRequest({
 			refresh_token,
