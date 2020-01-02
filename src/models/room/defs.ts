@@ -48,4 +48,4 @@ export default interface IRoom {
 	}
 }
 
-export interface IStoredRoom extends IRoom, Document {}
+export interface IStoredRoom extends IRoom, Document { }

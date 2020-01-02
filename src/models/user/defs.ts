@@ -40,4 +40,4 @@ export default interface IUser {
 	profile: IProfile
 }
 
-export interface IStoredUser extends IUser, Document {}
+export interface IStoredUser extends IUser, Document { }

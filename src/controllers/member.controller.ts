@@ -9,32 +9,32 @@ import { extractUserId } from '../utils/helpers.utils'
 const app = express()
 
 app.post('/:id/kick', authenticate, async (req, res) => {
-		const { user } = req as { user: User }
+	const { user } = req as { user: User }
 
-		if (!user.room)
-			return handleError(UserNotInRoom, res)
+	if (!user.room)
+		return handleError(UserNotInRoom, res)
 
-		const { id } = req.params
+	const { id } = req.params
 
-		if (typeof user.room === 'string')
-				return res.status(500)
+	if (typeof user.room === 'string')
+		return res.status(500)
 
-		if (extractUserId(user.room.owner) !== user.id)
-				return res.status(401)
+	if (extractUserId(user.room.owner) !== user.id)
+		return res.status(401)
 
-		try {
-				const { members } = await user.room.fetchMembers(),
-					member = members.find(({ id: userId }) => userId === id)
+	try {
+		const { members } = await user.room.fetchMembers(),
+			member = members.find(({ id: userId }) => userId === id)
 
-				if (!member)
-					return res.status(409)
+		if (!member)
+			return res.status(409)
 
-				await member.leaveRoom()
+		await member.leaveRoom()
 
-				res.sendStatus(200)
-		} catch (error) {
-				handleError(error, res)
-		}
+		res.sendStatus(200)
+	} catch (error) {
+		handleError(error, res)
+	}
 })
 
 app.post('/:id/report', authenticate, async (_, res) => res.sendStatus(200))

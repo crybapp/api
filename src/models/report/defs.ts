@@ -12,4 +12,4 @@ export default interface IReport {
 	}
 }
 
-export interface IStoredReport extends IReport, Document {}
+export interface IStoredReport extends IReport, Document { }

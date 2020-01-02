@@ -37,8 +37,8 @@ const fetchUser = async (
 		if (process.env.AUTH_BASE_URL) {
 			const { authorization } = req.headers,
 				token = authorization.split(' ')[1],
-				{ data } = await axios.post(process.env.AUTH_BASE_URL, { token }),
-				user = new User(data)
+				{ data: { resource } } = await axios.post(process.env.AUTH_BASE_URL, { token }),
+				user = new User(resource)
 
 			resolve(user)
 		} else

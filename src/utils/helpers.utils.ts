@@ -11,22 +11,22 @@ export const UNALLOCATED_PORTALS_KEYS: PortalAllocationStatus[] = ['waiting', 'r
 // Extract User id
 export const extractUserId = (user: UserResolvable) => (
 	user ? (typeof user === 'string' ? user : user.id) : null
-// Extract Target id
+	// Extract Target id
 )
 
 export const extractTargetId = (target: TargetResolvable) => (
 	target ? (typeof target === 'string' ? target : target.id) : null
-// Extract Room id
+	// Extract Room id
 )
 
 export const extractRoomId = (room: RoomResolvable) => (
 	room ? (typeof room === 'string' ? room : room.id) : null
-// Extract Message id
+	// Extract Message id
 )
 
 export const extractMessageId = (message: MessageResolvable) => (
 	message ? (typeof message === 'string' ? message : message.id) : null
-// Extract Invite id
+	// Extract Invite id
 )
 
 export const extractInviteId = (invite: InviteResolvable) => (

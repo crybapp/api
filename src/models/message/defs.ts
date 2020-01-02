@@ -13,4 +13,4 @@ export default interface IMessage {
 	}
 }
 
-export interface IStoredMessage extends IMessage, Document {}
+export interface IStoredMessage extends IMessage, Document { }

@@ -81,7 +81,7 @@ export default class User {
 				avatar = constructAvatar({
 					userId: id,
 					email, hash:
-					avatarHash
+						avatarHash
 				})
 
 			if (existing) {

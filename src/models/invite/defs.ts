@@ -39,4 +39,4 @@ export default interface IInvite {
 	}
 }
 
-export interface IStoredInvite extends IInvite, Document {}
+export interface IStoredInvite extends IInvite, Document { }
