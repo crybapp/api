@@ -253,9 +253,12 @@ export default class Room {
         try {
             const allocation: PortalAllocation = {
                 id,
+                janusId: 1,
+                janusIp: "0.0.0.0", 
                 status: 'creating',
                 lastUpdatedAt: Date.now()
             }
+
 
             await StoredRoom.updateOne({
                 'info.id': this.id
@@ -295,6 +298,8 @@ export default class Room {
             })
 
             this.portal = currentAllocation
+
+            console.log(":::::: End status update ::::::")
 
             resolve(this)
         } catch(error) {

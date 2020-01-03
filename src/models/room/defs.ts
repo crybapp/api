@@ -18,6 +18,8 @@ export type PortalAllocationStatus = 'waiting' | 'requested' | 'in-queue' | 'cre
 
 export interface PortalAllocation {
     id?: string
+    janusId?:number,
+    janusIp?: string,
 
     status: PortalAllocationStatus
     lastUpdatedAt?: number

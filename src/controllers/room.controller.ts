@@ -13,12 +13,13 @@ const app = express(),
         AVAILABLE_TYPES: RoomType[] = ['vm']
 
 app.get('/', authenticate, async (req, res) => {
-    const { user } = req as { user: User }
-    if(!user.room) return handleError(UserNotInRoom, res)
-
-    const roomId = typeof user.room === 'string' ? user.room : user.room.id
-
     try {
+        const { user } = req as { user: User }
+        if(!user.room) return handleError(UserNotInRoom, res)
+
+        const roomId = typeof user.room === 'string' ? user.room : user.room.id
+
+    
         const room = await new Room().load(roomId)
 
         await room.fetchMembers()
@@ -35,14 +36,15 @@ app.get('/', authenticate, async (req, res) => {
 })
 
 app.post('/', authenticate, async (req, res) => {
-    const { user } = req as { user: User }
-    if(user.room) return handleError(UserAlreadyInRoom, res)
-
-    const { name } = req.body
-    if(name.length === 0) return handleError('RoomNameTooShort', res)
-    if(name.length >= 30) return handleError('RoomNameTooLong', res)
-
     try {
+        const { user } = req as { user: User }
+        if(user.room) return handleError(UserAlreadyInRoom, res)
+
+        const { name } = req.body
+        if(name.length === 0) return handleError('RoomNameTooShort', res)
+        if(name.length >= 30) return handleError('RoomNameTooLong', res)
+
+    
         const room = await new Room().create(name, user)
 
         res.send(room)

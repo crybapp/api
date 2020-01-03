@@ -88,7 +88,9 @@ export default class WSSocket {
                 const { room } = user as { room: Room }
 
                 const message = new WSMessage(0, { u: user.id, presence: 'online' }, 'PRESENCE_UPDATE')
-                message.broadcastRoom(room, [ user.id ])
+                message.broadcastRoom(room, [ user.id ]).catch((reason) => {
+                    console.log(`Unable to broadcast to room: ${reason}`)
+                })
 
                 if(room.portal.status !== 'open')
                     room.fetchMembers().then(({ members }) => {
@@ -96,9 +98,14 @@ export default class WSSocket {
                             room.createPortal()
                     })
                 else if(room.portal.id) {
-                    const token = signApertureToken(room.portal.id),
-                            apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-                    apertureMessage.broadcast([ extractUserId(user) ])
+                    //JanusId is -1 when a janus instance is not running. 
+                    if(room.portal.janusId == -1) {
+                        const token = signApertureToken(room.portal.id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+                        apertureMessage.broadcast([ extractUserId(user) ])
+                    } else {
+                        const janusMessage = new WSMessage(0, { id: room.portal.janusId, ip: room.portal.janusIp }, 'JANUS_CONFIG')
+                        janusMessage.broadcast([ extractUserId(user) ])
+                    }
                 }
             }
 

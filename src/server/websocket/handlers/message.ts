@@ -8,6 +8,7 @@ import User from '../../../models/user'
 import logMessage from '../log'
 import { validateControllerEvent } from '../../../utils/validate.utils'
 import { extractRoomId, extractUserId } from '../../../utils/helpers.utils'
+import User from '../../../models/user'
 
 const pub = createPubSubClient(),
         CONTROLLER_EVENT_TYPES: WSEventType[] = ['KEY_DOWN', 'KEY_UP', 'PASTE_TEXT', 'MOUSE_MOVE', 'MOUSE_SCROLL', 'MOUSE_DOWN', 'MOUSE_UP']
@@ -28,6 +29,10 @@ export default async (message: WSEvent, socket: WSSocket) => {
             if(typeof socket.user.room === 'string') return // Check if room is unreadable
             if(!socket.user.room.portal.id) socket.set('user', await new User().load(socket.user.id)) // Workaround for controller bug
             if(await client.hget('controller', extractRoomId(socket.user.room)) !== extractUserId(socket.user)) return // Check if the user has the controller
+
+            if(!socket.user.room.portal.id) {
+                socket.set('user', await new User().load(socket.user.id))
+            }
 
             pub.publish('portals', JSON.stringify({
                 op,
