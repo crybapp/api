@@ -1,5 +1,7 @@
 import { Document } from 'mongoose'
 
+export type RoomType = 'vm'
+
 /**
  * open - The portal is open
  * starting - The portal has been created and is now starting
@@ -7,7 +9,7 @@ import { Document } from 'mongoose'
  * in-queue - The portal is in a queue to be created by the microservice
  * requested - A portal has been requested and is being allocated by the microservice
  * waiting - The room is waiting until the right conditions are met for the microservice to be contacted
- * 
+ *
  * error - An error occured
  * closed - The portal was closed for one reason or another
  */
@@ -29,8 +31,9 @@ export default interface IRoom {
         createdAt: number
         endedAt?: number
 
-        portal: PortalAllocation
-        
+        type: RoomType
+        portal?: PortalAllocation
+
         owner: string
         controller: string
     }

@@ -103,7 +103,7 @@ export const MessageNotFound: APIResponse = {
     response: 'MESSAGE_NOT_FOUND',
     error: {
         title: 'Message Not Found',
-        description: 'A message with this id was not found'
+        description: 'A message with this ID was not found'
     },
     status: 404
 }
@@ -112,7 +112,7 @@ export const ReportNotFound: APIResponse = {
     response: 'REPORT_NOT_FOUND',
     error: {
         title: 'Report Not Found',
-        description: 'A report with this id was not found'
+        description: 'A report with this ID was not found'
     },
     status: 404
 }
@@ -121,7 +121,7 @@ export const BanNotFound: APIResponse = {
     response: 'BAN_NOT_FOUND',
     error: {
         title: 'Ban Not Found',
-        description: 'A ban with this id was not found'
+        description: 'A ban with this ID was not found'
     },
     status: 404
 }
@@ -157,7 +157,7 @@ export const NoPortalFound: APIResponse = {
     response: 'NO_PORTAL_FOUND',
     error: {
         title: 'No Portal Found',
-        description: 'A portal with this id was not found'
+        description: 'A portal with this ID was not found'
     },
     status: 404
 }
@@ -166,7 +166,7 @@ export const PortalNotOpen: APIResponse = {
     response: 'PORTAL_NOT_OPEN',
     error: {
         title: 'Portal Not Open',
-        description: 'This portal is not currently open, please check back later'
+        description: 'This portal is not currently open, please try again later'
     },
     status: 409
 }

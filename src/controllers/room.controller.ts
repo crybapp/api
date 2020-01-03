@@ -3,11 +3,14 @@ import express from 'express'
 import User from '../models/user'
 import Room from '../models/room'
 
+import { RoomType } from '../models/room/defs'
+
 import { extractUserId } from '../utils/helpers.utils'
 import { authenticate } from '../config/passport.config'
 import { handleError, UserNotInRoom, UserAlreadyInRoom } from '../utils/errors.utils'
 
-const app = express()
+const app = express(),
+        AVAILABLE_TYPES: RoomType[] = ['vm']
 
 app.get('/', authenticate, async (req, res) => {
     try {
@@ -127,6 +130,28 @@ app.post('/leave', authenticate, async (req, res) => {
 
     try {
         await user.leaveRoom()
+
+        res.sendStatus(200)
+    } catch(error) {
+        handleError(error, res)        
+    }
+})
+
+app.patch('/type', authenticate, async (req, res) => {
+    const { user } = req as { user: User }, { type } = req.body as { type: RoomType }
+    if(!user.room) return handleError(UserNotInRoom, res)
+
+    if(typeof user.room === 'string')
+        return res.status(500)
+
+    if(extractUserId(user.room.owner) !== user.id)
+        return res.status(401)
+
+    if(AVAILABLE_TYPES.indexOf(type) === -1)
+        return res.status(406)
+
+    try {
+        await user.room.updateType(type)
 
         res.sendStatus(200)
     } catch(error) {
