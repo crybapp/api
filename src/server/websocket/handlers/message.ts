@@ -3,7 +3,6 @@ import client, { createPubSubClient } from '../../../config/redis.config'
 import WSEvent, { WSEventType } from '../models/event'
 import WSSocket from '../models/socket'
 import WSMessage from '../models/message'
-import User from '../../../models/user'
 
 import logMessage from '../log'
 import { validateControllerEvent } from '../../../utils/validate.utils'
