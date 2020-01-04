@@ -47,7 +47,7 @@ export default class Message {
 		if (!author.room)
 			return reject(UserNotInRoom)
 
-		const roomId = extractRoomId(this.room)
+		const roomId = extractRoomId(author.room)
 
 		try {
 			const json: IMessage = {
