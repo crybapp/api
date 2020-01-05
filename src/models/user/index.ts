@@ -1,3 +1,5 @@
+import { Message } from '@cryb/mesa'
+
 import StoredUser from '../../schemas/user.schema'
 import IUser, { IDiscordCredentials, Role } from './defs'
 
@@ -11,11 +13,13 @@ import StoredMessage from '../../schemas/message.schema'
 
 import config from '../../config/defaults.js'
 import client from '../../config/redis.config'
-import WSMessage from '../../server/websocket/models/message'
+import dispatcher from '../../config/dispatcher.config'
+
 import { constructAvatar, exchangeRefreshToken, fetchUserProfile } from '../../services/oauth2/discord.service'
 import { TooManyMembers, UserNotFound, UserNotInRoom } from '../../utils/errors.utils'
 import { generateFlake, signToken } from '../../utils/generate.utils'
 import { extractUserId, UNALLOCATED_PORTALS_KEYS, extractRoomId } from '../../utils/helpers.utils'
+import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
 
 export type UserResolvable = User | string
 
@@ -168,8 +172,8 @@ export default class User {
 			this.icon = icon
 
 			if (this.room) {
-				const message = new WSMessage(0, this, 'USER_UPDATE')
-				message.broadcastRoom(this.room, [this.id])
+				const message = new Message(0, this, 'USER_UPDATE')
+				dispatcher.dispatch(message, await fetchRoomMemberIds(this.room), [this.id])
 			}
 
 			resolve(this)
@@ -181,7 +185,7 @@ export default class User {
 	public signToken = () => new Promise<string>(async (resolve, reject) => {
 		try {
 			const { id } = this,
-				token = await signToken({ id, type: 'user' })
+				token = signToken({ id, type: 'user' })
 
 			resolve(token)
 		} catch (error) {
@@ -257,8 +261,8 @@ export default class User {
 			)
 				createPortal(room)
 
-			const message = new WSMessage(0, { ...this, room: undefined }, 'USER_JOIN')
-			message.broadcastRoom(room)
+			const message = new Message(0, { ...this, room: undefined }, 'USER_JOIN')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(room))
 
 			this.room = room
 
@@ -295,8 +299,8 @@ export default class User {
 				if (leavingUserIsOwner)
 					this.room.transferOwnership(this.room.members[0])
 
-				const message = new WSMessage(0, { u: this.id }, 'USER_LEAVE')
-				message.broadcastRoom(this.room)
+				const message = new Message(0, { u: this.id }, 'USER_LEAVE')
+				dispatcher.dispatch(message, await fetchRoomMemberIds(this.room))
 			}
 
 			await StoredUser.updateOne({

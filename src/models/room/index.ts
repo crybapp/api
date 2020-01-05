@@ -1,3 +1,5 @@
+import { Message as MesaMessage } from '@cryb/mesa'
+
 import Invite from '../invite'
 import Message from '../message'
 import User, { UserResolvable } from '../user'
@@ -10,8 +12,8 @@ import { createPortal, destroyPortal } from '../../drivers/portals.driver'
 import StoredRoom from '../../schemas/room.schema'
 import IRoom, { IPortalAllocation, RoomType } from './defs'
 
+import dispatcher from '../../config/dispatcher.config'
 import client from '../../config/redis.config'
-import WSMessage from '../../server/websocket/models/message'
 import {
 	ControllerIsNotAvailable,
 	PortalNotOpen,
@@ -22,6 +24,7 @@ import {
 } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractUserId, GroupedMessage, groupMessages } from '../../utils/helpers.utils'
+import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
 
 export type RoomResolvable = Room | string
 
@@ -126,8 +129,8 @@ export default class Room {
 			this.invites.push(invite)
 
 			if (system) {
-				const message = new WSMessage(0, invite, 'INVITE_UPDATE')
-				message.broadcast([extractUserId(this.owner)])
+				const message = new MesaMessage(0, invite, 'INVITE_UPDATE')
+				dispatcher.dispatch(message, [extractUserId(this.owner)])
 			}
 
 			resolve(invite)
@@ -148,8 +151,8 @@ export default class Room {
 				}
 			})
 
-			const message = new WSMessage(0, { u: newOwnerId }, 'OWNER_UPDATE')
-			message.broadcastRoom(this)
+			const message = new MesaMessage(0, { u: newOwnerId }, 'OWNER_UPDATE')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(this))
 
 			this.owner = to
 
@@ -292,8 +295,8 @@ export default class Room {
 				}
 			})
 
-			const message = new WSMessage(0, allocation, 'PORTAL_UPDATE')
-			message.broadcastRoom(this)
+			const message = new MesaMessage(0, allocation, 'PORTAL_UPDATE')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(this))
 
 			this.portal = allocation
 
@@ -346,8 +349,8 @@ export default class Room {
 
 			client.hset('controller', this.id, fromId)
 
-			const message = new WSMessage(0, { u: fromId }, 'CONTROLLER_UPDATE')
-			message.broadcastRoom(this, [fromId])
+			const message = new MesaMessage(0, { u: fromId }, 'CONTROLLER_UPDATE')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(this), [fromId])
 
 			this.controller = fromId
 
@@ -377,8 +380,8 @@ export default class Room {
 
 			client.hset('controller', this.id, toId)
 
-			const message = new WSMessage(0, { u: toId }, 'CONTROLLER_UPDATE')
-			message.broadcastRoom(this, [fromId])
+			const message = new MesaMessage(0, { u: toId }, 'CONTROLLER_UPDATE')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(this), [fromId])
 
 			this.controller = toId
 
@@ -407,8 +410,8 @@ export default class Room {
 
 			client.hdel('controller', this.id)
 
-			const message = new WSMessage(0, { u: null }, 'CONTROLLER_UPDATE')
-			message.broadcastRoom(this, [senderId])
+			const message = new MesaMessage(0, { u: null }, 'CONTROLLER_UPDATE')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(this), [senderId])
 
 			this.controller = null
 
@@ -461,8 +464,8 @@ export default class Room {
 
 	public destroy = () => new Promise(async (resolve, reject) => {
 		try {
-			const message = new WSMessage(0, {}, 'ROOM_DESTROY')
-			message.broadcastRoom(this)
+			const message = new MesaMessage(0, {}, 'ROOM_DESTROY')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(this))
 
 			await StoredRoom.deleteOne({ 'info.id': this.id })
 			await StoredMessage.deleteMany({ 'info.room': this.id })

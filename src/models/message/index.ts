@@ -1,7 +1,7 @@
+import { Message as MesaMessage } from '@cryb/mesa'
+
 import Room, { RoomResolvable } from '../room'
 import User, { UserResolvable } from '../user'
-
-import WSMessage from '../../server/websocket/models/message'
 
 import StoredMessage from '../../schemas/message.schema'
 import IMessage from './defs'
@@ -9,6 +9,8 @@ import IMessage from './defs'
 import { MessageNotFound, UserNotInRoom } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractRoomId, extractUserId } from '../../utils/helpers.utils'
+import dispatcher from '../../config/dispatcher.config'
+import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
 
 export type MessageResolvable = Message | string
 
@@ -67,8 +69,8 @@ export default class Message {
 
 			this.setup(json)
 
-			const message = new WSMessage(0, this, 'MESSAGE_CREATE')
-			message.broadcastRoom(author.room, [author.id])
+			const message = new MesaMessage(0, this, 'MESSAGE_CREATE')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(author.room), [author.id])
 
 			resolve(this)
 		} catch (error) {
@@ -108,8 +110,8 @@ export default class Message {
 				'info.id': this.id
 			})
 
-			const message = new WSMessage(0, { id: this.id }, 'MESSAGE_DESTROY')
-			message.broadcastRoom(this.room, [extractUserId(requester || this.author)])
+			const message = new MesaMessage(0, { id: this.id }, 'MESSAGE_DESTROY')
+			dispatcher.dispatch(message, await fetchRoomMemberIds(this.room), [extractUserId(requester || this.author)])
 
 			resolve()
 		} catch (error) {

@@ -1,14 +1,16 @@
+import { Message } from '@cryb/mesa'
 import express from 'express'
 
 import Room from '../models/room'
 import StoredRoom from '../schemas/room.schema'
 
 import { PortalAllocationStatus } from '../models/room/defs'
-import WSMessage from '../server/websocket/models/message'
 
+import dispatcher from '../config/dispatcher.config'
 import authenticate from '../server/middleware/authenticate.internal.middleware'
 import { signApertureToken } from '../utils/aperture.utils'
 import { handleError, RoomNotFound } from '../utils/errors.utils'
+import { fetchRoomMemberIds } from '../utils/fetchers.utils'
 
 const app = express()
 
@@ -53,14 +55,14 @@ app.put('/portal', authenticate, async (req, res) => {
 			/**
 			 * Broadcast allocation to all online clients
 			 */
-			const updateMessage = new WSMessage(0, allocation, 'PORTAL_UPDATE')
-			updateMessage.broadcast(online)
+			const updateMessage = new Message(0, allocation, 'PORTAL_UPDATE')
+			dispatcher.dispatch(updateMessage, online)
 
 			if (status === 'open') {
 				const token = signApertureToken(id),
-					apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+					apertureMessage = new Message(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
 
-				apertureMessage.broadcast(online)
+				dispatcher.dispatch(apertureMessage, online)
 			}
 		}
 
@@ -73,12 +75,12 @@ app.put('/portal', authenticate, async (req, res) => {
 app.post('/queue', authenticate, (req, res) => {
 	const { queue } = req.body as { queue: string[] }
 
-	queue.forEach((id, i) => {
+	queue.forEach(async (id, i) => {
 		try {
 			const op = 0, d = { pos: i, len: queue.length }, t = 'PORTAL_QUEUE_UPDATE',
-				message = new WSMessage(op, d, t)
+				message = new Message(op, d, t)
 
-			message.broadcastRoom(id)
+			dispatcher.dispatch(message, await fetchRoomMemberIds(id))
 		} catch (error) {
 			handleError(error, res)
 		}

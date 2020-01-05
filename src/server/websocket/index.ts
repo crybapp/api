@@ -1,133 +1,116 @@
-import WebSocket, { Server } from 'ws'
+import Mesa, { Message } from '@cryb/mesa'
 
-import IWSEvent from './models/event'
-import WSMessage from './models/message'
-import WSSocket from './models/socket'
+import axios from 'axios'
 
 import config from '../../config/defaults'
-import client, { createPubSubClient } from '../../config/redis.config'
+import redis, { createPubSubClient } from '../../config/redis.config'
 import log from '../../utils/log.utils'
 
+import Room from '../../models/room'
+import User from '../../models/user'
+
+import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
+import { verifyToken } from '../../utils/generate.utils'
 import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
-import handleInternalMessage, { IWSInternalEvent } from './handlers/internal'
-import handleMessage from './handlers/message'
+import { validateControllerEvent } from '../../utils/validate.utils'
 
-/**
- * Redis PUB/SUB
- */
-const sub = createPubSubClient()
+const CONTROLLER_EVENT_TYPES = ['KEY_DOWN', 'KEY_UP', 'PASTE_TEXT', 'MOUSE_MOVE', 'MOUSE_SCROLL', 'MOUSE_DOWN', 'MOUSE_UP'],
+	pub = createPubSubClient()
 
-type ConfigKey = 'c_heartbeat_interval' | 'c_reconnect_interval' | 'c_authentication_timeout'
-const fetchConfigItem = async (key: ConfigKey) => parseInt(await client.hget('socket_config', key))
-
-export default (wss: Server) => {
-	sub.on('message', async (_, data) => {
-		try {
-			const { message, recipients, sync }: IWSInternalEvent = JSON.parse(data)
-
-			handleInternalMessage(message, recipients, sync, wss)
-		} catch (error) {
-			console.error('WS Error:', error)
-		}
-	}).subscribe('ws')
-
-	wss.on('connection', async (ws: WebSocket) => {
-		const socket = new WSSocket(ws)
-
+export default (mesa: Mesa) => {
+	mesa.on('connection', client => {
 		log('Connection', 'ws', 'CYAN')
 
-		const c_heartbeat_interval = await fetchConfigItem('c_heartbeat_interval') || 10000,
-			c_reconnect_interval = await fetchConfigItem('c_reconnect_interval') || 5000,
-			c_authentication_timeout = await fetchConfigItem('c_authentication_timeout') || 10000
-
-		// Hello Socket
-		const op = 10, d = { c_heartbeat_interval, c_reconnect_interval, c_authentication_timeout }
-		socket.send(new WSMessage(op, d))
-
-		const authentication_timeout = setTimeout(() => {
-			if (socket.authenticated)
-				return
-
-			ws.close(1008)
-		}, c_authentication_timeout)
-
-		const maxHeartbeatTries = 3
-		let heartbeatTries = 0
-
-		const heartbeat_interval = setInterval(() => {
-			if (!socket.authenticated)
-				return
-
-			const offset = c_heartbeat_interval * 1.25 // Set the offset (leeway) of the last heartbeat at
-
-			if ((socket.lastHeartbeatAt - Date.now()) > -offset)
-				return heartbeatTries = 0 // If there has been a heartbeat update, return and reset the heartbeatTries variable
-
-			// If there have been no heartbeat updates
-			heartbeatTries += 1 // Increate heartbeat tries by one
-			if (heartbeatTries > maxHeartbeatTries)
-				// If there are more heartbeat tries than the maximum allowed heartbeat tries, close the connection
-				ws.close(1001)
-			else
-				// Else, send a new websocket message forcing a hearbeat, attaching the tries and max tries before termination
-				socket.send(new WSMessage(1, { tries: heartbeatTries, max: maxHeartbeatTries }))
-		}, c_heartbeat_interval)
-
-		ws.on('message', async data => {
-			let json: IWSEvent
+		client.authenticate(async ({ token }, done) => {
+			let id: string,
+				user: User
 
 			try {
-				json = JSON.parse(data.toString())
-			} catch (error) {
-				return ws.close(1007)
-			}
+				if (process.env.AUTH_BASE_URL) {
+					const { data } = await axios.post(process.env.AUTH_BASE_URL, { token })
 
-			handleMessage(json, socket)
+					user = new User(data)
+					id = user.id
+				} else {
+					id = verifyToken(token) as string
+					user = await new User().load(id)
+				}
+
+				done(null, { id, user })
+			} catch (error) {
+				done(error, null)
+			}
 		})
 
-		ws.on('close', async () => {
-			clearInterval(heartbeat_interval)
-			clearTimeout(authentication_timeout)
+		client.on('message', async message => {
+			const { opcode, data, type } = message
 
-			if (socket.id) {
-				client.srem('connected_clients', socket.id)
-				client.hdel('client_sessions', socket.id)
+			if (type === 'TYPING_UPDATE') {
+				mesa.send(
+					new Message(0, { u: client.id, typing: !!data.typing }, 'TYPING_UPDATE'),
+					await fetchRoomMemberIds(client.user.room)
+				)
+			} else if (CONTROLLER_EVENT_TYPES.indexOf(type) > -1) {
+				if (!validateControllerEvent(data, type)) return
+
+				if (!client.user)
+					return // Check if the socket is actually authenticated
+
+				if (!client.user.room)
+					return // Check if the user is in a room
+
+				if (typeof client.user.room === 'string')
+					return // Check if room is unreadable
+
+				if (!client.user.room.portal.id)
+					client.updateUser({ id: client.id, user: await new User().load(client.user.id) }) // Workaround for controller bug
+
+				if (await redis.hget('controller', extractRoomId(client.user.room)) !== extractUserId(client.user))
+					return // Check if the user has the controller
+
+				pub.publish('portals', JSON.stringify({
+					op: opcode,
+					d: {
+						t: client.user.room.portal.id,
+						...data
+					},
+					t: type
+				}))
 			}
+		})
 
-			log(`Disconnection ${socket.authenticated ? `with id ${socket.id}` : ''}`, 'ws', 'CYAN')
+		client.on('disconnect', async (code, reason) => {
+			log(`Disconnection ${client.authenticated ? `with id ${client.id}` : ''} code: ${code}, reason: ${reason}`, 'ws', 'CYAN')
 
-			if (socket.user && socket.user.room) {
-				const roomId = extractRoomId(socket.user.room)
+			if (client.authenticated && client.user.room) {
+				// if(await redis.hget('controller', roomId) === client.id)
 
-				// if(await client.hget('controller', roomId) === socket.id)
 				// We can use optimisation here in order to speed up the controller release cycle
 
-				const message = new WSMessage(0, { u: socket.id, presence: 'offline' }, 'PRESENCE_UPDATE')
-				message.broadcastRoom(roomId, [socket.id])
+				const message = new Message(0, { u: client.id, presence: 'offline' }, 'PRESENCE_UPDATE')
+				mesa.send(message, await fetchRoomMemberIds(client.user.room))
 
-				if (typeof socket.user.room === 'string')
+				if (typeof client.user.room === 'string') {
 					try {
-						await socket.user.fetchRoom()
+						await client.user.fetchRoom()
 					} catch (error) {
 						return
 					} // Room doesn't exists
+				}
 
-				if (typeof socket.user.room === 'string')
+				if (typeof client.user.room === 'string')
 					return
 
-				const { room } = socket.user
+				const { room } = client.user as { room: Room }
 
-				if (extractUserId(room.controller) === socket.user.id)
-					room.releaseControl(socket.user)
+				if (extractUserId(room.controller) === client.user.id)
+					room.releaseControl(client.user)
 
 				if (config.destroy_portal_when_empty) {
 					setTimeout(async () =>
 						(await room.load(room.id)).fetchOnlineMemberIds().then(({ portal, online }) => {
-							if (online.length > 0)
-								return
-
-							if (UNALLOCATED_PORTALS_KEYS.indexOf(portal.status) > -1)
-								return
+							if (online.length > 0) return
+							if (UNALLOCATED_PORTALS_KEYS.indexOf(portal.status) > -1) return
 
 							room.destroyPortal()
 						}).catch(console.error), config.empty_room_portal_destroy * 1000

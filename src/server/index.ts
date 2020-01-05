@@ -7,7 +7,8 @@ import cors from 'cors'
 import express, { json } from 'express'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import { Server } from 'ws'
+
+import Mesa from '@cryb/mesa'
 
 import { connect } from 'mongoose'
 
@@ -15,6 +16,7 @@ import routes from './routes'
 import websocket from './websocket'
 
 import passport from '../config/passport.config'
+import { getOptions } from '../config/redis.config'
 import { verify_env } from '../utils/verifications.utils'
 
 verify_env(
@@ -32,7 +34,21 @@ verify_env(
 
 const app = express()
 const server = createServer(app)
-const wss = new Server({ server })
+const mesa = new Mesa({
+	server,
+	namespace: 'api',
+	redis: getOptions(),
+
+	heartbeat: {
+		enabled: true,
+		interval: 10000,
+		maxAttempts: 3
+	},
+	reconnect: {
+		enabled: true,
+		interval: 5000
+	}
+})
 
 connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
@@ -44,6 +60,6 @@ app.use(morgan('dev'))
 app.use(passport.initialize())
 
 routes(app)
-websocket(wss)
+websocket(mesa)
 
 export default server

@@ -13,6 +13,7 @@
     "lint": "tslint src/**/*.ts{,x}"
   },
   "dependencies": {
+    "@cryb/mesa": "^1.2.6",
     "axios": "^0.19.0",
     "biguint-format": "^1.0.1",
     "chance": "^1.0.18",
@@ -34,8 +35,7 @@
     "query-string": "^6.8.2",
     "supertest": "^4.0.2",
     "tsc-watch": "^2.2.1",
-    "typescript": "^3.5.3",
-    "ws": "^7.1.1"
+    "typescript": "^3.5.3"
   },
   "devDependencies": {
     "@types/chance": "^1.0.6",
