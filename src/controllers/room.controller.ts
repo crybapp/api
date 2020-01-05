@@ -77,6 +77,10 @@ app.delete('/', authenticate, async (req, res) => {
 
 	try {
 		const { room } = await user.fetchRoom() as { room: Room }
+
+		if (extractUserId(room.owner) !== extractUserId(user))
+			return res.sendStatus(401)
+
 		await room.destroy()
 
 		res.sendStatus(200)
