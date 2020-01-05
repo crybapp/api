@@ -25,6 +25,8 @@ export default (mesa: Mesa) => {
 			let id: string,
 				user: User
 
+			console.log(token, process.env.AUTH_BASE_URL)
+
 			try {
 				if (process.env.AUTH_BASE_URL) {
 					const { data } = await axios.post(process.env.AUTH_BASE_URL, { token })
@@ -32,12 +34,20 @@ export default (mesa: Mesa) => {
 					user = new User(data)
 					id = user.id
 				} else {
-					id = verifyToken(token) as string
+					id = (verifyToken(token) as { id: string }).id
 					user = await new User().load(id)
 				}
 
+				mesa.send(
+					new Message(0, { u: id, presence: 'online'}, 'PRESENCE_UPDATE'),
+					await fetchRoomMemberIds(user.room),
+					[id]
+				)
+
 				done(null, { id, user })
 			} catch (error) {
+				console.error(error)
+
 				done(error, null)
 			}
 		})
@@ -48,7 +58,8 @@ export default (mesa: Mesa) => {
 			if (type === 'TYPING_UPDATE') {
 				mesa.send(
 					new Message(0, { u: client.id, typing: !!data.typing }, 'TYPING_UPDATE'),
-					await fetchRoomMemberIds(client.user.room)
+					await fetchRoomMemberIds(client.user.room),
+					[client.id]
 				)
 			} else if (CONTROLLER_EVENT_TYPES.indexOf(type) > -1) {
 				if (!validateControllerEvent(data, type)) return

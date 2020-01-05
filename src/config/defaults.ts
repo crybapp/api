@@ -1,4 +1,6 @@
 export default {
+	mesa_namespace: process.env.MESA_NAMESPACE || 'api',
+
 	/**
 	 * The amount of members a room needs to hit for a Portal (VM) to be created / queued (default 2)
 	 */

@@ -12,8 +12,9 @@ import { createPortal, destroyPortal } from '../../drivers/portals.driver'
 import StoredRoom from '../../schemas/room.schema'
 import IRoom, { IPortalAllocation, RoomType } from './defs'
 
-import dispatcher from '../../config/dispatcher.config'
+import config from '../../config/defaults'
 import client from '../../config/redis.config'
+import dispatcher from '../../config/dispatcher.config'
 import {
 	ControllerIsNotAvailable,
 	PortalNotOpen,
@@ -192,7 +193,7 @@ export default class Room {
 	public fetchOnlineMemberIds = () => new Promise<Room>(async (resolve, reject) => {
 		try {
 			const memberIds = await StoredUser.distinct('info.id', { 'info.room': this.id }),
-				connectedClientIds: string[] = await client.smembers('connected_clients')
+				connectedClientIds: string[] = await client.smembers(config.mesa_namespace ? `connected_clients_${config.mesa_namespace}` : 'connected_clients')
 
 			this.online = connectedClientIds.filter(id => memberIds.indexOf(id) > -1)
 

@@ -18,10 +18,10 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@cryb/mesa@^1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@cryb/mesa/-/mesa-1.2.6.tgz#448061e7b59868037e50118e65c5523cf8143853"
-  integrity sha512-pUX/1yQ8C3ckaqvcgr7sqXOSrbYXIfVmb79mpJtIeHwaS+d8HBsMPPZkMRvz/rwhaWrlw5eGStKKQ+DCagMhww==
+"@cryb/mesa@^1.2.9":
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@cryb/mesa/-/mesa-1.2.9.tgz#a3773038a7e56a8be3c6569f18f05ca37ed12d0e"
+  integrity sha512-yeN/a5R3Q2q8Y8DNKksyrVkh4daqanCiwMedPf0QMgOwZQzgPrWP5tVNqokhxXcoMtuh5yWF5wWwprjWq54cRQ==
   dependencies:
     ioredis "^4.14.1"
     ws "^7.2.1"

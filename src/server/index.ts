@@ -3,18 +3,18 @@ dotenv.config()
 
 import { createServer } from 'http'
 
-import cors from 'cors'
 import express, { json } from 'express'
+import Mesa from '@cryb/mesa'
+import { connect } from 'mongoose'
+
+import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
-
-import Mesa from '@cryb/mesa'
-
-import { connect } from 'mongoose'
 
 import routes from './routes'
 import websocket from './websocket'
 
+import config from '../config/defaults'
 import passport from '../config/passport.config'
 import { getOptions } from '../config/redis.config'
 import { verify_env } from '../utils/verifications.utils'
@@ -36,7 +36,7 @@ const app = express()
 const server = createServer(app)
 const mesa = new Mesa({
 	server,
-	namespace: 'api',
+	namespace: config.mesa_namespace,
 	redis: getOptions(),
 
 	heartbeat: {
@@ -47,6 +47,9 @@ const mesa = new Mesa({
 	reconnect: {
 		enabled: true,
 		interval: 5000
+	},
+	authentication: {
+		storeConnectedUsers: true
 	}
 })
 
