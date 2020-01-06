@@ -59,9 +59,10 @@ app.put('/portal', authenticate, async (req, res) => {
                 if(allocation.janusId == -1) {
                     const token = signApertureToken(id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
                     apertureMessage.broadcast(online)
+                } else {
+                    const janusMessage = new WSMessage(0, { id: janusId }, 'JANUS_CONFIG')
+                    janusMessage.broadcast(online)
                 }
-                const janusMessage = new WSMessage(0, { id: janusId }, 'JANUS_CONFIG')
-                janusMessage.broadcast(online)
             } 
         }
 
