@@ -107,7 +107,7 @@ export default class Room {
             if(!this.invites) this.invites = []
 
             this.invites.push(invite)
-            
+
             if(system) {
                 const message = new WSMessage(0, invite, 'INVITE_UPDATE')
                 message.broadcast([ extractUserId(this.owner) ])
@@ -254,11 +254,10 @@ export default class Room {
             const allocation: PortalAllocation = {
                 id,
                 janusId: 1,
-                janusIp: "0.0.0.0", 
+                janusIp: '0.0.0.0',
                 status: 'creating',
                 lastUpdatedAt: Date.now()
             }
-
 
             await StoredRoom.updateOne({
                 'info.id': this.id
@@ -299,7 +298,7 @@ export default class Room {
 
             this.portal = currentAllocation
 
-            console.log(":::::: End status update ::::::")
+            console.log(':::::: End status update ::::::')
 
             resolve(this)
         } catch(error) {
@@ -311,7 +310,7 @@ export default class Room {
         const fromId = extractUserId(from)
 
         if(this.controller !== null) return reject(ControllerIsNotAvailable)
-        
+
         try {
             await StoredRoom.updateOne({
                 'info.id' :this.id
@@ -452,7 +451,7 @@ export default class Room {
             await this.destroyInvites()
             if(this.portal) destroyPortal(this)
             await client.hdel('controller', this.id)
-            
+
             resolve()
         } catch(error) {
             reject(error)
