@@ -1,50 +1,79 @@
+import axios from 'axios'
+import { NextFunction, Request, Response } from 'express'
 import passport from 'passport'
-import { Strategy, ExtractJwt } from 'passport-jwt'
-import { Request, Response, NextFunction } from 'express'
-
+import { ExtractJwt, Strategy } from 'passport-jwt'
 import User from '../models/user'
 
-import { handleError, UserNoAuth } from '../utils/errors.utils'
+import { handleError, UserBanned, UserNoAuth } from '../utils/errors.utils'
 
 passport.serializeUser((user, done) => done(null, user))
 passport.deserializeUser((id, done) => done(null, id))
 
 passport.use(new Strategy({
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: process.env.JWT_KEY
+	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+	secretOrKey: process.env.JWT_KEY
 }, async ({ id }, done) => {
-    try {
-        const user = await new User().load(id)
+	try {
+		const user = await new User().load(id)
 
-        return done(null, user)
-    } catch(error) {
-        done(error)
-    }
+		return done(null, user)
+	} catch (error) {
+		done(error)
+	}
 }))
 
 const BAN_SAFE_ENDPOINTS = [
-    'GET /user/me'
+	'GET /user/me'
 ]
 
 const fetchEndpoint = (req: Request) => `${req.method} ${req.baseUrl}${req.route.path}`
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) =>
-    passport.authenticate('jwt', { session: false }, async (err, user: User) => {
-        if(err) return res.sendStatus(500)
-        if(!user) return res.sendStatus(401)
+const fetchUser = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => new Promise<User>(async (resolve, reject) => {
+	try {
+		if (process.env.AUTH_BASE_URL) {
+			const { authorization } = req.headers,
+				token = authorization.split(' ')[1],
+				{ data: { resource } } = await axios.post(process.env.AUTH_BASE_URL, { token }),
+				user = new User(resource)
 
-        const endpoint = fetchEndpoint(req)
+			resolve(user)
+		} else
+			passport.authenticate('jwt', { session: false }, async (err, user: User) => {
+				if (err)
+					return res.sendStatus(500)
 
-        const ban = await user.fetchBan()
-        if(ban && BAN_SAFE_ENDPOINTS.indexOf(endpoint) > -1)
-            return handleError('UserBanned', res)
+				if (!user)
+					return handleError(UserNoAuth, res)
 
-        if(req.baseUrl === '/admin' && user.roles.indexOf('admin') === -1)
-            return handleError(UserNoAuth, res)
+				resolve(user)
+			})(req, res, next)
+	} catch (error) {
+		reject(error)
+	}
+})
 
-        req.user = user
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const user = await fetchUser(req, res, next),
+			endpoint = fetchEndpoint(req),
+			ban = await user.fetchBan()
 
-        next()
-    })(req, res, next)
+		if (ban && BAN_SAFE_ENDPOINTS.indexOf(endpoint) > -1)
+			return handleError(UserBanned, res)
+
+		if (req.baseUrl === '/admin' && user.roles.indexOf('admin') === -1)
+			return handleError(UserNoAuth, res)
+
+		req.user = user
+
+		next()
+	} catch (error) {
+		handleError(error, res)
+	}
+}
 
 export default passport

@@ -1,104 +1,114 @@
 import { UserResolvable } from '..'
 
-import IBan from './defs'
 import StoredBan from '../../../schemas/ban.schema'
+import IBan from './defs'
 
-import { extractUserId } from '../../../utils/helpers.utils'
-import { generateFlake } from '../../../utils/generate.utils'
 import { BanAlreadyExists, BanNotFound } from '../../../utils/errors.utils'
+import { generateFlake } from '../../../utils/generate.utils'
+import { extractUserId } from '../../../utils/helpers.utils'
 
 export default class Ban {
-    id: string
-    createdAt: number
-    createdBy: UserResolvable
-    active: boolean
+	public id: string
+	public createdAt: number
+	public createdBy: UserResolvable
+	public active: boolean
 
-    user: UserResolvable
-    reason: string
-    
-    constructor(json?: IBan) {
-        if(!json) return
+	public user: UserResolvable
+	public reason: string
 
-        this.setup(json)
-    }
+	constructor(json?: IBan) {
+		if (!json)
+			return
 
-    load = (id: string) => new Promise<Ban>(async (resolve, reject) => {
-        try {
-            const doc = await StoredBan.findOne({ 'info.id': id })
-            if(!doc) throw BanNotFound
+		this.setup(json)
+	}
 
-            this.setup(doc)
+	public load = (id: string) => new Promise<Ban>(async (resolve, reject) => {
+		try {
+			const doc = await StoredBan.findOne({ 'info.id': id })
+			if (!doc) throw BanNotFound
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			this.setup(doc)
 
-    create = (user: UserResolvable, reason?: string, from?: UserResolvable) => new Promise<Ban>(async (resolve, reject) => {
-        try {
-            const existing = await StoredBan.find({
-                $and: [
-                    {
-                        'info.active': true
-                    },
-                    {
-                        'data.userId': extractUserId(user)
-                    }
-                ]
-            })
-            if(existing.length > 0) throw BanAlreadyExists
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            const json: IBan = {
-                info: {
-                    id: generateFlake(),
-                    createdAt: Date.now(),
-                    createdBy: extractUserId(from),
-                    active: true
-                },
-                data: {
-                    userId: extractUserId(user),
-                    reason
-                }
-            }
+	public create = (
+		user: UserResolvable,
+		reason?: string,
+		from?: UserResolvable
+	) => new Promise<Ban>(async (resolve, reject) => {
+		try {
+			const existing = await StoredBan.find({
+				$and: [
+					{
+						'info.active': true
+					},
+					{
+						'data.userId': extractUserId(user)
+					}
+				]
+			})
 
-            const stored = new StoredBan(json)
-            await stored.save()
+			if (existing.length > 0)
+				throw BanAlreadyExists
 
-            this.setup(json)
+			const json: IBan = {
+				info: {
+					id: generateFlake(),
+					createdAt: Date.now(),
+					createdBy: extractUserId(from),
+					active: true
+				},
+				data: {
+					userId: extractUserId(user),
+					reason
+				}
+			}
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			const stored = new StoredBan(json)
+			await stored.save()
 
-    setActive = (active: boolean) => new Promise<Ban>(async (resolve, reject) => {
-        try {
-            await StoredBan.updateOne({
-                'info.id': this.id
-            }, {
-                $set: {
-                    'info.active': active
-                }
-            })
+			this.setup(json)
 
-            this.active = active
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+	public setActive = (active: boolean) => new Promise<Ban>(async (resolve, reject) => {
+		try {
+			await StoredBan.updateOne({
+				'info.id': this.id
+			}, {
+				$set: {
+					'info.active': active
+				}
+			})
 
-    setup = (json: IBan) => {
-        this.id = json.info.id
-        this.createdAt = json.info.createdAt
-        this.active = json.info.active
+			this.active = active
 
-        this.reason = json.data.reason
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-        if(!this.createdBy) this.createdBy = json.info.createdBy
-        if(!this.user) this.user = json.data.userId
-    }
+	public setup = (json: IBan) => {
+		this.id = json.info.id
+		this.createdAt = json.info.createdAt
+		this.active = json.info.active
+
+		this.reason = json.data.reason
+
+		if (!this.createdBy)
+			this.createdBy = json.info.createdBy
+
+		if (!this.user)
+			this.user = json.data.userId
+	}
 }

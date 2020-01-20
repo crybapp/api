@@ -1,87 +1,99 @@
-import { UserResolvable } from '../user'
-import { RoomResolvable } from '../room'
 import { MessageResolvable } from '../message'
+import { RoomResolvable } from '../room'
+import { UserResolvable } from '../user'
 
-import IReport from './defs'
 import StoredReport from '../../schemas/report.schema'
+import IReport from './defs'
 
 import { ReportNotFound } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractMessageId, extractRoomId, extractUserId } from '../../utils/helpers.utils'
 
 export default class Report {
-    id: string
-    createdAt: number
-    createdBy: UserResolvable
+	public id: string
+	public createdAt: number
+	public createdBy: UserResolvable
 
-    message: MessageResolvable
-    room: RoomResolvable
+	public message: MessageResolvable
+	public room: RoomResolvable
 
-    constructor(json?: IReport) {
-        if(!json) return
+	constructor(json?: IReport) {
+		if (!json)
+			return
 
-        this.setup(json)
-    }
+		this.setup(json)
+	}
 
-    load = () => new Promise<Report>(async (resolve, reject) => {
-        try {
-            const doc = await StoredReport.findOne({ 'info.id': this.id })
-            if(!doc) throw ReportNotFound
+	public load = () => new Promise<Report>(async (resolve, reject) => {
+		try {
+			const doc = await StoredReport.findOne({ 'info.id': this.id })
 
-            this.setup(doc)
+			if (!doc)
+				throw ReportNotFound
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			this.setup(doc)
 
-    create = (message: MessageResolvable, room: RoomResolvable, reporter?: UserResolvable) => new Promise<Report>(async (resolve, reject) => {
-        try {
-            const messageId = extractMessageId(message),
-                    roomId = extractRoomId(room)
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            const json: IReport = {
-                info: {
-                    id: generateFlake(),
-                    createdAt: Date.now(),
-                    createdBy: extractUserId(reporter)
-                },
-                data: {
-                    messageId,
-                    roomId
-                }
-            }
+	public create = (
+		message: MessageResolvable,
+		room: RoomResolvable,
+		reporter?: UserResolvable
+	) => new Promise<Report>(async (resolve, reject) => {
+		try {
+			const messageId = extractMessageId(message),
+				roomId = extractRoomId(room)
 
-            const stored = new StoredReport(json)
-            await stored.save()
+			const json: IReport = {
+				info: {
+					id: generateFlake(),
+					createdAt: Date.now(),
+					createdBy: extractUserId(reporter)
+				},
+				data: {
+					messageId,
+					roomId
+				}
+			}
 
-            this.setup(json)
+			const stored = new StoredReport(json)
+			await stored.save()
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			this.setup(json)
 
-    destroy = () => new Promise(async (resolve, reject) => {
-        try {
-            await StoredReport.deleteOne({
-                'info.id': this.id
-            })
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            resolve()
-        } catch(error) {
-            reject(error)
-        }
-    })
+	public destroy = () => new Promise(async (resolve, reject) => {
+		try {
+			await StoredReport.deleteOne({
+				'info.id': this.id
+			})
 
-    setup = (json: IReport) => {
-        this.id = json.info.id
-        this.createdAt = json.info.createdAt
+			resolve()
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-        if(!this.createdBy) this.createdBy = json.info.createdBy
-        if(!this.message) this.message = json.data.messageId
-        if(!this.room) this.room = json.data.roomId
-    }
+	public setup = (json: IReport) => {
+		this.id = json.info.id
+		this.createdAt = json.info.createdAt
+
+		if (!this.createdBy)
+			this.createdBy = json.info.createdBy
+
+		if (!this.message)
+			this.message = json.data.messageId
+
+		if (!this.room)
+			this.room = json.data.roomId
+	}
 }

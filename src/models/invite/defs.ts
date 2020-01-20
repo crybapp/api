@@ -6,37 +6,37 @@ import Room from '../room'
 export type TargetResolvable = Room | User | string
 export type TargetType = 'room'
 
-export interface InviteOptions {
-    // maxUses?: number
-    // expiresAfterFirstUse?: boolean
-    code?: string
-    random?: boolean
-    maxUses: number
-    unlimitedUses: boolean
+export interface IInviteOptions {
+	// maxUses?: number
+	// expiresAfterFirstUse?: boolean
+	code?: string
+	random?: boolean
+	maxUses: number
+	unlimitedUses: boolean
 }
 
-export interface InviteHeaders {
-    system: boolean
+export interface IInviteHeaders {
+	system: boolean
 }
 
 export default interface IInvite {
-    info: {
-        id: string
-        createdAt: number
-        createdBy: string
+	info: {
+		id: string
+		createdAt: number
+		createdBy: string
 
-        active: boolean
-        system: boolean
+		active: boolean
+		system: boolean
 
-        targetId: string
-        targetType: TargetType
-    },
-    data: {
-        code: string
-        uses: string[]
+		targetId: string
+		targetType: TargetType
+	},
+	data: {
+		code: string
+		uses: string[]
 
-        options: InviteOptions
-    }
+		options: IInviteOptions
+	}
 }
 
-export interface IStoredInvite extends IInvite, Document {}
+export interface IStoredInvite extends IInvite, Document { }

@@ -4,45 +4,44 @@ import jwt from 'jsonwebtoken'
 import Room from '../models/room'
 
 import log from '../utils/log.utils'
-import { NoPortalFound } from '../utils/errors.utils'
 
 const url = `${process.env.PORTALS_API_URL}/`, key = process.env.PORTALS_API_KEY
 
-const generateRoomToken = (room: Room) => jwt.sign({ roomId: room.id }, key)
-
-const generateHeaders = async (room: Room) => ({
-    Authorization: `Valve ${generateRoomToken(room)}`
-})
+const generateRoomToken = (room: Room) => jwt.sign({ roomId: room.id }, key),
+	generateHeaders = async (room: Room) => ({
+		Authorization: `Valve ${generateRoomToken(room)}`
+	})
 
 export const createPortal = (room: Room) => new Promise(async (resolve, reject) => {
-    try {
-        const headers = await generateHeaders(room)
-        log(`Sending request to ${url}create with room id: ${room.id}`, [ { content: 'portals', color: 'MAGENTA' }])
+	try {
+		const headers = await generateHeaders(room)
+		log(`Sending request to ${url}create with room id: ${room.id}`, [{ content: 'portals', color: 'MAGENTA' }])
 
-        console.log('Change Testing.')
+		await axios.post(`${url}create`, { roomId: room.id }, { headers })
+			.catch((reason) => {
+				console.log(`AXIOS POST FAILED: ${reason}`)
+				throw reason
+			}
+		)
 
-        await axios.post(`${url}create`, { roomId: room.id }, { headers }).catch((reason) => {
-            console.log(`AXIOS POST FAILED: ${reason}`)
-            throw reason
-        })
-
-        console.log('Axios post finished.')
-
-        resolve()
-    } catch(error) {
-        reject(error)
-    }
+		resolve()
+	} catch (error) {
+		reject(error)
+	}
 })
 
 export const destroyPortal = (room: Room) => new Promise(async (resolve, reject) => {
-    try {
-        const headers = await generateHeaders(room), { portal } = room
-        if(!portal.id) return
+	try {
+		const headers = await generateHeaders(room),
+			{ portal } = room
 
-        await axios.delete(`${url}${portal.id}`, { headers })
+		if (!portal.id)
+			return
 
-        resolve()
-    } catch(error) {
-        reject(error)
-    }
+		await axios.delete(`${url}${portal.id}`, { headers })
+
+		resolve()
+	} catch (error) {
+		reject(error)
+	}
 })
