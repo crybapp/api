@@ -4,40 +4,40 @@ export type Role = 'admin' | 'invited'
 
 export type CredentialType = 'regular' | 'discord'
 
-export interface RegularCredentials {
-    email: string
-    password: string
+export interface IRegularCredentials {
+	email: string
+	password: string
 }
 
-export interface DiscordCredentials {
-    userId: string
-    accessToken: string
-    refreshToken: string
-    scopes: string[]
+export interface IDiscordCredentials {
+	userId: string
+	accessToken: string
+	refreshToken: string
+	scopes: string[]
 }
 
-export type Credentials = RegularCredentials | DiscordCredentials
+export type Credentials = IRegularCredentials | IDiscordCredentials
 
-export interface Profile {
-    name: string
-    icon: string
+export interface IProfile {
+	name: string
+	icon: string
 }
 
 export default interface IUser {
-    info: {
-        id: string
-        joinedAt: number
-        username: string
-        roles: Role[]
+	info: {
+		id: string
+		joinedAt: number
+		username: string
+		roles: Role[]
 
-        room?: string
-        invite?: string
-    }
-    security: {
-        type: CredentialType
-        credentials: Credentials
-    }
-    profile: Profile
+		room?: string
+		invite?: string
+	}
+	security: {
+		type: CredentialType
+		credentials: Credentials
+	}
+	profile: IProfile
 }
 
-export interface IStoredUser extends IUser, Document {}
+export interface IStoredUser extends IUser, Document { }

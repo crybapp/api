@@ -1,10 +1,10 @@
 export default interface ISettings {
-    signupsDisabled: boolean
-    signupsDisabledReason: string
+	signupsDisabled: boolean
+	signupsDisabledReason: string
 
-    maintenance: boolean
-    maintenanceReason: string
+	maintenance: boolean
+	maintenanceReason: string
 
-    roomLimit: number
-    roomLimitReason: string
+	roomLimit: number
+	roomLimitReason: string
 }

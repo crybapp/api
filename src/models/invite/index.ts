@@ -1,188 +1,200 @@
 import Chance from 'chance'
 
-const chance = new Chance()
-
-import User, { UserResolvable } from '../user'
 import Room from '../room'
+import User, { UserResolvable } from '../user'
 
-import IInvite, { TargetResolvable, TargetType, InviteOptions, InviteHeaders } from './defs'
 import StoredInvite from '../../schemas/invite.schema'
+import IInvite, { IInviteHeaders, IInviteOptions, TargetResolvable, TargetType } from './defs'
 
+import { InviteNotFound, TargetTypeNotFound, UserAlreadyInRoom } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractTargetId, extractUserId } from '../../utils/helpers.utils'
-import { UserAlreadyInRoom, InviteNotFound, TargetTypeNotFound } from '../../utils/errors.utils'
 
 export type InviteResolvable = Invite | string
 
+const chance = new Chance()
+
 export default class Invite {
-    id: string
-    createdAt: number
-    createdBy?: UserResolvable
-    
-    active: boolean
+	public id: string
+	public createdAt: number
+	public createdBy?: UserResolvable
 
-    target?: TargetResolvable
-    targetType: TargetType
+	public active: boolean
 
-    code: string
-    uses: string[]
-    options: InviteOptions
+	public target?: TargetResolvable
+	public targetType: TargetType
 
-    constructor(json?: IInvite) {
-        if(!json) return
+	public code: string
+	public uses: string[]
+	public options: IInviteOptions
 
-        this.setup(json)
-    }
+	constructor(json?: IInvite) {
+		if (!json)
+			return
 
-    load = (id: string) => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const doc = await StoredInvite.findOne({ 'info.id': id })
-            if(!doc) throw InviteNotFound
+		this.setup(json)
+	}
 
-            this.setup(doc)
+	public load = (id: string) => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const doc = await StoredInvite.findOne({ 'info.id': id })
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			if (!doc)
+				throw InviteNotFound
 
-    findFromCode = (code: string) => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const doc = await StoredInvite.findOne({
-                $and: [
-                    {
-                        'info.active': true
-                    },
-                    {
-                        'data.code': code
-                    }
-                ]
-            })
-            if(!doc) throw InviteNotFound
+			this.setup(doc)
 
-            this.setup(doc)
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+	public findFromCode = (code: string) => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const doc = await StoredInvite.findOne({
+				$and: [
+					{
+						'info.active': true
+					},
+					{
+						'data.code': code
+					}
+				]
+			})
 
-    use = (user: User, type?: TargetType) => new Promise<TargetResolvable>(async (resolve, reject) => {
-        if(type && type !== this.targetType) return reject(TargetTypeNotFound)
+			if (!doc)
+				throw InviteNotFound
 
-        if(this.targetType === 'room' && user.room)
-            return reject(UserAlreadyInRoom)
+			this.setup(doc)
 
-        try {
-            const targetId = extractTargetId(this.target),
-                    query = { $set: {}, $push: { 'data.uses': user.id } }
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            if((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
-                query.$set['info.active'] = false
+	public use = (user: User, type?: TargetType) => new Promise<TargetResolvable>(async (resolve, reject) => {
+		if (type && type !== this.targetType)
+			return reject(TargetTypeNotFound)
 
-            await StoredInvite.updateOne({ 'info.id': this.id }, query)
+		if (this.targetType === 'room' && user.room)
+			return reject(UserAlreadyInRoom)
 
-            switch(this.targetType) {
-                case 'room':
-                    const room = await new Room().load(targetId)
-                    await user.joinRoom(room)
-    
-                    resolve(room)
-                    break
-                default:
-                    throw TargetTypeNotFound
-            }
-        } catch(error) {
-            reject(error)
-        }
-    })
+		try {
+			const targetId = extractTargetId(this.target),
+				query = { $set: {}, $push: { 'data.uses': user.id } }
 
-    create = (target: TargetResolvable, targetType: TargetType, options?: InviteOptions, headers?: InviteHeaders, creator?: UserResolvable) => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const json: IInvite = {
-                info: {
-                    id: generateFlake(),
-                    createdAt: Date.now(),
-                    createdBy: extractUserId(creator),
+			if ((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
+				query.$set['info.active'] = false
 
-                    active: true,
-                    system: headers ? headers.system || false : false,
+			await StoredInvite.updateOne({ 'info.id': this.id }, query)
 
-                    targetId: extractTargetId(target),
-                    targetType
-                },
-                data: {
-                    code: !options.random && options.code ? options.code : chance.string({
-                        pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-                        length: 5
-                    }),
-                    uses: [],
+			switch (this.targetType) {
+				case 'room':
+					const room = await new Room().load(targetId)
+					await user.joinRoom(room)
 
-                    options: options ? {
-                        maxUses: options.maxUses,
-                        unlimitedUses: options.unlimitedUses
-                    } : {
-                        maxUses: 0,
-                        unlimitedUses: true
-                    }
-                }
-            }
+					resolve(room)
+					break
+				default:
+					throw TargetTypeNotFound
+			}
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-            const stored = new StoredInvite(json)
-            await stored.save()
+	public create = (
+		target: TargetResolvable,
+		targetType: TargetType,
+		options?: IInviteOptions,
+		headers?: IInviteHeaders,
+		creator?: UserResolvable
+	) => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const json: IInvite = {
+				info: {
+					id: generateFlake(),
+					createdAt: Date.now(),
+					createdBy: extractUserId(creator),
 
-            this.setup(json)
+					active: true,
+					system: headers ? headers.system || false : false,
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+					targetId: extractTargetId(target),
+					targetType
+				},
+				data: {
+					code: !options.random && options.code ? options.code : chance.string({
+						pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+						length: 5
+					}),
+					uses: [],
 
-    fetchTarget = () => new Promise<Invite>(async (resolve, reject) => {
-        try {
-            const targetId = extractTargetId(this.target)
+					options: options ? {
+						maxUses: options.maxUses,
+						unlimitedUses: options.unlimitedUses
+					} : {
+							maxUses: 0,
+							unlimitedUses: true
+						}
+				}
+			}
 
-            switch(this.targetType) {
-                case 'room':
-                    const room = await new Room().load(targetId)
-                    await room.fetchMembers()
+			const stored = new StoredInvite(json)
+			await stored.save()
 
-                    this.target = room
-            }
+			this.setup(json)
 
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-    destroy = () => new Promise(async (resolve, reject) => {
-        try {
-            await StoredInvite.deleteOne({
-                'info.id': this.id
-            })
+	public fetchTarget = () => new Promise<Invite>(async (resolve, reject) => {
+		try {
+			const targetId = extractTargetId(this.target)
 
-            resolve()
-        } catch(error) {
-            reject(error)
-        }
-    })
+			switch (this.targetType) {
+				case 'room':
+					const room = await new Room().load(targetId)
+					await room.fetchMembers()
 
-    setup = (json: IInvite) => {
-        this.id = json.info.id
-        this.createdAt = json.info.createdAt
-        this.createdBy = json.info.createdBy
+					this.target = room
+			}
 
-        this.active = json.info.active
+			resolve(this)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
-        this.target = json.info.targetId
-        this.targetType = json.info.targetType
+	public destroy = () => new Promise(async (resolve, reject) => {
+		try {
+			await StoredInvite.deleteOne({
+				'info.id': this.id
+			})
 
-        this.code = json.data.code
-        this.uses = json.data.uses
-        this.options = json.data.options
-    }
+			resolve()
+		} catch (error) {
+			reject(error)
+		}
+	})
+
+	public setup = (json: IInvite) => {
+		this.id = json.info.id
+		this.createdAt = json.info.createdAt
+		this.createdBy = json.info.createdBy
+
+		this.active = json.info.active
+
+		this.target = json.info.targetId
+		this.targetType = json.info.targetType
+
+		this.code = json.data.code
+		this.uses = json.data.uses
+		this.options = json.data.options
+	}
 }
