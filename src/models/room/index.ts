@@ -8,7 +8,7 @@ import StoredUser from '../../schemas/user.schema'
 
 import { createPortal, destroyPortal } from '../../drivers/portals.driver'
 import StoredRoom from '../../schemas/room.schema'
-import IRoom, { PortalAllocation, RoomType } from './defs'
+import IRoom, { IPortalAllocation, RoomType } from './defs'
 
 import client from '../../config/redis.config'
 import WSMessage from '../../server/websocket/models/message'
@@ -35,7 +35,7 @@ export default class Room {
 		public invites: Invite[]
 		public owner: UserResolvable
 
-		public portal?: PortalAllocation
+		public portal?: IPortalAllocation
 		public controller: UserResolvable
 
 		public name: string
@@ -276,7 +276,7 @@ export default class Room {
 
 		public setPortalId = (id: string) => new Promise<Room>(async (resolve, reject) => {
 				try {
-						const allocation: PortalAllocation = {
+						const allocation: IPortalAllocation = {
 								id,
 								janusId: 1,
 								janusIp: '0.0.0.0',
@@ -303,7 +303,7 @@ export default class Room {
 				}
 		})
 
-		public updatePortalAllocation = (allocation: PortalAllocation) => new Promise<Room>(async (resolve, reject) => {
+		public updatePortalAllocation = (allocation: IPortalAllocation) => new Promise<Room>(async (resolve, reject) => {
 				allocation.lastUpdatedAt = Date.now()
 
 				try {
