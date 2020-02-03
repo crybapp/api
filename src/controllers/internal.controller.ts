@@ -54,13 +54,13 @@ app.put('/portal', authenticate, async (req, res) => {
 			 * Broadcast allocation to all online clients
 			 */
 			const updateMessage = new WSMessage(0, allocation, 'PORTAL_UPDATE')
-			updateMessage.broadcast(online)
+			await updateMessage.broadcast(online)
 
 			if (status === 'open') {
 				const token = signApertureToken(id),
 					apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
 
-				apertureMessage.broadcast(online)
+				await apertureMessage.broadcast(online)
 			}
 		}
 
@@ -73,12 +73,12 @@ app.put('/portal', authenticate, async (req, res) => {
 app.post('/queue', authenticate, (req, res) => {
 	const { queue } = req.body as { queue: string[] }
 
-	queue.forEach((id, i) => {
+	queue.forEach(async (id, i) => {
 		try {
 			const op = 0, d = { pos: i, len: queue.length }, t = 'PORTAL_QUEUE_UPDATE',
 				message = new WSMessage(op, d, t)
 
-			message.broadcastRoom(id)
+			await message.broadcastRoom(id)
 		} catch (error) {
 			handleError(error, res)
 		}
