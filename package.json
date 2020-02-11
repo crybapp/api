@@ -2,13 +2,13 @@
   "name": "@cryb/api",
   "version": "1.0.0",
   "description": "The core service used to handle REST and WS events from clients",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": "https://github.com/crybapp/api",
   "author": "William Gibson <w.gibbo3@icloud.com>",
   "license": "MIT",
   "scripts": {
     "start": "node dist",
-    "dev": "tsc-watch --outDir ./dist --onSuccess \"yarn start\" --compiler typescript/bin/tsc",
+    "dev": "tsc-watch --compiler typescript/bin/tsc --onSuccess \"yarn start\"",
     "build": "tsc",
     "lint": "tslint src/**/*.ts{,x}"
   },
@@ -33,8 +33,6 @@
     "qs": "^6.8.0",
     "query-string": "^6.8.2",
     "supertest": "^4.0.2",
-    "tsc-watch": "^2.2.1",
-    "typescript": "^3.5.3",
     "ws": "^7.1.1"
   },
   "devDependencies": {
@@ -51,6 +49,8 @@
     "@types/passport-discord": "^0.1.3",
     "@types/passport-jwt": "^3.0.1",
     "@types/ws": "^6.0.1",
-    "tslint": "^5.20.1"
+    "tsc-watch": "^2.2.1",
+    "tslint": "^5.20.1",
+    "typescript": "^3.5.3"
   }
 }

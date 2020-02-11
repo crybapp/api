@@ -37,7 +37,8 @@ app.put('/portal', authenticate, async (req, res) => {
 
     try {
         const doc = await StoredRoom.findOne({ 'info.portal.id': id })
-        if(!doc) return RoomNotFound
+        if(!doc) 
+          return RoomNotFound
 
         //console.log('room found, updating status...')
 
@@ -52,16 +53,17 @@ app.put('/portal', authenticate, async (req, res) => {
              * Broadcast allocation to all online clients
              */
             const updateMessage = new WSMessage(0, allocation, 'PORTAL_UPDATE')
-            updateMessage.broadcast(online)
+            await updateMessage.broadcast(online)
 
             if(status === 'open') {
                 //JanusId is -1 when a janus instance is not running. 
                 if(allocation.janusId == -1) {
-                    const token = signApertureToken(id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-                    apertureMessage.broadcast(online)
+                    const token = signApertureToken(id), 
+                      apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+                    await apertureMessage.broadcast(online)
                 } else {
                     const janusMessage = new WSMessage(0, { id: janusId }, 'JANUS_CONFIG')
-                    janusMessage.broadcast(online)
+                    await janusMessage.broadcast(online)
                 }
             } 
         }
@@ -75,12 +77,12 @@ app.put('/portal', authenticate, async (req, res) => {
 app.post('/queue', authenticate, (req, res) => {
 	const { queue } = req.body as { queue: string[] }
 
-	queue.forEach((id, i) => {
+	queue.forEach(async (id, i) => {
 		try {
 			const op = 0, d = { pos: i, len: queue.length }, t = 'PORTAL_QUEUE_UPDATE',
 				message = new WSMessage(op, d, t)
 
-			message.broadcastRoom(id)
+			await message.broadcastRoom(id)
 		} catch (error) {
 			handleError(error, res)
 		}

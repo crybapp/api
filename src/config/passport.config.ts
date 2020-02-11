@@ -13,11 +13,16 @@ passport.use(new Strategy({
 	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 	secretOrKey: process.env.JWT_KEY
 }, async ({ id }, done) => {
+	const noSessionResponses = ['USER_NO_AUTH', 'USER_NOT_FOUND']
+
 	try {
 		const user = await new User().load(id)
 
 		return done(null, user)
 	} catch (error) {
+		if (error.response.indexOf(noSessionResponses))
+			return done(UserNoAuth)
+
 		done(error)
 	}
 }))
@@ -44,7 +49,7 @@ const fetchUser = async (
 		} else
 			passport.authenticate('jwt', { session: false }, async (err, user: User) => {
 				if (err)
-					return res.sendStatus(500)
+					return handleError(err, res)
 
 				if (!user)
 					return handleError(UserNoAuth, res)
