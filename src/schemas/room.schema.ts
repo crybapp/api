@@ -11,6 +11,8 @@ const RoomSchema = new Schema({
 		type: String,
 		portal: {
 			id: String,
+			janusId: Number, 
+            janusIp: String,
 
 			status: String,
 			lastUpdatedAt: String

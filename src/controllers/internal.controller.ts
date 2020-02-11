@@ -32,42 +32,46 @@ app.post('/portal', authenticate, async (req, res) => {
  * Existing Portal Status Update
  */
 app.put('/portal', authenticate, async (req, res) => {
-	const { id, status } = req.body as { id: string, status: PortalAllocationStatus }
-	// console.log('recieved', id, status, 'from portal microservice, finding room...')
+    const { id, status, janusId, janusIp } = req.body as { id: string, status: PortalAllocationStatus, janusId?: number, janusIp?: string }
+    //console.log('recieved', id, status, 'from portal microservice, finding room...')
 
-	try {
-		const doc = await StoredRoom.findOne({ 'info.portal.id': id })
+    try {
+        const doc = await StoredRoom.findOne({ 'info.portal.id': id })
+        if(!doc) 
+          return RoomNotFound
 
-		if (!doc)
-			return RoomNotFound
+        //console.log('room found, updating status...')
 
-		// console.log('room found, updating status...')
+        const room = new Room(doc)
+        const { portal: allocation } = await room.updatePortalAllocation({ janusId, janusIp, status }),
+                { online } = await room.fetchOnlineMemberIds()
 
-		const room = new Room(doc)
-		const { portal: allocation } = await room.updatePortalAllocation({ status }),
-			{ online } = await room.fetchOnlineMemberIds()
+        //console.log('status updated and online members fetched:', online)
 
-		// console.log('status updated and online members fetched:', online)
+        if(online.length > 0) {
+            /**
+             * Broadcast allocation to all online clients
+             */
+            const updateMessage = new WSMessage(0, allocation, 'PORTAL_UPDATE')
+            await updateMessage.broadcast(online)
 
-		if (online.length > 0) {
-			/**
-			 * Broadcast allocation to all online clients
-			 */
-			const updateMessage = new WSMessage(0, allocation, 'PORTAL_UPDATE')
-			await updateMessage.broadcast(online)
+            if(status === 'open') {
+                //JanusId is -1 when a janus instance is not running. 
+                if(allocation.janusId == -1) {
+                    const token = signApertureToken(id), 
+                      apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+                    await apertureMessage.broadcast(online)
+                } else {
+                    const janusMessage = new WSMessage(0, { id: janusId }, 'JANUS_CONFIG')
+                    await janusMessage.broadcast(online)
+                }
+            } 
+        }
 
-			if (status === 'open') {
-				const token = signApertureToken(id),
-					apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-
-				await apertureMessage.broadcast(online)
-			}
-		}
-
-		res.sendStatus(200)
-	} catch (error) {
-		handleError(error, res)
-	}
+        res.sendStatus(200)
+    } catch(error) {
+        handleError(error, res)
+    }
 })
 
 app.post('/queue', authenticate, (req, res) => {

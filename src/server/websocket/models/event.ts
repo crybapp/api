@@ -14,6 +14,7 @@ type WSEventIncomingMouseEventType =
 'MOUSE_UP'
 
 type WSEventEmittingType =
+'JANUS_CONFIG' |
 'APERTURE_CONFIG' |
 'ROOM_DESTROY' |
 'MESSAGE_CREATE' |
