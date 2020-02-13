@@ -35,6 +35,15 @@ export default async (message: IWSEvent, socket: WSSocket) => {
 			if (!validateControllerEvent(d, t))
 				return
 
+			const currentTimestamp = new Date().getTime()
+			const oldTimestamp = socket.lastUserRefresh.getTime()
+			const timeDifference = Math.abs(currentTimestamp - oldTimestamp)
+
+			if(timeDifference > 15000) {
+				socket.set('user', await new User().load(socket.user.id))
+				socket.set('last_user_refresh', new Date())
+			}
+
 			if (!socket.user)
 				return // Check if the socket is actually authenticated
 
@@ -43,9 +52,6 @@ export default async (message: IWSEvent, socket: WSSocket) => {
 
 			if (typeof socket.user.room === 'string')
 				return // Check if room is unreadable
-
-			if (!socket.user.room.portal.id)
-				socket.set('user', await new User().load(socket.user.id)) // Workaround for controller bug
 
 			if (await client.hget('controller', extractRoomId(socket.user.room)) !== extractUserId(socket.user))
 				return // Check if the user has the controller
