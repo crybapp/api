@@ -17,8 +17,8 @@ import { extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../../utils/helpers.
 import log from '../../../utils/log.utils'
 import { WSLogPrefix } from '../log'
 
-type SocketConfigKey = 'id' | 'type' | 'user' | 'group' | 'authenticated' | 'last_heartbeat_at'
-const socketKeys: SocketConfigKey[] = ['id', 'type', 'user', 'group', 'authenticated', 'last_heartbeat_at']
+type SocketConfigKey = 'id' | 'type' | 'user' | 'group' | 'authenticated' | 'last_heartbeat_at' | 'last_user_refresh'
+const socketKeys: SocketConfigKey[] = ['id', 'type', 'user', 'group', 'authenticated', 'last_heartbeat_at', 'last_user_refresh']
 
 export default class WSSocket {
 	public id: string
@@ -27,6 +27,7 @@ export default class WSSocket {
 	public room?: Room
 	public authenticated: boolean = false
 	public lastHeartbeatAt: number
+	public lastUserRefresh?: Date
 
 	private socket: WebSocket
 
@@ -68,6 +69,7 @@ export default class WSSocket {
 
 			// Set user
 			this.set('user', user)
+			this.set('last_user_refresh', new Date())
 
 			// Presence Update
 			if (user.room) {
