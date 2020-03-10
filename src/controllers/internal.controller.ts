@@ -75,20 +75,30 @@ app.put('/portal', authenticate, async (req, res) => {
 })
 
 app.post('/queue', authenticate, (req, res) => {
-	const { queue } = req.body as { queue: string[] }
+    const {
+        dequeuedRoomIds,
+        currentQueueLength,
+        roomIdsInQueue
+    } = req.body as {
+        dequeuedRoomIds: Array<string>,
+        currentQueueLength: number,
+        lastMovementLength: number,
+        roomIdsInQueue: Array<string>
+    }
 
-	queue.forEach(async (id, i) => {
-		try {
-			const op = 0, d = { pos: i, len: queue.length }, t = 'PORTAL_QUEUE_UPDATE',
-				message = new WSMessage(op, d, t)
+    const dequeuedlength = dequeuedRoomIds.length
 
-			await message.broadcastRoom(id)
-		} catch (error) {
-			handleError(error, res)
-		}
-	})
+    roomIdsInQueue.forEach((roomId, index) => {
+        const queueMessage = new WSMessage(0, { 
+            currentPositionInQueue: index + 1, 
+            currentQueueLength: currentQueueLength, 
+            dequeuedLength: dequeuedlength 
+        }, 'QUEUE_UPDATE')
 
-	res.sendStatus(200)
+        queueMessage.broadcastRoom(roomId)
+    });
+
+    res.sendStatus(200)
 })
 
 export default app

@@ -26,7 +26,7 @@ type WSEventEmittingType =
 'USER_LEAVE' |
 'OWNER_UPDATE' |
 'CONTROLLER_UPDATE' |
-'PORTAL_QUEUE_UPDATE'
+'QUEUE_UPDATE'
 
 export type WSEventType = WSEventIncomingType | WSEventIncomingMouseEventType | WSEventEmittingType | PortalEventType
 
