@@ -4,7 +4,7 @@ import passport from 'passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import User from '../models/user'
 
-import { handleError, UserBanned, UserNoAuth } from '../utils/errors.utils'
+import { handleError, UserBanned, UserNoAuth, UserNotAllowed } from '../utils/errors.utils'
 
 passport.serializeUser((user, done) => done(null, user))
 passport.deserializeUser((id, done) => done(null, id))
@@ -20,7 +20,7 @@ passport.use(new Strategy({
 
 		return done(null, user)
 	} catch (error) {
-		if (error.response.indexOf(noSessionResponses))
+		if (error.response && error.response.indexOf(noSessionResponses))
 			return done(UserNoAuth)
 
 		done(error)
@@ -71,7 +71,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 			return handleError(UserBanned, res)
 
 		if (req.baseUrl === '/admin' && user.roles.indexOf('admin') === -1)
-			return handleError(UserNoAuth, res)
+			return handleError(UserNotAllowed, res)
 
 		req.user = user
 

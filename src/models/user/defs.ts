@@ -20,7 +20,8 @@ export type Credentials = IRegularCredentials | IDiscordCredentials
 
 export interface IProfile {
 	name: string
-	icon: string
+	icon: string,
+	hoverIcon?: string
 }
 
 export default interface IUser {

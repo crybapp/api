@@ -4,18 +4,17 @@ import IUser, { IDiscordCredentials, Role } from './defs'
 import Room from '../room'
 import Ban from './ban'
 
-import { createPortal } from '../../drivers/portals.driver'
 import StoredBan from '../../schemas/ban.schema'
 
 import StoredMessage from '../../schemas/message.schema'
 
-import config from '../../config/defaults.js'
+import config from '../../config/defaults'
 import client from '../../config/redis.config'
 import WSMessage from '../../server/websocket/models/message'
 import { constructAvatar, exchangeRefreshToken, fetchUserProfile } from '../../services/oauth2/discord.service'
 import { TooManyMembers, UserNotFound, UserNotInRoom } from '../../utils/errors.utils'
 import { generateFlake, signToken } from '../../utils/generate.utils'
-import { extractUserId, UNALLOCATED_PORTALS_KEYS, extractRoomId } from '../../utils/helpers.utils'
+import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
 
 export type UserResolvable = User | string
 
@@ -28,6 +27,7 @@ export default class User {
 
 	public name: string
 	public icon: string
+	public hoverIcon?: string
 
 	public room?: Room | string
 
@@ -82,7 +82,12 @@ export default class User {
 					userId: id,
 					email, hash:
 						avatarHash
-				})
+				}, false),
+				animAvatar = constructAvatar({
+					userId: id,
+					email, hash:
+					avatarHash
+				}, true)
 
 			if (existing) {
 				this.setup(existing)
@@ -93,6 +98,7 @@ export default class User {
 					$set: {
 						'profile.name': name,
 						'profile.icon': avatar,
+						'profile.hoverIcon': animAvatar,
 
 						'security.credentials.email': email,
 						'security.credentials.scopes': scopes,
@@ -123,7 +129,8 @@ export default class User {
 					},
 					profile: {
 						name,
-						icon: avatar
+						icon: avatar,
+						hoverIcon: animAvatar
 					}
 				}
 
@@ -145,12 +152,18 @@ export default class User {
 				{ refreshToken } = (credentials as IDiscordCredentials),
 				{ access_token, refresh_token } = await exchangeRefreshToken(refreshToken),
 				{ id, username: name, email, avatar: avatarHash } = await fetchUserProfile(access_token),
-				icon = constructAvatar({
+				avatar = constructAvatar({
 					userId: id,
 					email,
 
 					hash: avatarHash
-				})
+				}, false),
+				animAvatar = constructAvatar({
+					userId: id,
+					email,
+
+					hash: avatarHash
+				}, true)
 
 			await StoredUser.updateOne({
 				'info.id': this.id
@@ -160,16 +173,18 @@ export default class User {
 					'security.credentials.refreshToken': refresh_token,
 
 					'profile.name': name,
-					'profile.icon': icon
+					'profile.icon': avatar,
+					'profile.hoverIcon': animAvatar,
 				}
 			})
 
 			this.name = name
-			this.icon = icon
+			this.icon = avatar
+			this.hoverIcon = animAvatar
 
 			if (this.room) {
 				const message = new WSMessage(0, this, 'USER_UPDATE')
-				message.broadcastRoom(this.room, [this.id])
+				await message.broadcastRoom(this.room, [this.id])
 			}
 
 			resolve(this)
@@ -196,8 +211,7 @@ export default class User {
 		const roomId = extractRoomId(this.room)
 
 		try {
-			const room = await new Room().load(roomId)
-			this.room = room
+			this.room = await new Room().load(roomId)
 
 			resolve(this)
 		} catch (error) {
@@ -255,7 +269,7 @@ export default class User {
 				room.members.length === (config.min_member_portal_creation_count - 1) &&
 				UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1
 			)
-				createPortal(room)
+				room.createPortal()
 
 			const message = new WSMessage(0, { ...this, room: undefined }, 'USER_JOIN')
 			message.broadcastRoom(room)
@@ -270,10 +284,10 @@ export default class User {
 
 	public leaveRoom = () => new Promise<User>(async (resolve, reject) => {
 		try {
-			if (typeof this.room === 'string')
+			if (this.room && typeof this.room === 'string')
 				await this.fetchRoom()
 
-			if (typeof this.room === 'string')
+			if (!this.room || typeof this.room === 'string')
 				return
 
 			await this.room.fetchMembers()
@@ -293,10 +307,10 @@ export default class User {
 				const leavingUserIsOwner = this.id === extractUserId(this.room.owner)
 
 				if (leavingUserIsOwner)
-					this.room.transferOwnership(this.room.members[0])
+					await this.room.transferOwnership(this.room.members[0])
 
 				const message = new WSMessage(0, { u: this.id }, 'USER_LEAVE')
-				message.broadcastRoom(this.room)
+				await message.broadcastRoom(this.room)
 			}
 
 			await StoredUser.updateOne({
@@ -307,7 +321,7 @@ export default class User {
 				}
 			})
 
-			client.hset('undelivered_events', this.id, JSON.stringify([]))
+			await client.hset('undelivered_events', this.id, JSON.stringify([]))
 
 			delete this.room
 
@@ -345,6 +359,7 @@ export default class User {
 
 		this.name = json.profile.name
 		this.icon = json.profile.icon
+		this.hoverIcon = json.profile.hoverIcon
 
 		if (!this.room)
 			this.room = json.info.room

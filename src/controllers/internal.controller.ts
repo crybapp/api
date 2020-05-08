@@ -37,7 +37,7 @@ app.put('/portal', authenticate, async (req, res) => {
 
     try {
         const doc = await StoredRoom.findOne({ 'info.portal.id': id })
-        if(!doc) 
+        if (!doc)
           return RoomNotFound
 
         //console.log('room found, updating status...')
@@ -48,24 +48,22 @@ app.put('/portal', authenticate, async (req, res) => {
 
         //console.log('status updated and online members fetched:', online)
 
-        if(online.length > 0) {
+        if (online.length > 0) {
             /**
              * Broadcast allocation to all online clients
              */
             const updateMessage = new WSMessage(0, allocation, 'PORTAL_UPDATE')
-            await updateMessage.broadcast(online)
+            await updateMessage.broadcastRoom(room)
 
-            if(status === 'open') {
-                //JanusId is -1 when a janus instance is not running. 
-                if(allocation.janusId == -1) {
-                    const token = signApertureToken(id), 
+            if (status === 'open')
+                if (allocation.janusId) {
+                    const token = signApertureToken(id),
                       apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-                    await apertureMessage.broadcast(online)
+                    await apertureMessage.broadcastRoom(room)
                 } else {
-                    const janusMessage = new WSMessage(0, { id: janusId }, 'JANUS_CONFIG')
-                    await janusMessage.broadcast(online)
+                    const janusMessage = new WSMessage(0, { id: janusId, ip: janusIp }, 'JANUS_CONFIG')
+                    await janusMessage.broadcastRoom(room)
                 }
-            } 
         }
 
         res.sendStatus(200)

@@ -25,7 +25,8 @@ const UserSchema = new Schema({
 	},
 	profile: {
 		name: String,
-		icon: String
+		icon: String,
+		hoverIcon: String
 	}
 }, {
 	typeKey: '$type'

@@ -120,7 +120,7 @@ export default (wss: Server) => {
 				if (extractUserId(room.controller) === socket.user.id)
 					room.releaseControl(socket.user)
 
-				if (config.destroy_portal_when_empty) {
+				if (config.destroy_portal_when_empty)
 					setTimeout(async () =>
 						(await room.load(room.id)).fetchOnlineMemberIds().then(({ portal, online }) => {
 							if (online.length > 0)
@@ -132,7 +132,6 @@ export default (wss: Server) => {
 							room.destroyPortal()
 						}).catch(console.error), config.empty_room_portal_destroy * 1000
 					)
-				}
 			}
 		})
 	})

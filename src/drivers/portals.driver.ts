@@ -18,7 +18,7 @@ export const createPortal = (room: Room) => new Promise(async (resolve, reject) 
 		log(`Sending request to ${url}create with room id: ${room.id}`, [{ content: 'portals', color: 'MAGENTA' }])
 
 		await axios.post(`${url}create`, { roomId: room.id }, { headers })
-			.catch((reason) => {
+			.catch(reason => {
 				console.log(`AXIOS POST FAILED: ${reason}`)
 				throw reason
 			}
@@ -36,7 +36,7 @@ export const destroyPortal = (room: Room) => new Promise(async (resolve, reject)
 			{ portal } = room
 
 		if (!portal.id)
-			return
+			reject()
 
 		await axios.delete(`${url}${portal.id}`, { headers })
 

@@ -20,14 +20,14 @@ interface IAvatarConstruction {
 	hash?: string
 }
 
-export const constructAvatar = (data: IAvatarConstruction) => {
+export const constructAvatar = (data: IAvatarConstruction, animated = true) => {
 	if (!data.hash)
 		return `https://www.gravatar.com/avatar/${md5(data.email || '')}?d=retro&s=128`
 
 	const { userId, hash } = data
 	let url = `https://cdn.discordapp.com/avatars/${userId}/`
 
-	if (data.hash.substr(0, 2) === 'a_')
+	if (hash.substr(0, 2) === 'a_' && animated)
 		url += `${hash}.gif`
 	else
 		url += `${hash}.png`

@@ -36,6 +36,15 @@ export const UserNotAuthorized: IAPIResponse = {
 	status: 401
 }
 
+export const UserNotAllowed: IAPIResponse = {
+	response: 'USER_NOT_ALLOWED',
+	error: {
+		title: 'User Not Allowed',
+		description: 'You\'re lacking permissions to access this.'
+	},
+	status: 401
+}
+
 export const UserNotInRoom: IAPIResponse = {
 	response: 'USER_NOT_IN_ROOM',
 	error: {
@@ -212,6 +221,15 @@ export const PortalNotOpen: IAPIResponse = {
 	error: {
 		title: 'Portal Not Open',
 		description: 'This portal is not currently open, please try again later.'
+	},
+	status: 409
+}
+
+export const PortalAlreadyAssigned: IAPIResponse = {
+	response: 'PORTAL_ALREADY_ASSIGNED',
+	error: {
+		title: 'Portal Already Assigned',
+		description: 'This room already has a portal assigned.'
 	},
 	status: 409
 }
