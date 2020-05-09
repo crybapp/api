@@ -35,7 +35,7 @@ We ask that you follow our [code style guidelines](https://github.com/crybapp/li
 
 We use TSLint in order to lint our code. Run `yarn lint` before committing any code to ensure it's clean.
 
-*Note: while we have most rules covered in our `tslint.json` config, it's good practice to familarise yourself with our code style guidelines*
+*Note: while we have most rules covered in our `tslint.json` config, it's good practice to familarise yourself with our code style guidelines.*
 
 ### Folder Structure
 ```
