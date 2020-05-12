@@ -1,5 +1,5 @@
-import Redis from 'ioredis'
 import { URL } from 'url'
+import Redis from 'ioredis'
 
 interface ISentinel {
   host: string

@@ -11,11 +11,11 @@ import { Server } from 'ws'
 
 import { connect } from 'mongoose'
 
+import passport from '../config/passport.config'
+import { verify_env } from '../utils/verifications.utils'
 import routes from './routes'
 import websocket from './websocket'
 
-import passport from '../config/passport.config'
-import { verify_env } from '../utils/verifications.utils'
 
 verify_env(
   'JWT_KEY',
