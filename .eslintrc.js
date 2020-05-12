@@ -157,9 +157,6 @@ module.exports = {
     "id-blacklist": "off",
     "id-match": "off",
     "import/order": "error",
-    "jsdoc/check-alignment": "error",
-    "jsdoc/check-indentation": "error",
-    "jsdoc/newline-after-description": "error",
     "max-classes-per-file": [
       "error",
       1
@@ -224,7 +221,6 @@ module.exports = {
         ]
       }
     ],
-    "unicorn/filename-case": "error",
     "use-isnan": "error",
     "valid-typeof": "off",
     "@typescript-eslint/tslint/config": [
@@ -247,3 +243,4 @@ module.exports = {
     ]
   }
 };
+
