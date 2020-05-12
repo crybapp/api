@@ -1,6 +1,6 @@
 import { Response } from 'express'
 
-interface IAPIResponse {
+interface APIResponse {
   response: string
   error: {
     title: string
@@ -9,7 +9,7 @@ interface IAPIResponse {
   status: number
 }
 
-export const UserNoAuth: IAPIResponse = {
+export const UserNoAuth: APIResponse = {
   response: 'USER_NO_AUTH',
   error: {
     title: 'User No Auth',
@@ -18,7 +18,7 @@ export const UserNoAuth: IAPIResponse = {
   status: 401
 }
 
-export const UserBanned: IAPIResponse = {
+export const UserBanned: APIResponse = {
   response: 'USER_BANNED',
   error: {
     title: 'User Banned',
@@ -27,7 +27,7 @@ export const UserBanned: IAPIResponse = {
   status: 401
 }
 
-export const UserNotAuthorized: IAPIResponse = {
+export const UserNotAuthorized: APIResponse = {
   response: 'USER_NOT_AUTHORIZED',
   error: {
     title: 'User Not Authorized',
@@ -36,7 +36,7 @@ export const UserNotAuthorized: IAPIResponse = {
   status: 401
 }
 
-export const UserNotInRoom: IAPIResponse = {
+export const UserNotInRoom: APIResponse = {
   response: 'USER_NOT_IN_ROOM',
   error: {
     title: 'User Not in Room',
@@ -45,7 +45,7 @@ export const UserNotInRoom: IAPIResponse = {
   status: 410
 }
 
-export const UserAlreadyInRoom: IAPIResponse = {
+export const UserAlreadyInRoom: APIResponse = {
   response: 'USER_ALREADY_IN_ROOM',
   error: {
     title: 'User Already in Room',
@@ -54,7 +54,7 @@ export const UserAlreadyInRoom: IAPIResponse = {
   status: 409
 }
 
-export const InviteNotFound: IAPIResponse = {
+export const InviteNotFound: APIResponse = {
   response: 'INVITE_NOT_FOUND',
   error: {
     title: 'Invite Not Found',
@@ -63,7 +63,7 @@ export const InviteNotFound: IAPIResponse = {
   status: 404
 }
 
-export const RoomNotFound: IAPIResponse = {
+export const RoomNotFound: APIResponse = {
   response: 'ROOM_NOT_FOUND',
   error: {
     title: 'Room Not Found',
@@ -72,7 +72,7 @@ export const RoomNotFound: IAPIResponse = {
   status: 404
 }
 
-export const RoomNameTooLong: IAPIResponse = {
+export const RoomNameTooLong: APIResponse = {
   response: 'ROOM_NAME_TOO_LONG',
   error: {
     title: 'Room Name Too Long',
@@ -81,7 +81,7 @@ export const RoomNameTooLong: IAPIResponse = {
   status: 413
 }
 
-export const RoomNameTooShort: IAPIResponse = {
+export const RoomNameTooShort: APIResponse = {
   response: 'ROOM_NAME_TOO_SHORT',
   error: {
     title: 'Room Name Too Long',
@@ -90,7 +90,7 @@ export const RoomNameTooShort: IAPIResponse = {
   status: 413
 }
 
-export const UserNotFound: IAPIResponse = {
+export const UserNotFound: APIResponse = {
   response: 'USER_NOT_FOUND',
   error: {
     title: 'User Not Found',
@@ -99,7 +99,7 @@ export const UserNotFound: IAPIResponse = {
   status: 404
 }
 
-export const ControllerIsNotAvailable: IAPIResponse = {
+export const ControllerIsNotAvailable: APIResponse = {
   response: 'CONTROLLER_IS_NOT_AVAILABLE',
   error: {
     title: 'Controller Is Not Available',
@@ -108,7 +108,7 @@ export const ControllerIsNotAvailable: IAPIResponse = {
   status: 406
 }
 
-export const UserDoesNotHaveRemote: IAPIResponse = {
+export const UserDoesNotHaveRemote: APIResponse = {
   response: 'USER_DOES_NOT_HAVE_REMOTE',
   error: {
     title: 'User Does Not Have Remote',
@@ -117,7 +117,7 @@ export const UserDoesNotHaveRemote: IAPIResponse = {
   status: 417
 }
 
-export const UserIsNotPermitted: IAPIResponse = {
+export const UserIsNotPermitted: APIResponse = {
   response: 'USER_IS_NOT_PERMITTED',
   error: {
     title: 'User Is Not Permitted',
@@ -126,7 +126,7 @@ export const UserIsNotPermitted: IAPIResponse = {
   status: 401
 }
 
-export const MessageTooLong: IAPIResponse = {
+export const MessageTooLong: APIResponse = {
   response: 'MESSAGE_TOO_LONG',
   error: {
     title: 'Message Too Long',
@@ -135,7 +135,7 @@ export const MessageTooLong: IAPIResponse = {
   status: 413
 }
 
-export const MessageTooShort: IAPIResponse = {
+export const MessageTooShort: APIResponse = {
   response: 'MESSAGE_TOO_SHORT',
   error: {
     title: 'Message Too Short',
@@ -144,7 +144,7 @@ export const MessageTooShort: IAPIResponse = {
   status: 413
 }
 
-export const MessageNotFound: IAPIResponse = {
+export const MessageNotFound: APIResponse = {
   response: 'MESSAGE_NOT_FOUND',
   error: {
     title: 'Message Not Found',
@@ -153,7 +153,7 @@ export const MessageNotFound: IAPIResponse = {
   status: 404
 }
 
-export const ReportNotFound: IAPIResponse = {
+export const ReportNotFound: APIResponse = {
   response: 'REPORT_NOT_FOUND',
   error: {
     title: 'Report Not Found',
@@ -162,7 +162,7 @@ export const ReportNotFound: IAPIResponse = {
   status: 404
 }
 
-export const BanNotFound: IAPIResponse = {
+export const BanNotFound: APIResponse = {
   response: 'BAN_NOT_FOUND',
   error: {
     title: 'Ban Not Found',
@@ -171,7 +171,7 @@ export const BanNotFound: IAPIResponse = {
   status: 404
 }
 
-export const BanAlreadyExists: IAPIResponse = {
+export const BanAlreadyExists: APIResponse = {
   response: 'BAN_ALREADY_EXISTS',
   error: {
     title: 'Ban Already Exists',
@@ -180,7 +180,7 @@ export const BanAlreadyExists: IAPIResponse = {
   status: 409
 }
 
-export const TooManyMembers: IAPIResponse = {
+export const TooManyMembers: APIResponse = {
   response: 'TOO_MANY_MEMBERS',
   error: {
     title: 'Too Many Members',
@@ -189,7 +189,7 @@ export const TooManyMembers: IAPIResponse = {
   status: 409
 }
 
-export const TargetTypeNotFound: IAPIResponse = {
+export const TargetTypeNotFound: APIResponse = {
   response: 'TARGET_TYPE_NOT_FOUND',
   error: {
     title: 'Target Type Not Found',
@@ -198,7 +198,7 @@ export const TargetTypeNotFound: IAPIResponse = {
   status: 0
 }
 
-export const NoPortalFound: IAPIResponse = {
+export const NoPortalFound: APIResponse = {
   response: 'NO_PORTAL_FOUND',
   error: {
     title: 'No Portal Found',
@@ -207,7 +207,7 @@ export const NoPortalFound: IAPIResponse = {
   status: 404
 }
 
-export const PortalNotOpen: IAPIResponse = {
+export const PortalNotOpen: APIResponse = {
   response: 'PORTAL_NOT_OPEN',
   error: {
     title: 'Portal Not Open',

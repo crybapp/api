@@ -16,12 +16,12 @@ type LogColor = 'BLACK' | 'RED' | 'GREEN' | 'YELLOW' | 'BLUE' | 'MAGENTA' | 'CYA
 
 export const logColors: LogColor[] = ['RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN']
 
-export interface ILogPrefix {
+export interface LogPrefix {
   content: string
   color?: LogColor
 }
 
-export default (msg: string, prefixes: ILogPrefix[] | string, color: LogColor = 'GREEN') => {
+export default (msg: string, prefixes: LogPrefix[] | string, color: LogColor = 'GREEN') => {
   // Create empty prefix string
   let prefix = ''
 
@@ -29,19 +29,16 @@ export default (msg: string, prefixes: ILogPrefix[] | string, color: LogColor = 
     prefixes = []
 
   // If a prefix / multiple prefixes are defined
-  if (prefixes)
+  if (prefixes) {
   // If the first item of the possible array contains properties that could indicate a LogPrefix object
-  {
-    if ((prefixes[0] as ILogPrefix).content)
+    if ((prefixes[0] as LogPrefix).content) {
     // For every log prefix item
-    {
-      prefix = (prefixes as ILogPrefix[]).map(prefixItem =>
+      prefix = (prefixes as LogPrefix[]).map(prefixItem =>
       // Construct the prefix as a string, and add it to the 'prefix' string
 				 `[${prefixItem.color ? colors[prefixItem.color] : colors.GREEN}${prefixItem.content.toUpperCase()}${colors.RESET}]`
       ).join(' ')
-    }
+    } else
     // If the prefixes item is a string
-    else
     // Construct the prefix as a string, and add it to the 'prefix' string
       prefix = `[${color ? colors[color] : colors.GREEN}${(prefixes as string).toUpperCase()}${colors.RESET}]`
   }

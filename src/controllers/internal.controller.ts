@@ -57,7 +57,7 @@ app.put('/portal', authenticate, async (req, res) => {
 
       if (status === 'open') {
         // JanusId is -1 when a janus instance is not running.
-        if (allocation.janusId == -1) {
+        if (allocation.janusId === -1) {
           const token = signApertureToken(id),
             apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
           await apertureMessage.broadcast(online)

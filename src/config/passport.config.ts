@@ -47,7 +47,7 @@ const fetchUser = async (
 
       resolve(user)
     } else {
-      passport.authenticate('jwt', { session: false }, async (err, user: User) => {
+      passport.authenticate('jwt', { session: false }, (err, user: User) => {
         if (err)
           return handleError(err, res)
 

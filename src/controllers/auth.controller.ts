@@ -26,7 +26,7 @@ app.post('/discord', async (req, res) => {
   }
 })
 
-app.get('/discord/redirect', async (req, res) => {
+app.get('/discord/redirect', (req, res) => {
   let state = ''
 
   if (req.query.invite)

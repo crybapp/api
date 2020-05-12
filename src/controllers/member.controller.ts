@@ -9,7 +9,8 @@ import { extractUserId } from '../utils/helpers.utils'
 const app = express()
 
 app.post('/:id/kick', authenticate, async (req, res) => {
-  const { user } = req as { user: User }
+  const { user: u } = req
+  const user = u as User
 
   if (!user.room)
     return handleError(UserNotInRoom, res)
@@ -37,6 +38,6 @@ app.post('/:id/kick', authenticate, async (req, res) => {
   }
 })
 
-app.post('/:id/report', authenticate, async (_, res) => res.sendStatus(200))
+app.post('/:id/report', authenticate, (_, res) => res.sendStatus(200))
 
 export default app

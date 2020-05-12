@@ -42,7 +42,7 @@ export class GroupedMessage {
   public messages: Message[]
   public messageIds: string[]
 
-  constructor(message: Message, author: UserResolvable) {
+  public constructor(message: Message, author: UserResolvable) {
     this.id = message.id
     this.createdAt = message.createdAt
 
