@@ -74,6 +74,7 @@ module.exports = {
         accessibility: 'explicit'
       }
     ],
+    '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/indent': [
       'error',
       2,
@@ -86,7 +87,6 @@ module.exports = {
         }
       }
     ],
-    '@typescript-eslint/interface-name-prefix': 'error',
     '@typescript-eslint/member-delimiter-style': [
       'error',
       {
@@ -141,6 +141,7 @@ module.exports = {
       '1tbs'
     ],
     'camelcase': 'off',
+    '@typescript-eslint/camelcase': 'off',
     'comma-dangle': 'error',
     'complexity': 'off',
     'constructor-super': 'error',
@@ -160,12 +161,6 @@ module.exports = {
     'max-classes-per-file': [
       'error',
       1
-    ],
-    'max-len': [
-      'error',
-      {
-        code: 120
-      }
     ],
     'new-parens': 'error',
     'no-bitwise': 'error',
