@@ -22,10 +22,8 @@ export default (mesa: Mesa) => {
 		log('Connection', 'ws', 'CYAN')
 
 		client.authenticate(async ({ token }, done) => {
-			let id: string,
-				user: User
-
-			console.log(token, process.env.AUTH_BASE_URL)
+			let id: string
+			let user: User
 
 			try {
 				if (process.env.AUTH_BASE_URL) {
