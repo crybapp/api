@@ -13,7 +13,7 @@
     "lint": "tslint src/**/*.ts{,x}"
   },
   "dependencies": {
-    "@cryb/mesa": "^1.2.9",
+    "@cryb/mesa": "^1.4.3",
     "axios": "^0.19.0",
     "biguint-format": "^1.0.1",
     "chance": "^1.0.18",

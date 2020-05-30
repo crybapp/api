@@ -18,11 +18,12 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@cryb/mesa@^1.2.9":
-  version "1.2.9"
-  resolved "https://registry.yarnpkg.com/@cryb/mesa/-/mesa-1.2.9.tgz#a3773038a7e56a8be3c6569f18f05ca37ed12d0e"
-  integrity sha512-yeN/a5R3Q2q8Y8DNKksyrVkh4daqanCiwMedPf0QMgOwZQzgPrWP5tVNqokhxXcoMtuh5yWF5wWwprjWq54cRQ==
+"@cryb/mesa@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@cryb/mesa/-/mesa-1.4.3.tgz#565f5c4eaf41f8d80de849c8c220017327215254"
+  integrity sha512-kv6ncqZ2QgbTYvAbKCdY+0F9NCsBQQYUwuRCbn9hsEXJcbaZh6gGqiCJUS97xS7o8s7lRUVJujMzD+P5mIAo6w==
   dependencies:
+    death "^1.1.0"
     ioredis "^4.14.1"
     ws "^7.2.1"
 
@@ -465,6 +466,11 @@ dasherize@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/dasherize/-/dasherize-2.0.0.tgz#6d809c9cd0cf7bb8952d80fc84fa13d47ddb1308"
   integrity sha1-bYCcnNDPe7iVLYD8hPoT1H3bEwg=
+
+death@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/death/-/death-1.1.0.tgz#01aa9c401edd92750514470b8266390c66c67318"
+  integrity sha1-AaqcQB7dknUFFEcLgmY5DGbGcxg=
 
 debug@2.6.9:
   version "2.6.9"
