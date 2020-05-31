@@ -83,7 +83,7 @@ export default class Ban {
     return this
   }
 
-  public function setup(json: IBan) {
+  public setup(json: IBan) {
     this.id = json.info.id
     this.createdAt = json.info.createdAt
     this.active = json.info.active

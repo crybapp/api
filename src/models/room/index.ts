@@ -306,7 +306,7 @@ export default class Room {
     this.controller = fromId
 
     return this
-  })
+  }
 
   public async giveControl(to: UserResolvable, from: UserResolvable) {
     const ownerId = extractUserId(this.owner)
