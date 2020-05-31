@@ -16,35 +16,22 @@ const generateRoomToken = (room: Room) => jwt.sign({ roomId: room.id }, key),
     Authorization: `Valve ${generateRoomToken(room)}`
   })
 
-export const createPortal = (room: Room) => new Promise(async (resolve, reject) => {
-  try {
-    const headers = await generateHeaders(room)
-    log(`Sending request to ${url}create with room id: ${room.id}`, [{ content: 'portals', color: 'MAGENTA' }])
+export async function createPortal (room: Room) {
+  const headers = await generateHeaders(room)
+  log(`Sending request to ${url}create with room id: ${room.id}`, [{ content: 'portals', color: 'MAGENTA' }])
 
-    const response =  await axios.post(`${url}create`, { roomId: room.id }, { headers })
+  const response =  await axios.post(`${url}create`, { roomId: room.id }, { headers })
 
-    const portalQueueMessage = new MesaMessage(0, response.data, 'QUEUE_UPDATE')
-    dispatcher.dispatch(portalQueueMessage, room.members.map(extractUserId))
+  const portalQueueMessage = new MesaMessage(0, response.data, 'QUEUE_UPDATE')
+  dispatcher.dispatch(portalQueueMessage, room.members.map(extractUserId))
+}
 
-    resolve()
-  } catch(error) {
-    console.log(`AXIOS POST FAILED: ${error}`)
-    reject(error)
-  }
-})
+export async function destroyPortal(room: Room) {
+  const headers = await generateHeaders(room)
+  const { portal } = room
 
-export const destroyPortal = (room: Room) => new Promise(async (resolve, reject) => {
-  try {
-    const headers = await generateHeaders(room),
-      { portal } = room
+  if(!portal.id)
+    return
 
-    if(!portal.id)
-      return
-
-    await axios.delete(`${url}${portal.id}`, { headers })
-
-    resolve()
-  } catch(error) {
-    reject(error)
-  }
-})
+  await axios.delete(`${url}${portal.id}`, { headers })
+}

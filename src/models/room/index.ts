@@ -54,444 +54,370 @@ export default class Room {
     this.setup(json)
   }
 
-  public load = (id: string) => new Promise<Room>(async (resolve, reject) => {
-    try {
-      const doc = await StoredRoom.findOne({ 'info.id': id })
-      if(!doc)
-        return reject(RoomNotFound)
+  public async load(id: string) {
+    const doc = await StoredRoom.findOne({ 'info.id': id })
+    if(!doc)
+      throw RoomNotFound
 
-      this.setup(doc)
+    this.setup(doc)
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
+    return this
+  }
 
-  public create = (name: string, creator: User) => new Promise<Room>(async (resolve, reject) => {
+  public async create(name: string, creator: User) {
     if(creator.room)
-      return reject(UserAlreadyInRoom)
+      throw UserAlreadyInRoom
 
-    try {
-      const json: IRoom = {
-        info: {
-          id: generateFlake(),
-          createdAt: Date.now(),
+    const json: IRoom = {
+      info: {
+        id: generateFlake(),
+        createdAt: Date.now(),
 
-          type: 'vm',
-          portal: {
-            status: 'waiting',
-            lastUpdatedAt: Date.now()
-          },
-
-          owner: creator.id,
-          controller: creator.id
+        type: 'vm',
+        portal: {
+          status: 'waiting',
+          lastUpdatedAt: Date.now()
         },
-        profile: {
-          name
-        }
+
+        owner: creator.id,
+        controller: creator.id
+      },
+      profile: {
+        name
       }
-
-      const stored = new StoredRoom(json)
-      await stored.save()
-
-      this.setup(json)
-
-      await this.createInvite(creator, false) // System prop false as data will be delivered over REST
-      await creator.joinRoom(this, true)
-
-      client.hset('controller', this.id, creator.id)
-
-      resolve(this)
-    } catch(error) {
-      reject(error)
     }
-  })
+
+    const stored = new StoredRoom(json)
+    await stored.save()
+
+    this.setup(json)
+
+    await this.createInvite(creator, false) // System prop false as data will be delivered over REST
+    await creator.joinRoom(this, true)
+
+    client.hset('controller', this.id, creator.id)
+
+    return this
+  }
 
   /**
    * The system prop indicates if the invite was created by a Cryb update
    */
-  public createInvite = (creator: User, system: boolean) => new Promise<Invite>(async (resolve, reject) => {
-    try {
-      const invite = await new Invite().create(
-        this,
-        'room',
-        { maxUses: 0, unlimitedUses: true },
-        { system: true },
-        creator
-      )
+  public async createInvite(creator: User, system: boolean) {
+    const invite = await new Invite().create(
+      this,
+      'room',
+      { maxUses: 0, unlimitedUses: true },
+      { system: true },
+      creator
+    )
 
-      if(!this.invites)
-        this.invites = []
-
-      this.invites.push(invite)
-
-      if(system) {
-        const message = new MesaMessage(0, invite, 'INVITE_UPDATE')
-        dispatcher.dispatch(message, [extractUserId(this.owner)])
-      }
-
-      resolve(invite)
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public transferOwnership = (to: User) => new Promise<Room>(async (resolve, reject) => {
-    try {
-      const newOwnerId = extractUserId(to)
-
-      await StoredRoom.updateOne({
-        'info.id': this.id
-      }, {
-        $set: {
-          'info.owner': newOwnerId
-        }
-      })
-
-      const message = new MesaMessage(0, { u: newOwnerId }, 'OWNER_UPDATE')
-      dispatcher.dispatch(message, this.members.map(extractUserId))
-
-      this.owner = to
-
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public fetchMembers = (index: number = 0) => new Promise<Room>(async (resolve, reject) => {
-    try {
-      const docs = await StoredUser.find({ 'info.room': this.id }).skip(index).limit(10)
-
-      if(docs.length === 0)
-        return resolve(this)
-
-      const members = docs.map(doc => new User(doc))
-      this.members = members
-
-      const ownerId = extractUserId(this.owner),
-          controllerId = extractUserId(this.controller)
-
-      members.forEach(member => {
-        if(ownerId === member.id)
-          this.owner = member
-
-        if(controllerId === member.id)
-          this.controller = member
-      })
-
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public fetchOnlineMemberIds = () => new Promise<Room>(async (resolve, reject) => {
-    try {
-      const memberIds = await StoredUser.distinct('info.id', { 'info.room': this.id }),
-        connectedClientIds: string[] = await client.smembers('connected_clients')
-
-      this.online = connectedClientIds.filter(id => memberIds.indexOf(id) > -1)
-
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public fetchMessages = (index: number = 0) => new Promise<Room>(async (resolve, reject) => {
-    try {
-      const docs = await StoredMessage.find({ 'info.room': this.id }).sort({ 'info.createdAt': -1 }).skip(index).limit(50)
-
-      if(docs.length === 0)
-        return resolve(this)
-
-      const messages = docs.map(doc => new Message(doc))
-      this.messages = groupMessages(messages.reverse())
-
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public fetchInvites = (index: number = 0) => new Promise<Room>(async (resolve, reject) => {
-    try {
-      const docs = await StoredInvite.find({
-        $and: [
-          {
-            'info.targetId': this.id
-          },
-          {
-            'info.targetType': 'room'
-          },
-          {
-            'info.active': true
-          }
-        ]
-      }).skip(index).limit(10)
-
-      if(docs.length === 0)
-        return resolve(this)
-
-      const invites = docs.map(doc => new Invite(doc))
-      this.invites = invites
-
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public refreshInvites = (user: User, system: boolean) => new Promise<Invite>(async (resolve, reject) => {
-    try {
-      await this.destroyInvites()
-
-      const invite = await this.createInvite(user, system)
-
-      resolve(invite)
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public destroyInvites = () => new Promise<Room>(async (resolve, reject) => {
-    try {
-      await StoredInvite.deleteMany({
-        $and: [
-          {
-            'info.targetId': this.id
-          },
-          {
-            'info.targetType': 'room'
-          }
-        ]
-      })
-
+    if(!this.invites)
       this.invites = []
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
+    this.invites.push(invite)
 
-  public setPortalId = (id: string) => new Promise<Room>(async (resolve, reject) => {
-    try {
-      const allocation: IPortalAllocation = {
-        id,
-        janusId: 1,
-        janusIp: '0.0.0.0',
-        status: 'creating',
-        lastUpdatedAt: Date.now()
+    if(system) {
+      const message = new MesaMessage(0, invite, 'INVITE_UPDATE')
+      dispatcher.dispatch(message, [extractUserId(this.owner)])
+    }
+
+    return this
+  }
+
+  public async transferOwnership(to: User) {
+    const newOwnerId = extractUserId(to)
+
+    await StoredRoom.updateOne({
+      'info.id': this.id
+    }, {
+      $set: {
+        'info.owner': newOwnerId
       }
+    })
 
-      await StoredRoom.updateOne({
-        'info.id': this.id
-      }, {
-        $set: {
-          'info.portal': allocation
+    const message = new MesaMessage(0, { u: newOwnerId }, 'OWNER_UPDATE')
+    dispatcher.dispatch(message, this.members.map(extractUserId))
+
+    this.owner = to
+
+    return this
+  }
+
+  public async fetchMembers(index: number = 0) {
+    const docs = await StoredUser.find({ 'info.room': this.id }).skip(index).limit(10)
+
+    if(docs.length === 0)
+      return this
+
+    const members = docs.map(doc => new User(doc))
+    this.members = members
+
+    const ownerId = extractUserId(this.owner),
+        controllerId = extractUserId(this.controller)
+
+    members.forEach(member => {
+      if(ownerId === member.id)
+        this.owner = member
+
+      if(controllerId === member.id)
+        this.controller = member
+    })
+
+    return this
+  }
+
+  public async fetchOnlineMemberIds() {
+    const memberIds = await StoredUser.distinct('info.id', { 'info.room': this.id })
+    const connectedClientIds: string[] = await client.smembers('connected_clients')
+
+    this.online = connectedClientIds.filter(id => memberIds.indexOf(id) > -1)
+
+    return this
+  }
+
+  public async fetchMessages(index: number = 0) {
+    const docs = await StoredMessage.find({ 'info.room': this.id }).sort({ 'info.createdAt': -1 }).skip(index).limit(50)
+
+    if(docs.length === 0)
+      return this
+
+    const messages = docs.map(doc => new Message(doc))
+    this.messages = groupMessages(messages.reverse())
+
+    return this
+  }
+
+  public async fetchInvites(index: number = 0) {
+    const docs = await StoredInvite.find({
+      $and: [
+        {
+          'info.targetId': this.id
+        },
+        {
+          'info.targetType': 'room'
+        },
+        {
+          'info.active': true
         }
-      })
+      ]
+    }).skip(index).limit(10)
 
-      const message = new MesaMessage(0, allocation, 'PORTAL_UPDATE')
-      dispatcher.dispatch(message, this.members.map(extractUserId))
+    if(docs.length === 0)
+      return this
 
-      this.portal = allocation
+    const invites = docs.map(doc => new Invite(doc))
+    this.invites = invites
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
+    return this
+  }
+
+  public async refreshInvites(user: User, system: boolean) {
+    await this.destroyInvites()
+
+    const invite = await this.createInvite(user, system)
+
+    return invite
+  }
+
+  public async destroyInvites() {
+    await StoredInvite.deleteMany({
+      $and: [
+        {
+          'info.targetId': this.id
+        },
+        {
+          'info.targetType': 'room'
+        }
+      ]
+    })
+
+    this.invites = []
+
+    return this
+  }
+
+  public async setPortalId(id: string) {
+    const allocation: IPortalAllocation = {
+      id,
+      janusId: 1,
+      janusIp: '0.0.0.0',
+      status: 'creating',
+      lastUpdatedAt: Date.now()
     }
-  })
 
-  public updatePortalAllocation = (allocation: IPortalAllocation) => new Promise<Room>(async (resolve, reject) => {
+    await StoredRoom.updateOne({
+      'info.id': this.id
+    }, {
+      $set: {
+        'info.portal': allocation
+      }
+    })
+
+    const message = new MesaMessage(0, allocation, 'PORTAL_UPDATE')
+    dispatcher.dispatch(message, this.members.map(extractUserId))
+
+    this.portal = allocation
+
+    return this
+  }
+
+  public async updatePortalAllocation(allocation: IPortalAllocation) {
     allocation.lastUpdatedAt = Date.now()
 
-    try {
-      const currentAllocation = this.portal
-      Object.keys(allocation).forEach(key => currentAllocation[key] = allocation[key])
+    const currentAllocation = this.portal
+    Object.keys(allocation).forEach(key => currentAllocation[key] = allocation[key])
 
-      if(currentAllocation.status === 'closed')
-        delete currentAllocation.id
+    if(currentAllocation.status === 'closed')
+      delete currentAllocation.id
 
-      await StoredRoom.updateOne({
-        'info.id': this.id
-      }, {
-        $set: {
-          'info.portal': currentAllocation
-        }
-      })
+    await StoredRoom.updateOne({
+      'info.id': this.id
+    }, {
+      $set: {
+        'info.portal': currentAllocation
+      }
+    })
 
-      this.portal = currentAllocation
+    this.portal = currentAllocation
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
+    return this
+  }
 
-  public takeControl = (from: UserResolvable) => new Promise<Room>(async (resolve, reject) => {
+  public async takeControl(from: UserResolvable) {
     const fromId = extractUserId(from)
 
     if(this.controller !== null)
-      return reject(ControllerIsNotAvailable)
+      throw ControllerIsNotAvailable
 
-    try {
-      await StoredRoom.updateOne({
-        'info.id' :this.id
-      }, {
-        $set: {
-          'info.controller': fromId
-        }
-      })
+    await StoredRoom.updateOne({
+      'info.id' :this.id
+    }, {
+      $set: {
+        'info.controller': fromId
+      }
+    })
 
-      client.hset('controller', this.id, fromId)
+    client.hset('controller', this.id, fromId)
 
-      const message = new MesaMessage(0, { u: fromId }, 'CONTROLLER_UPDATE')
-      dispatcher.dispatch(message, this.members.map(extractUserId), [fromId])
+    const message = new MesaMessage(0, { u: fromId }, 'CONTROLLER_UPDATE')
+    dispatcher.dispatch(message, this.members.map(extractUserId), [fromId])
 
-      this.controller = fromId
+    this.controller = fromId
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
+    return this
   })
 
-  public giveControl = (to: UserResolvable, from: UserResolvable) => new Promise<Room>(async (resolve, reject) => {
-    const ownerId = extractUserId(this.owner),
-        controllerId = extractUserId(this.controller),
-        toId = extractUserId(to),
-        fromId = extractUserId(from)
+  public async giveControl(to: UserResolvable, from: UserResolvable) {
+    const ownerId = extractUserId(this.owner)
+    const controllerId = extractUserId(this.controller)
+    const toId = extractUserId(to)
+    const fromId = extractUserId(from)
 
     if(fromId !== controllerId && fromId !== ownerId)
-      return reject(UserDoesNotHaveRemote)
+      throw UserDoesNotHaveRemote
 
-    try {
-      await StoredRoom.updateOne({
-        'info.id': this.id
-      }, {
-        $set: {
-          'info.controller': toId
-        }
-      })
+    await StoredRoom.updateOne({
+      'info.id': this.id
+    }, {
+      $set: {
+        'info.controller': toId
+      }
+    })
 
-      client.hset('controller', this.id, toId)
+    client.hset('controller', this.id, toId)
 
-      const message = new MesaMessage(0, { u: toId }, 'CONTROLLER_UPDATE')
-      dispatcher.dispatch(message, this.members.map(extractUserId), [fromId])
+    const message = new MesaMessage(0, { u: toId }, 'CONTROLLER_UPDATE')
+    dispatcher.dispatch(message, this.members.map(extractUserId), [fromId])
 
-      this.controller = toId
+    this.controller = toId
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
+    return this
+  }
 
-  public releaseControl = (sender: UserResolvable) => new Promise<Room>(async (resolve, reject) => {
+  public async releaseControl(sender: UserResolvable) {
     const ownerId = extractUserId(this.owner),
         senderId = extractUserId(sender),
         controllerId = extractUserId(this.controller)
 
     if(senderId !== ownerId && senderId !== controllerId)
-      return reject(UserIsNotPermitted)
+      throw UserIsNotPermitted
 
-    try {
-      await StoredRoom.updateOne({
-        'info.id': this.id
-      }, {
-        $set: {
-          'info.controller': null
-        }
-      })
+    await StoredRoom.updateOne({
+      'info.id': this.id
+    }, {
+      $set: {
+        'info.controller': null
+      }
+    })
 
-      client.hdel('controller', this.id)
+    client.hdel('controller', this.id)
 
-      const message = new MesaMessage(0, { u: null }, 'CONTROLLER_UPDATE')
-      dispatcher.dispatch(message, this.members.map(extractUserId), [senderId])
+    const message = new MesaMessage(0, { u: null }, 'CONTROLLER_UPDATE')
+    dispatcher.dispatch(message, this.members.map(extractUserId), [senderId])
 
-      this.controller = null
+    this.controller = null
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
+    return this
+  }
 
-  public createPortal = () => createPortal(this)
+  public async createPortal() {
+    createPortal(this)
+  }
 
-  public restartPortal = () => new Promise(async (resolve, reject) => {
+  public async restartPortal() {
     if(this.portal.status !== 'open')
-      return reject(PortalNotOpen)
+      throw PortalNotOpen
 
-    try {
-      await this.destroyPortal()
-      await this.createPortal()
+    await this.destroyPortal()
+    await this.createPortal()
+  }
 
-      resolve()
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public destroyPortal = async () => {
+  public destroyPortal() {
     await destroyPortal(this)
     await this.updatePortalAllocation({ status: 'closed' })
 
     delete this.portal
   }
 
-  public updateType = (type: RoomType) => new Promise<Room>(async (resolve, reject) => {
-    try {
-      await StoredRoom.updateOne({
-        'info.id': this.id
-      }, {
-        $set: {
-          'info.type': type
-        }
-      })
+  public async updateType(type: RoomType) {
+    await StoredRoom.updateOne({
+      'info.id': this.id
+    }, {
+      $set: {
+        'info.type': type
+      }
+    })
 
-      this.type = type
+    this.type = type
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
+    return this
+  }
 
-  public destroy = () => new Promise(async (resolve, reject) => {
-    try {
-      const message = new MesaMessage(0, {}, 'ROOM_DESTROY')
-      dispatcher.dispatch(message, this.members.map(extractUserId))
+  public async destroy() {
+    const message = new MesaMessage(0, {}, 'ROOM_DESTROY')
+    dispatcher.dispatch(message, this.members.map(extractUserId))
 
-      await StoredRoom.deleteOne({ 'info.id': this.id })
-      await StoredMessage.deleteMany({ 'info.room': this.id })
+    await StoredRoom.deleteOne({ 'info.id': this.id })
+    await StoredMessage.deleteMany({ 'info.room': this.id })
 
-      await StoredUser.updateMany({
-        'info.room': this.id
-      }, {
-        $unset: {
-          'info.room': ''
-        }
-      })
+    await StoredUser.updateMany({
+      'info.room': this.id
+    }, {
+      $unset: {
+        'info.room': ''
+      }
+    })
 
-      await this.destroyInvites()
+    await this.destroyInvites()
 
-      if(this.portal)
-        destroyPortal(this)
+    if(this.portal)
+      destroyPortal(this)
 
-      await client.hdel('controller', this.id)
+    await client.hdel('controller', this.id)
+  }
 
-      resolve()
-    } catch(error) {
-      reject(error)
-    }
-  })
-
-  public setup = (json: IRoom) => {
+  public setup(json: IRoom) {
     this.id = json.info.id
     this.createdAt = json.info.createdAt
     this.endedAt = json.info.endedAt
@@ -505,8 +431,10 @@ export default class Room {
     this.name = json.profile.name
   }
 
-  public prepare = () => ({
-    ...this,
-    members: this.members.map(member => typeof member === 'string' ? member : member.prepare())
-  } as Room)
+  public prepare() {
+    return {
+      ...this,
+      members: this.members.map(member => typeof member === 'string' ? member : member.prepare())
+    } as Room
+  }
 }

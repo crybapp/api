@@ -24,66 +24,52 @@ export default class Report {
     this.setup(json)
   }
 
-  public load = () => new Promise<Report>(async (resolve, reject) => {
-    try {
-      const doc = await StoredReport.findOne({ 'info.id': this.id })
+  public async load() {
+    const doc = await StoredReport.findOne({ 'info.id': this.id })
 
-      if(!doc)
-        throw ReportNotFound
+    if(!doc)
+      throw ReportNotFound
 
-      this.setup(doc)
+    this.setup(doc)
 
-      resolve(this)
-    } catch(error) {
-      reject(error)
-    }
-  })
+    return this
+  }
 
-  public create = (
+  public async create(
     message: MessageResolvable,
     room: RoomResolvable,
     reporter?: UserResolvable
-  ) => new Promise<Report>(async (resolve, reject) => {
-    try {
-      const messageId = extractMessageId(message),
-        roomId = extractRoomId(room)
+  ) {
+    const messageId = extractMessageId(message)
+    const roomId = extractRoomId(room)
 
-      const json: IReport = {
-        info: {
-          id: generateFlake(),
-          createdAt: Date.now(),
-          createdBy: extractUserId(reporter)
-        },
-        data: {
-          messageId,
-          roomId
-        }
+    const json: IReport = {
+      info: {
+        id: generateFlake(),
+        createdAt: Date.now(),
+        createdBy: extractUserId(reporter)
+      },
+      data: {
+        messageId,
+        roomId
       }
-
-      const stored = new StoredReport(json)
-      await stored.save()
-
-      this.setup(json)
-
-      resolve(this)
-    } catch(error) {
-      reject(error)
     }
-  })
 
-  public destroy = () => new Promise(async (resolve, reject) => {
-    try {
-      await StoredReport.deleteOne({
-        'info.id': this.id
-      })
+    const stored = new StoredReport(json)
+    await stored.save()
 
-      resolve()
-    } catch(error) {
-      reject(error)
-    }
-  })
+    this.setup(json)
 
-  public setup = (json: IReport) => {
+    return this
+  }
+
+  public async destroy() {
+    await StoredReport.deleteOne({
+      'info.id': this.id
+    })
+  }
+
+  public setup(json: IReport) {
     this.id = json.info.id
     this.createdAt = json.info.createdAt
 
