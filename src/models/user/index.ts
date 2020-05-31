@@ -229,6 +229,8 @@ export default class User {
     const message = new Message(0, { ...this, room: undefined }, 'USER_JOIN')
     dispatcher.dispatch(message, await fetchRoomMemberIds(room))
 
+    await client.hset('user_room', this.id, room.id)
+
     this.room = room
 
     return this
@@ -273,6 +275,8 @@ export default class User {
     })
 
     client.hset('undelivered_events', this.id, JSON.stringify([]))
+
+    await client.hdel('user_room', this.id)
 
     delete this.room
 
