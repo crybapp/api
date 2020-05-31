@@ -3,9 +3,9 @@ dotenv.config()
 
 import { createServer } from 'http'
 
-import Mesa from '@cryb/mesa'
 import express, { json } from 'express'
 import { connect } from 'mongoose'
+import passport from 'passport'
 
 import cors from 'cors'
 import helmet from 'helmet'
@@ -14,9 +14,6 @@ import morgan from 'morgan'
 import mesa from './mesa'
 import routes from './routes'
 
-import config from '../config/defaults'
-import passport from '../config/passport.config'
-import { getOptions } from '../config/redis.config'
 import { verify_env } from '../utils/verifications.utils'
 
 verify_env(
@@ -45,6 +42,6 @@ app.use(morgan('dev'))
 app.use(passport.initialize())
 
 routes(app)
-mesa(app)
+mesa(server)
 
 export default server

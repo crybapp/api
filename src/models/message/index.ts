@@ -70,7 +70,6 @@ export default class Message {
       this.setup(json)
 
       const message = new MesaMessage(0, this, 'MESSAGE_CREATE')
-      console.log(message, await fetchRoomMemberIds(author.room), [author.id])
       dispatcher.dispatch(message, await fetchRoomMemberIds(author.room), [author.id])
 
       resolve(this)

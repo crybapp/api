@@ -62,6 +62,8 @@ export default (server: http.Server) => {
           [id]
         )
 
+        log(`Authenticated ${id}`, 'ws', 'CYAN')
+
         done(null, { id, user })
       } catch (error) {
         console.error(error)
