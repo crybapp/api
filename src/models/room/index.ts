@@ -49,14 +49,14 @@ export default class Room {
   public online: string[]
 
   constructor(json?: IRoom) {
-    if(!json) return
+    if (!json) return
 
     this.setup(json)
   }
 
   public async load(id: string) {
     const doc = await StoredRoom.findOne({ 'info.id': id })
-    if(!doc)
+    if (!doc)
       throw RoomNotFound
 
     this.setup(doc)
@@ -65,7 +65,7 @@ export default class Room {
   }
 
   public async create(name: string, creator: User) {
-    if(creator.room)
+    if (creator.room)
       throw UserAlreadyInRoom
 
     const json: IRoom = {
@@ -112,12 +112,12 @@ export default class Room {
       creator
     )
 
-    if(!this.invites)
+    if (!this.invites)
       this.invites = []
 
     this.invites.push(invite)
 
-    if(system) {
+    if (system) {
       const message = new MesaMessage(0, invite, 'INVITE_UPDATE')
       dispatcher.dispatch(message, [extractUserId(this.owner)])
     }
@@ -147,7 +147,7 @@ export default class Room {
   public async fetchMembers(index: number = 0) {
     const docs = await StoredUser.find({ 'info.room': this.id }).skip(index).limit(10)
 
-    if(docs.length === 0)
+    if (docs.length === 0)
       return this
 
     const members = docs.map(doc => new User(doc))
@@ -157,10 +157,10 @@ export default class Room {
         controllerId = extractUserId(this.controller)
 
     members.forEach(member => {
-      if(ownerId === member.id)
+      if (ownerId === member.id)
         this.owner = member
 
-      if(controllerId === member.id)
+      if (controllerId === member.id)
         this.controller = member
     })
 
@@ -179,7 +179,7 @@ export default class Room {
   public async fetchMessages(index: number = 0) {
     const docs = await StoredMessage.find({ 'info.room': this.id }).sort({ 'info.createdAt': -1 }).skip(index).limit(50)
 
-    if(docs.length === 0)
+    if (docs.length === 0)
       return this
 
     const messages = docs.map(doc => new Message(doc))
@@ -203,7 +203,7 @@ export default class Room {
       ]
     }).skip(index).limit(10)
 
-    if(docs.length === 0)
+    if (docs.length === 0)
       return this
 
     const invites = docs.map(doc => new Invite(doc))
@@ -268,7 +268,7 @@ export default class Room {
     const currentAllocation = this.portal
     Object.keys(allocation).forEach(key => currentAllocation[key] = allocation[key])
 
-    if(currentAllocation.status === 'closed')
+    if (currentAllocation.status === 'closed')
       delete currentAllocation.id
 
     await StoredRoom.updateOne({
@@ -287,7 +287,7 @@ export default class Room {
   public async takeControl(from: UserResolvable) {
     const fromId = extractUserId(from)
 
-    if(this.controller !== null)
+    if (this.controller !== null)
       throw ControllerIsNotAvailable
 
     await StoredRoom.updateOne({
@@ -314,7 +314,7 @@ export default class Room {
     const toId = extractUserId(to)
     const fromId = extractUserId(from)
 
-    if(fromId !== controllerId && fromId !== ownerId)
+    if (fromId !== controllerId && fromId !== ownerId)
       throw UserDoesNotHaveRemote
 
     await StoredRoom.updateOne({
@@ -340,7 +340,7 @@ export default class Room {
         senderId = extractUserId(sender),
         controllerId = extractUserId(this.controller)
 
-    if(senderId !== ownerId && senderId !== controllerId)
+    if (senderId !== ownerId && senderId !== controllerId)
       throw UserIsNotPermitted
 
     await StoredRoom.updateOne({
@@ -366,7 +366,7 @@ export default class Room {
   }
 
   public async restartPortal() {
-    if(this.portal.status !== 'open')
+    if (this.portal.status !== 'open')
       throw PortalNotOpen
 
     await this.destroyPortal()
@@ -411,7 +411,7 @@ export default class Room {
 
     await this.destroyInvites()
 
-    if(this.portal)
+    if (this.portal)
       destroyPortal(this)
 
     await client.hdel('controller', this.id)

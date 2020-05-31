@@ -30,7 +30,7 @@ export async function destroyPortal(room: Room) {
   const headers = await generateHeaders(room)
   const { portal } = room
 
-  if(!portal.id)
+  if (!portal.id)
     return
 
   await axios.delete(`${url}${portal.id}`, { headers })

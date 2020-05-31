@@ -18,7 +18,7 @@ export default class Report {
   public room: RoomResolvable
 
   constructor(json?: IReport) {
-    if(!json)
+    if (!json)
       return
 
     this.setup(json)
@@ -27,7 +27,7 @@ export default class Report {
   public async load() {
     const doc = await StoredReport.findOne({ 'info.id': this.id })
 
-    if(!doc)
+    if (!doc)
       throw ReportNotFound
 
     this.setup(doc)
@@ -73,13 +73,13 @@ export default class Report {
     this.id = json.info.id
     this.createdAt = json.info.createdAt
 
-    if(!this.createdBy)
+    if (!this.createdBy)
       this.createdBy = json.info.createdBy
 
-    if(!this.message)
+    if (!this.message)
       this.message = json.data.messageId
 
-    if(!this.room)
+    if (!this.room)
       this.room = json.data.roomId
   }
 }

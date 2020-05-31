@@ -14,22 +14,22 @@ const app = express()
 app.post('/', authenticate, async (req, res) => {
   const { user } = req as { user: User }
 
-  if(!user.room)
+  if (!user.room)
     return handleError(UserNotInRoom, res)
 
   const { content } = req.body
 
-  if(content.length === 0)
+  if (content.length === 0)
     return handleError(MessageTooShort, res)
 
-  if(content.length >= 255)
+  if (content.length >= 255)
     return handleError(MessageTooLong, res)
 
   try {
     const message = await new Message().create(content, user)
 
     res.send(message)
-  } catch(error) {
+  } catch (error) {
     handleError(error, res)
   }
 })
@@ -42,7 +42,7 @@ app.post('/:id/report', authenticate, async (req, res) => {
     await new Report().create(messageId, user.room, user)
 
     res.sendStatus(200)
-  } catch(error) {
+  } catch (error) {
     handleError(error, res)
   }
 })
@@ -52,18 +52,18 @@ app.delete('/:id', authenticate, async (req, res) => {
     { id: messageId } = req.params
 
   try {
-    if(typeof user.room === 'string')
+    if (typeof user.room === 'string')
       await user.fetchRoom()
 
     const message = await new Message().load(messageId)
 
-    if(extractUserId(message.author) !== user.id && extractUserId((user.room as Room).owner) !== user.id)
+    if (extractUserId(message.author) !== user.id && extractUserId((user.room as Room).owner) !== user.id)
       return res.sendStatus(401)
 
     await message.destroy(req.user)
 
     res.sendStatus(200)
-  } catch(error) {
+  } catch (error) {
     handleError(error, res)
   }
 })

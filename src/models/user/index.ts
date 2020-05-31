@@ -36,7 +36,7 @@ export default class User {
   public room?: Room | string
 
   constructor(json?: IUser) {
-    if(!json)
+    if (!json)
       return
 
     this.setup(json)
@@ -45,12 +45,12 @@ export default class User {
   public async load(id: string) {
     const doc = await StoredUser.findOne({ 'info.id': id })
 
-    if(!doc)
+    if (!doc)
       throw UserNotFound
 
     this.setup(doc)
 
-    if(this.room)
+    if (this.room)
       await this.fetchRoom()
 
     return this
@@ -79,7 +79,7 @@ export default class User {
           avatarHash
       })
 
-    if(existing) {
+    if (existing) {
       this.setup(existing)
 
       await StoredUser.updateOne({
@@ -154,7 +154,7 @@ export default class User {
     this.name = name
     this.icon = icon
 
-    if(this.room) {
+    if (this.room) {
       const message = new Message(0, this, 'USER_UPDATE')
       dispatcher.dispatch(message, await fetchRoomMemberIds(this.room), [this.id])
     }
@@ -170,7 +170,7 @@ export default class User {
   }
 
   public async fetchRoom() {
-    if(!this.room)
+    if (!this.room)
       throw UserNotInRoom
 
     const roomId = extractRoomId(this.room)
@@ -193,7 +193,7 @@ export default class User {
       ]
     })
 
-    if(!doc)
+    if (!doc)
       return null
 
     const ban = new Ban(doc)
@@ -201,10 +201,10 @@ export default class User {
   }
 
   public async joinRoom(room: Room, isInitialMember: boolean = false) {
-    if(!room.members)
+    if (!room.members)
       await room.fetchMembers()
 
-    if(room.members && room.members.length >= config.max_room_member_count)
+    if (room.members && room.members.length >= config.max_room_member_count)
       throw TooManyMembers
 
     await StoredUser.updateOne({
@@ -220,7 +220,7 @@ export default class User {
      * so we will check if there is only 1 member in the room before the update
      */
 
-    if(!isInitialMember &&
+    if (!isInitialMember &&
       room.members &&
       room.members.length === (config.min_member_portal_creation_count - 1) &&
       UNALLOCATED_PORTALS_KEYS.indexOf(room.portal.status) > -1)
@@ -235,10 +235,10 @@ export default class User {
   }
 
   public async leaveRoom() {
-    if(typeof this.room === 'string')
+    if (typeof this.room === 'string')
       await this.fetchRoom()
 
-    if(typeof this.room === 'string')
+    if (typeof this.room === 'string')
       return
 
     await this.room.fetchMembers()
@@ -252,12 +252,12 @@ export default class User {
     const memberIndex = this.room.members.map(({ id }) => id).indexOf(this.id)
     this.room.members.splice(memberIndex, 1)
 
-    if(this.room.members.length === 0)
+    if (this.room.members.length === 0)
       await this.room.destroy()
     else {
       const leavingUserIsOwner = this.id === extractUserId(this.room.owner)
 
-      if(leavingUserIsOwner)
+      if (leavingUserIsOwner)
         this.room.transferOwnership(this.room.members[0])
 
       const message = new Message(0, { u: this.id }, 'USER_LEAVE')
@@ -280,7 +280,7 @@ export default class User {
   }
 
   public async destroy() {
-    if(this.room)
+    if (this.room)
       await this.leaveRoom()
 
     await StoredUser.deleteOne({
@@ -302,7 +302,7 @@ export default class User {
     this.name = json.profile.name
     this.icon = json.profile.icon
 
-    if(!this.room)
+    if (!this.room)
       this.room = json.info.room
   }
 

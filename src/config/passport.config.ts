@@ -19,8 +19,8 @@ passport.use(new Strategy({
     const user = await new User().load(id)
 
     return done(null, user)
-  } catch(error) {
-    if(error.response.indexOf(noSessionResponses))
+  } catch (error) {
+    if (error.response.indexOf(noSessionResponses))
       return done(UserNoAuth)
 
     done(error)
@@ -39,7 +39,7 @@ const fetchUser = async (
   next: NextFunction
 ) => new Promise<User>(async (resolve, reject) => {
   try {
-    if(process.env.AUTH_BASE_URL) {
+    if (process.env.AUTH_BASE_URL) {
       const { authorization } = req.headers,
         token = authorization.split(' ')[1],
         { data: { resource } } = await axios.post(process.env.AUTH_BASE_URL, { token }),
@@ -48,15 +48,15 @@ const fetchUser = async (
       resolve(user)
     } else
       passport.authenticate('jwt', { session: false }, async (err, user: User) => {
-        if(err)
+        if (err)
           return handleError(err, res)
 
-        if(!user)
+        if (!user)
           return handleError(UserNoAuth, res)
 
         resolve(user)
       })(req, res, next)
-  } catch(error) {
+  } catch (error) {
     reject(error)
   }
 })
@@ -67,16 +67,16 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       endpoint = fetchEndpoint(req),
       ban = await user.fetchBan()
 
-    if(ban && BAN_SAFE_ENDPOINTS.indexOf(endpoint) > -1)
+    if (ban && BAN_SAFE_ENDPOINTS.indexOf(endpoint) > -1)
       return handleError(UserBanned, res)
 
-    if(req.baseUrl === '/admin' && user.roles.indexOf('admin') === -1)
+    if (req.baseUrl === '/admin' && user.roles.indexOf('admin') === -1)
       return handleError(UserNoAuth, res)
 
     req.user = user
 
     next()
-  } catch(error) {
+  } catch (error) {
     handleError(error, res)
   }
 }

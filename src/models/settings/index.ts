@@ -7,7 +7,7 @@ export default class Settings {
     const current = await client.hgetall('settings') as ISettings
 
     Object.keys(update).forEach(key => {
-      if(!update[key])
+      if (!update[key])
         return
 
       current[key] = update[key]

@@ -59,7 +59,7 @@ export class GroupedMessage {
 }
 
 export const groupMessages = (messages: Message[]) => {
-  if(messages.length === 0)
+  if (messages.length === 0)
     return
 
   const grouped: GroupedMessage[] = []
@@ -67,9 +67,9 @@ export const groupMessages = (messages: Message[]) => {
   let lastGroupedUserId: string = extractUserId(messages[0].author)
 
   messages.forEach(message => {
-    if(grouped.length === 0)
+    if (grouped.length === 0)
       grouped.push(new GroupedMessage(message, message.author))
-    else if(lastGroupedUserId === extractUserId(message.author))
+    else if (lastGroupedUserId === extractUserId(message.author))
       grouped[grouped.length - 1].push(message)
     else
       grouped.push(new GroupedMessage(message, message.author))

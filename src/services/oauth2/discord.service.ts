@@ -21,13 +21,13 @@ interface IAvatarConstruction {
 }
 
 export function constructAvatar(data: IAvatarConstruction) {
-  if(!data.hash)
+  if (!data.hash)
     return `https://www.gravatar.com/avatar/${md5(data.email || '')}?d=retro&s=128`
 
   const { userId, hash } = data
   let url = `https://cdn.discordapp.com/avatars/${userId}/`
 
-  if(data.hash.substr(0, 2) === 'a_')
+  if (data.hash.substr(0, 2) === 'a_')
     url += `${hash}.gif`
   else
     url += `${hash}.png`

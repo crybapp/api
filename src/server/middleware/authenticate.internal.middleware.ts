@@ -4,15 +4,15 @@ import { verify } from 'jsonwebtoken'
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   const { authorization } = req.headers
-  if(!authorization)
+  if (!authorization)
     return res.sendStatus(401)
 
   const token = authorization.split(' ')[1]
-  if(!token)
+  if (!token)
     return res.sendStatus(401)
 
   const payload = verify(token, process.env.PORTALS_API_KEY)
-  if(!payload)
+  if (!payload)
     return res.sendStatus(401)
 
   next()

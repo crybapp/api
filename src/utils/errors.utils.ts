@@ -217,13 +217,13 @@ export const PortalNotOpen: IAPIResponse = {
 }
 
 export const handleError = (error: any, res: Response) => {
-  if(process.env.NODE_ENV === 'development')
+  if (process.env.NODE_ENV === 'development')
     console.error(error)
 
-  if(error)
-    if(error.response && error.error && error.status)
+  if (error)
+    if (error.response && error.error && error.status)
       return res.status(error.status).send(error)
-    else if(error.status)
+    else if (error.status)
       return res.sendStatus(error.status)
   res.sendStatus(500)
 }

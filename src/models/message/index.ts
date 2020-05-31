@@ -24,7 +24,7 @@ export default class Message {
   public content: string
 
   constructor(json?: IMessage) {
-    if(!json)
+    if (!json)
       return
 
     this.setup(json)
@@ -33,7 +33,7 @@ export default class Message {
   public async load(id: string) {
     const doc = await StoredMessage.findOne({ 'info.id': id })
 
-    if(!doc)
+    if (!doc)
       throw MessageNotFound
 
     this.setup(doc)
@@ -42,7 +42,7 @@ export default class Message {
   }
 
   public async create(content: string, author: User) {
-    if(!author.room)
+    if (!author.room)
       throw UserNotInRoom
 
     const roomId = extractRoomId(author.room)
@@ -103,10 +103,10 @@ export default class Message {
 
     this.content = json.data.content
 
-    if(!this.author)
+    if (!this.author)
       this.author = json.info.author
 
-    if(!this.room)
+    if (!this.room)
       this.room = json.info.room
   }
 }

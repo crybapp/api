@@ -29,7 +29,7 @@ export default class Invite {
   public options: IInviteOptions
 
   constructor(json?: IInvite) {
-    if(!json)
+    if (!json)
       return
 
     this.setup(json)
@@ -38,7 +38,7 @@ export default class Invite {
   public async load(id: string) {
     const doc = await StoredInvite.findOne({ 'info.id': id })
 
-    if(!doc)
+    if (!doc)
       throw InviteNotFound
 
     this.setup(doc)
@@ -58,7 +58,7 @@ export default class Invite {
       ]
     })
 
-    if(!doc)
+    if (!doc)
       throw InviteNotFound
 
     this.setup(doc)
@@ -67,16 +67,16 @@ export default class Invite {
   }
 
   public async use(user: User, type?: TargetType) {
-    if(type && type !== this.targetType)
+    if (type && type !== this.targetType)
       throw TargetTypeNotFound
 
-    if(this.targetType === 'room' && user.room)
+    if (this.targetType === 'room' && user.room)
       throw UserAlreadyInRoom
 
     const targetId = extractTargetId(this.target)
     const query = { $set: {}, $push: { 'data.uses': user.id } }
 
-    if((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
+    if ((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
       query.$set['info.active'] = false
 
     await StoredInvite.updateOne({ 'info.id': this.id }, query)

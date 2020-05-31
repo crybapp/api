@@ -10,7 +10,7 @@ const app = express(),
   origins = process.env.DISCORD_OAUTH_ORIGINS.split(',')
 
 app.post('/discord', async (req, res) => {
-  if(origins.indexOf(req.get('origin')) === -1)
+  if (origins.indexOf(req.get('origin')) === -1)
     return res.sendStatus(401)
 
   const { code } = req.body
@@ -21,7 +21,7 @@ app.post('/discord', async (req, res) => {
       token = await user.signToken()
 
     res.send(token)
-  } catch(error) {
+  } catch (error) {
     handleError(error, res)
   }
 })
@@ -29,7 +29,7 @@ app.post('/discord', async (req, res) => {
 app.get('/discord/redirect', async (req, res) => {
   let state = ''
 
-  if(req.query.invite)
+  if (req.query.invite)
     state += `invite=${req.query.invite}`
 
   const _params = {
@@ -41,7 +41,7 @@ app.get('/discord/redirect', async (req, res) => {
     state: null
   }
 
-  if(state !== '')
+  if (state !== '')
     _params.state = state
 
   const params = queryString.stringify(_params)
