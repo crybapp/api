@@ -17,9 +17,10 @@ import client from '../../config/redis.config'
 
 import { constructAvatar, exchangeRefreshToken, fetchUserProfile } from '../../services/oauth2/discord.service'
 import { TooManyMembers, UserNotFound, UserNotInRoom } from '../../utils/errors.utils'
-import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
 import { generateFlake, signToken } from '../../utils/generate.utils'
 import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
+
+import { addRedisRoomMember, removeRedisRoomMember, fetchRedisRoomMemberIds } from '../../helpers/roomMembers.helper'
 
 export type UserResolvable = User | string
 
@@ -132,11 +133,11 @@ export default class User {
 
   public async refreshProfile() {
     const { security: { credentials } } = await StoredUser.findOne({ 'info.id': this.id })
-  
+
     const { refreshToken } = (credentials as IDiscordCredentials)
     const { access_token, refresh_token } = await exchangeRefreshToken(refreshToken)
     const { id, username: name, email, avatar: avatarHash } = await fetchUserProfile(access_token)
-  
+
     const icon = constructAvatar({ userId: id, email, hash: avatarHash })
 
     await StoredUser.updateOne({
@@ -156,7 +157,7 @@ export default class User {
 
     if (this.room) {
       const message = new Message(0, this, 'USER_UPDATE')
-      dispatcher.dispatch(message, await fetchRoomMemberIds(this.room), [this.id])
+      dispatcher.dispatch(message, await fetchRedisRoomMemberIds(extractRoomId(this.room)), [this.id])
     }
 
     return this
@@ -227,8 +228,9 @@ export default class User {
       createPortal(room)
 
     const message = new Message(0, { ...this, room: undefined }, 'USER_JOIN')
-    dispatcher.dispatch(message, await fetchRoomMemberIds(room))
+    dispatcher.dispatch(message, await fetchRedisRoomMemberIds(room.id))
 
+    await addRedisRoomMember(this.id, room.id)
     await client.hset('user_room', this.id, room.id)
 
     this.room = room
@@ -245,13 +247,15 @@ export default class User {
 
     await this.room.fetchMembers()
 
+    const memberIds = this.room.members.map(({ id }) => id )
+
     /**
      * In this instance, the WebSocket message is sent before the DB
      * update. This is because the client needs to recieve the message
      * that the user has left the room, and any state changes on the
      * client side to handle the room being left needs to be ran
      */
-    const memberIndex = (await this.room.fetchMemberIds()).map(({ id }) => id).indexOf(this.id)
+    const memberIndex = memberIds.indexOf(this.id)
     this.room.members.splice(memberIndex, 1)
 
     if (this.room.members.length === 0)
@@ -263,7 +267,7 @@ export default class User {
         this.room.transferOwnership(this.room.members[0])
 
       const message = new Message(0, { u: this.id }, 'USER_LEAVE')
-      dispatcher.dispatch(message, await fetchRoomMemberIds(this.room))
+      dispatcher.dispatch(message, memberIds)
     }
 
     await StoredUser.updateOne({
@@ -277,6 +281,7 @@ export default class User {
     client.hset('undelivered_events', this.id, JSON.stringify([]))
 
     await client.hdel('user_room', this.id)
+    await removeRedisRoomMember(this.id, this.room.id)
 
     delete this.room
 

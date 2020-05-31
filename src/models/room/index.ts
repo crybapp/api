@@ -26,6 +26,8 @@ import {
 import { generateFlake } from '../../utils/generate.utils'
 import { extractUserId, GroupedMessage, groupMessages } from '../../utils/helpers.utils'
 
+import { deleteRedisRoomMemberIds, fetchRedisRoomMemberIds, setRedisRoomMemberIds } from '../../helpers/roomMembers.helper'
+
 export type RoomResolvable = Room | string
 
 export default class Room {
@@ -94,6 +96,8 @@ export default class Room {
 
     await this.createInvite(creator, false) // System prop false as data will be delivered over REST
     await creator.joinRoom(this, true)
+
+    await setRedisRoomMemberIds([creator.id], json.info.id)
 
     client.hset('controller', this.id, creator.id)
 
@@ -168,9 +172,7 @@ export default class Room {
   }
 
   public async fetchMemberIds() {
-    const memberIds = await StoredUser.distinct('info.id', { 'info.room': this.id })
-
-    return memberIds
+    return fetchRedisRoomMemberIds(this.id)
   }
 
   public async fetchOnlineMemberIds() {
@@ -401,8 +403,10 @@ export default class Room {
   }
 
   public async destroy() {
+    const memberIds = await this.fetchMemberIds()
+
     const message = new MesaMessage(0, {}, 'ROOM_DESTROY')
-    dispatcher.dispatch(message, (await this.fetchMemberIds()).map(extractUserId))
+    dispatcher.dispatch(message, memberIds.map(extractUserId))
 
     await StoredRoom.deleteOne({ 'info.id': this.id })
     await StoredMessage.deleteMany({ 'info.room': this.id })
@@ -421,6 +425,9 @@ export default class Room {
       destroyPortal(this)
 
     await client.hdel('controller', this.id)
+
+    await deleteRedisRoomMemberIds(this.id)
+    memberIds.forEach(memberId => client.hdel('user_room', memberId))
   }
 
   public setup(json: IRoom) {

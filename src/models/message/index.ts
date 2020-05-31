@@ -8,9 +8,9 @@ import IMessage from './defs'
 
 import dispatcher from '../../config/dispatcher.config'
 import { MessageNotFound, UserNotInRoom } from '../../utils/errors.utils'
-import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractRoomId, extractUserId } from '../../utils/helpers.utils'
+import { fetchRedisRoomMemberIds } from '../../helpers/roomMembers.helper'
 
 export type MessageResolvable = Message | string
 
@@ -65,7 +65,7 @@ export default class Message {
     this.setup(json)
 
     const message = new MesaMessage(0, this, 'MESSAGE_CREATE')
-    dispatcher.dispatch(message, await fetchRoomMemberIds(author.room), [author.id])
+    dispatcher.dispatch(message, await fetchRedisRoomMemberIds(extractRoomId(author.room)), [author.id])
 
     return this
   }
@@ -94,7 +94,11 @@ export default class Message {
     })
 
     const message = new MesaMessage(0, { id: this.id }, 'MESSAGE_DESTROY')
-    dispatcher.dispatch(message, await fetchRoomMemberIds(this.room), [extractUserId(requester || this.author)])
+    dispatcher.dispatch(
+      message,
+      await fetchRedisRoomMemberIds(extractRoomId(this.room)),
+      [extractUserId(requester || this.author)]
+    )
   }
 
   public setup(json: IMessage) {

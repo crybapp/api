@@ -10,7 +10,7 @@ import dispatcher from '../config/dispatcher.config'
 import authenticate from '../server/middleware/authenticate.internal.middleware'
 import { signApertureToken } from '../utils/aperture.utils'
 import { handleError, RoomNotFound } from '../utils/errors.utils'
-import { fetchRoomMemberIds } from '../utils/fetchers.utils'
+import { fetchRedisRoomMemberIds } from '../helpers/roomMembers.helper'
 
 const app = express()
 
@@ -80,7 +80,7 @@ app.post('/queue', authenticate, (req, res) => {
       const op = 0, d = { pos: i, len: queue.length }, t = 'PORTAL_QUEUE_UPDATE',
         message = new Message(op, d, t)
 
-      dispatcher.dispatch(message, await fetchRoomMemberIds(id))
+      dispatcher.dispatch(message, await fetchRedisRoomMemberIds(id))
     } catch (error) {
       handleError(error, res)
     }

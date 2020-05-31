@@ -10,10 +10,11 @@ import log from '../../utils/log.utils'
 import Room from '../../models/room'
 import User from '../../models/user'
 
-import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
 import { verifyToken } from '../../utils/generate.utils'
 import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
 import { validateControllerEvent } from '../../utils/validate.utils'
+
+import { fetchRedisRoomMemberIds } from '../../helpers/roomMembers.helper'
 
 const CONTROLLER_EVENT_TYPES = ['KEY_DOWN', 'KEY_UP', 'PASTE_TEXT', 'MOUSE_MOVE', 'MOUSE_SCROLL', 'MOUSE_DOWN', 'MOUSE_UP'],
   pub = createPubSubClient()
@@ -58,7 +59,7 @@ export default (server: http.Server) => {
 
         mesa.send(
           new Message(0, { u: id, presence: 'online'}, 'PRESENCE_UPDATE'),
-          await fetchRoomMemberIds(user.room),
+          await fetchRedisRoomMemberIds(extractRoomId(user.room)),
           [id]
         )
 
@@ -75,13 +76,13 @@ export default (server: http.Server) => {
     client.on('message', async message => {
       const { opcode, data, type } = message
 
-      if (type === 'TYPING_UPDATE') {
+      if (type === 'TYPING_UPDATE')
         mesa.send(
           new Message(0, { u: client.id, typing: !!data.typing }, 'TYPING_UPDATE'),
-          await fetchRoomMemberIds(client.user.room),
+          await fetchRedisRoomMemberIds(extractRoomId(client.user.room)),
           [client.id]
         )
-      } else if (CONTROLLER_EVENT_TYPES.indexOf(type) > -1) {
+      else if (CONTROLLER_EVENT_TYPES.indexOf(type) > -1) {
         if (!validateControllerEvent(data, type)) return
 
         if (!client.user)
@@ -119,15 +120,14 @@ export default (server: http.Server) => {
         // We can use optimisation here in order to speed up the controller release cycle
 
         const message = new Message(0, { u: client.id, presence: 'offline' }, 'PRESENCE_UPDATE')
-        mesa.send(message, await fetchRoomMemberIds(client.user.room))
+        mesa.send(message, await fetchRedisRoomMemberIds(extractRoomId(client.user.room)))
 
-        if (typeof client.user.room === 'string') {
+        if (typeof client.user.room === 'string')
           try {
             await client.user.fetchRoom()
           } catch (error) {
             return
           } // Room doesn't exists
-        }
 
         if (typeof client.user.room === 'string')
           return
