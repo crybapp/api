@@ -8,7 +8,7 @@
 		"radix": false,
 		"no-console": false,
 		"prefer-for-of": false,
-		"indent": [true, "tabs", 2],
+		"indent": [true, "spaces", 2],
 		"curly": [true, "as-needed"],
 		"semicolon": [true, "never"],
 		"quotemark": [true, "single"],

@@ -15,39 +15,39 @@ export type RoomType = 'vm'
  */
 
 export type PortalAllocationStatus =
-	'waiting' |
-	'requested' |
-	'in-queue' |
-	'creating' |
-	'starting' |
-	'open' |
-	'closed' |
-	'error'
+  'waiting' |
+  'requested' |
+  'in-queue' |
+  'creating' |
+  'starting' |
+  'open' |
+  'closed' |
+  'error'
 
 export interface IPortalAllocation {
-	id?: string
+  id?: string
     janusId?: number,
     janusIp?: string,
 
-	status: PortalAllocationStatus
-	lastUpdatedAt?: number
+  status: PortalAllocationStatus
+  lastUpdatedAt?: number
 }
 
 export default interface IRoom {
-	info: {
-		id: string
-		createdAt: number
-		endedAt?: number
+  info: {
+    id: string
+    createdAt: number
+    endedAt?: number
 
-		type: RoomType
-		portal?: IPortalAllocation
+    type: RoomType
+    portal?: IPortalAllocation
 
-		owner: string
-		controller: string
-	}
-	profile: {
-		name: string
-	}
+    owner: string
+    controller: string
+  }
+  profile: {
+    name: string
+  }
 }
 
 export interface IStoredRoom extends IRoom, Document { }
