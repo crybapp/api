@@ -35,7 +35,7 @@ export function constructAvatar(data: IAvatarConstruction) {
   return url
 }
 
-async function fetchUserProfile(access_token: string) {
+export async function fetchUserProfile(access_token: string) {
   const { data } = await axios({
     method: 'GET',
     url: 'https://discordapp.com/api/v6/users/@me',

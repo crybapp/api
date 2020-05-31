@@ -1,4 +1,4 @@
-import User, { UserResolvable } from '..'
+import { UserResolvable } from '..'
 
 import StoredBan from '../../../schemas/ban.schema'
 import IBan from './defs'

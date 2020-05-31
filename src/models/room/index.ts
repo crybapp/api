@@ -373,7 +373,7 @@ export default class Room {
     await this.createPortal()
   }
 
-  public destroyPortal() {
+  public async destroyPortal() {
     await destroyPortal(this)
     await this.updatePortalAllocation({ status: 'closed' })
 
