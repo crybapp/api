@@ -46,8 +46,8 @@ app.put('/portal', authenticate, async (req, res) => {
 		// console.log('room found, updating status...')
 
 		const room = new Room(doc)
-		const { portal: allocation } = await room.updatePortalAllocation({ status }),
-			{ online } = await room.fetchOnlineMemberIds()
+		const { portal: allocation } = await room.updatePortalAllocation({ status })
+        const { online } = await room.fetchOnlineMemberIds()
 
 		// console.log('status updated and online members fetched:', online)
 

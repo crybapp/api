@@ -26,6 +26,8 @@ export type PortalAllocationStatus =
 
 export interface IPortalAllocation {
 	id?: string
+    janusId?: number,
+    janusIp?: string,
 
 	status: PortalAllocationStatus
 	lastUpdatedAt?: number

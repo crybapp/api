@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import Room from '../models/room'
 
 import log from '../utils/log.utils'
+import WSMessage from '../server/websocket/models/message'
 
 const url = `${process.env.PORTALS_API_URL}/`, key = process.env.PORTALS_API_KEY
 
@@ -17,10 +18,14 @@ export const createPortal = (room: Room) => new Promise(async (resolve, reject) 
 		const headers = await generateHeaders(room)
 		log(`Sending request to ${url}create with room id: ${room.id}`, [{ content: 'portals', color: 'MAGENTA' }])
 
-		await axios.post(`${url}create`, { roomId: room.id }, { headers })
+		const response =  await axios.post(`${url}create`, { roomId: room.id }, { headers })
+
+		const portalQueueMessage = new WSMessage(0, response.data, 'QUEUE_UPDATE')
+		portalQueueMessage.broadcastRoom(room)
 
 		resolve()
 	} catch (error) {
+		console.log(`AXIOS POST FAILED: ${error}`)
 		reject(error)
 	}
 })
