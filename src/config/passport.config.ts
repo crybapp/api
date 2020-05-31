@@ -33,25 +33,33 @@ const BAN_SAFE_ENDPOINTS = [
 
 const fetchEndpoint = (req: Request) => `${req.method} ${req.baseUrl}${req.route.path}`
 
-async function fetchUser(req: Request, res: Response, next: NextFunction) {
-  if(process.env.AUTH_BASE_URL) {
-    const { authorization } = req.headers,
-      token = authorization.split(' ')[1],
-      { data: { resource } } = await axios.post(process.env.AUTH_BASE_URL, { token }),
-      user = new User(resource)
+const fetchUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => new Promise<User>(async (resolve, reject) => {
+  try {
+    if(process.env.AUTH_BASE_URL) {
+      const { authorization } = req.headers,
+        token = authorization.split(' ')[1],
+        { data: { resource } } = await axios.post(process.env.AUTH_BASE_URL, { token }),
+        user = new User(resource)
 
-    return user
-  } else
-    passport.authenticate('jwt', { session: false }, async (err, user: User) => {
-      if(err)
-        return handleError(err, res)
+      resolve(user)
+    } else
+      passport.authenticate('jwt', { session: false }, async (err, user: User) => {
+        if(err)
+          return handleError(err, res)
 
-      if(!user)
-        return handleError(UserNoAuth, res)
+        if(!user)
+          return handleError(UserNoAuth, res)
 
-      return user
-    })(req, res, next)
-}
+        resolve(user)
+      })(req, res, next)
+  } catch(error) {
+    reject(error)
+  }
+})
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
