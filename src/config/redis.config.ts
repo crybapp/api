@@ -13,16 +13,16 @@ const parseSentinels = (sentinels: string) =>
   } as ISentinel)) // Parse sentinels from process env
 
 export const getOptions = () => { // Get Options Method
-  if (!process.env.REDIS_URI && !process.env.REDIS_SENTINELS)
+  if(!process.env.REDIS_URI && !process.env.REDIS_SENTINELS)
     throw new Error('No value was found for REDIS_URI or REDIS_SENTINELS - make sure .env is setup correctly!')
 
-  if (process.env.REDIS_SENTINELS)
+  if(process.env.REDIS_SENTINELS)
     return {
       sentinels: parseSentinels(process.env.REDIS_SENTINELS),
       name: 'mymaster'
     } as Redis.RedisOptions
 
-  if (process.env.REDIS_URI) {
+  if(process.env.REDIS_URI) {
     const uri = new URL(process.env.REDIS_URI)
 
     return {

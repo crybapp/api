@@ -21,13 +21,13 @@ interface IAvatarConstruction {
 }
 
 export const constructAvatar = (data: IAvatarConstruction) => {
-  if (!data.hash)
+  if(!data.hash)
     return `https://www.gravatar.com/avatar/${md5(data.email || '')}?d=retro&s=128`
 
   const { userId, hash } = data
   let url = `https://cdn.discordapp.com/avatars/${userId}/`
 
-  if (data.hash.substr(0, 2) === 'a_')
+  if(data.hash.substr(0, 2) === 'a_')
     url += `${hash}.gif`
   else
     url += `${hash}.png`
@@ -46,7 +46,7 @@ export const fetchUserProfile = (access_token: string) => new Promise<Profile>(a
     })
 
     resolve(data)
-  } catch (error) {
+  } catch(error) {
     reject(error)
   }
 })
@@ -76,7 +76,7 @@ export const exchangeRefreshToken = (
     })
 
     resolve(data)
-  } catch (error) {
+  } catch(error) {
     reject(error.response ? error.response.data : error)
   }
 })
@@ -89,7 +89,7 @@ export default async (code: string) => new Promise<IDiscordAuthentication>(async
     })
 
     resolve(data)
-  } catch (error) {
+  } catch(error) {
     reject(error.response ? error.response.data : error)
   }
 })

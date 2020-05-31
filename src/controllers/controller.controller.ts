@@ -16,7 +16,7 @@ app.post('/take', authenticate, async (req, res) => {
     await room.takeControl(user)
 
     res.sendStatus(200)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })
@@ -30,7 +30,7 @@ app.post('/give/:id', authenticate, async (req, res) => {
     await room.giveControl(toId, user)
 
     res.sendStatus(200)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })
@@ -43,7 +43,7 @@ app.post('/release', authenticate, async (req, res) => {
     await room.releaseControl(user)
 
     res.sendStatus(200)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })

@@ -16,7 +16,7 @@ app.post('/profile/refresh', authenticate, async (req, res) => {
     await user.refreshProfile()
 
     res.send(user)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })
@@ -28,7 +28,7 @@ app.delete('/me', authenticate, async (req, res) => {
     await user.destroy()
 
     res.sendStatus(200)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })

@@ -11,14 +11,14 @@ const app = express()
 app.post('/', authenticate, async (req, res) => {
   const { user } = req as { user: User }
 
-  if (!user.room)
+  if(!user.room)
     return handleError(UserNotInRoom, res)
 
   try {
     const invite = await new Invite().create(null, 'room', null, { system: false }, req.user)
 
     res.send(invite)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })
@@ -32,11 +32,11 @@ app.post('/:code', authenticate, async (req, res) => {
     const invite = await new Invite().findFromCode(code),
       target = await invite.use(user, type)
 
-    if (!target)
+    if(!target)
       return res.sendStatus(200)
 
     res.send(target)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })
@@ -48,11 +48,11 @@ app.get('/:code/peek', async (req, res) => {
     const invite = await new Invite().findFromCode(code),
       { target } = await invite.fetchTarget()
 
-    if (!target)
+    if(!target)
       return res.sendStatus(401)
 
     res.send(target)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })

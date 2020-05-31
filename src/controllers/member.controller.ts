@@ -11,28 +11,28 @@ const app = express()
 app.post('/:id/kick', authenticate, async (req, res) => {
   const { user } = req as { user: User }
 
-  if (!user.room)
+  if(!user.room)
     return handleError(UserNotInRoom, res)
 
   const { id } = req.params
 
-  if (typeof user.room === 'string')
+  if(typeof user.room === 'string')
     return res.status(500)
 
-  if (extractUserId(user.room.owner) !== user.id)
+  if(extractUserId(user.room.owner) !== user.id)
     return res.status(401)
 
   try {
     const { members } = await user.room.fetchMembers(),
       member = members.find(({ id: userId }) => userId === id)
 
-    if (!member)
+    if(!member)
       return res.status(409)
 
     await member.leaveRoom()
 
     res.sendStatus(200)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })

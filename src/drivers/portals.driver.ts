@@ -27,7 +27,7 @@ export const createPortal = (room: Room) => new Promise(async (resolve, reject) 
     dispatcher.dispatch(portalQueueMessage, room.members.map(extractUserId))
 
     resolve()
-  } catch (error) {
+  } catch(error) {
     console.log(`AXIOS POST FAILED: ${error}`)
     reject(error)
   }
@@ -38,13 +38,13 @@ export const destroyPortal = (room: Room) => new Promise(async (resolve, reject)
     const headers = await generateHeaders(room),
       { portal } = room
 
-    if (!portal.id)
+    if(!portal.id)
       return
 
     await axios.delete(`${url}${portal.id}`, { headers })
 
     resolve()
-  } catch (error) {
+  } catch(error) {
     reject(error)
   }
 })

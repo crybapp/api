@@ -17,7 +17,7 @@ export default class Ban {
   public reason: string
 
   constructor(json?: IBan) {
-    if (!json)
+    if(!json)
       return
 
     this.setup(json)
@@ -26,12 +26,12 @@ export default class Ban {
   public load = (id: string) => new Promise<Ban>(async (resolve, reject) => {
     try {
       const doc = await StoredBan.findOne({ 'info.id': id })
-      if (!doc) throw BanNotFound
+      if(!doc) throw BanNotFound
 
       this.setup(doc)
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -53,7 +53,7 @@ export default class Ban {
         ]
       })
 
-      if (existing.length > 0)
+      if(existing.length > 0)
         throw BanAlreadyExists
 
       const json: IBan = {
@@ -75,7 +75,7 @@ export default class Ban {
       this.setup(json)
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -93,7 +93,7 @@ export default class Ban {
       this.active = active
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -105,10 +105,10 @@ export default class Ban {
 
     this.reason = json.data.reason
 
-    if (!this.createdBy)
+    if(!this.createdBy)
       this.createdBy = json.info.createdBy
 
-    if (!this.user)
+    if(!this.user)
       this.user = json.data.userId
   }
 }

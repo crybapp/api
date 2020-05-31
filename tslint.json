@@ -21,7 +21,7 @@
 		"arrow-parens": [true, "ban-single-arg-parens"],
 		"variable-name": [false, "allow-leading-underscore"],
 		"one-line": [true, "check-catch", "check-else", "check-open-brace"],
-		"whitespace": [true, "check-branch", "check-module", "check-preblock"]
+		"whitespace": [false]
 	},
 	"rulesDirectory": []
 }

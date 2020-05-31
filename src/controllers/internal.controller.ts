@@ -25,7 +25,7 @@ app.post('/portal', authenticate, async (req, res) => {
     await room.setPortalId(id)
 
     res.sendStatus(200)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })
@@ -40,7 +40,7 @@ app.put('/portal', authenticate, async (req, res) => {
   try {
     const doc = await StoredRoom.findOne({ 'info.portal.id': id })
 
-    if (!doc)
+    if(!doc)
       return RoomNotFound
 
     // console.log('room found, updating status...')
@@ -51,14 +51,14 @@ app.put('/portal', authenticate, async (req, res) => {
 
     // console.log('status updated and online members fetched:', online)
 
-    if (online.length > 0) {
+    if(online.length > 0) {
       /**
 			 * Broadcast allocation to all online clients
 			 */
       const updateMessage = new Message(0, allocation, 'PORTAL_UPDATE')
       dispatcher.dispatch(updateMessage, online)
 
-      if (status === 'open') {
+      if(status === 'open') {
         const token = signApertureToken(id),
           apertureMessage = new Message(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
 
@@ -67,7 +67,7 @@ app.put('/portal', authenticate, async (req, res) => {
     }
 
     res.sendStatus(200)
-  } catch (error) {
+  } catch(error) {
     handleError(error, res)
   }
 })
@@ -81,7 +81,7 @@ app.post('/queue', authenticate, (req, res) => {
         message = new Message(op, d, t)
 
       dispatcher.dispatch(message, await fetchRoomMemberIds(id))
-    } catch (error) {
+    } catch(error) {
       handleError(error, res)
     }
   })

@@ -24,7 +24,7 @@ export default class Message {
   public content: string
 
   constructor(json?: IMessage) {
-    if (!json)
+    if(!json)
       return
 
     this.setup(json)
@@ -34,19 +34,19 @@ export default class Message {
     try {
       const doc = await StoredMessage.findOne({ 'info.id': id })
 
-      if (!doc)
+      if(!doc)
         throw MessageNotFound
 
       this.setup(doc)
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
 
   public create = (content: string, author: User) => new Promise<Message>(async (resolve, reject) => {
-    if (!author.room)
+    if(!author.room)
       return reject(UserNotInRoom)
 
     const roomId = extractRoomId(author.room)
@@ -73,7 +73,7 @@ export default class Message {
       dispatcher.dispatch(message, await fetchRoomMemberIds(author.room), [author.id])
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -86,7 +86,7 @@ export default class Message {
       this.author = author
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -99,7 +99,7 @@ export default class Message {
       this.room = room
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -114,7 +114,7 @@ export default class Message {
       dispatcher.dispatch(message, await fetchRoomMemberIds(this.room), [extractUserId(requester || this.author)])
 
       resolve()
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -125,10 +125,10 @@ export default class Message {
 
     this.content = json.data.content
 
-    if (!this.author)
+    if(!this.author)
       this.author = json.info.author
 
-    if (!this.room)
+    if(!this.room)
       this.room = json.info.room
   }
 }

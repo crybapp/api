@@ -25,13 +25,13 @@ export default (msg: string, prefixes: ILogPrefix[] | string, color: LogColor = 
   // Create empty prefix string
   let prefix = ''
 
-  if (!prefixes)
+  if(!prefixes)
     prefixes = []
 
   // If a prefix / multiple prefixes are defined
-  if (prefixes)
+  if(prefixes)
     // If the first item of the possible array contains properties that could indicate a LogPrefix object
-    if ((prefixes[0] as ILogPrefix).content)
+    if((prefixes[0] as ILogPrefix).content)
       // For every log prefix item
       prefix = (prefixes as ILogPrefix[]).map(prefixItem => {
         // Construct the prefix as a string, and add it to the 'prefix' string

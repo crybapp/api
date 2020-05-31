@@ -29,7 +29,7 @@ export default class Invite {
   public options: IInviteOptions
 
   constructor(json?: IInvite) {
-    if (!json)
+    if(!json)
       return
 
     this.setup(json)
@@ -39,13 +39,13 @@ export default class Invite {
     try {
       const doc = await StoredInvite.findOne({ 'info.id': id })
 
-      if (!doc)
+      if(!doc)
         throw InviteNotFound
 
       this.setup(doc)
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -63,29 +63,29 @@ export default class Invite {
         ]
       })
 
-      if (!doc)
+      if(!doc)
         throw InviteNotFound
 
       this.setup(doc)
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
 
   public use = (user: User, type?: TargetType) => new Promise<TargetResolvable>(async (resolve, reject) => {
-    if (type && type !== this.targetType)
+    if(type && type !== this.targetType)
       return reject(TargetTypeNotFound)
 
-    if (this.targetType === 'room' && user.room)
+    if(this.targetType === 'room' && user.room)
       return reject(UserAlreadyInRoom)
 
     try {
       const targetId = extractTargetId(this.target),
         query = { $set: {}, $push: { 'data.uses': user.id } }
 
-      if ((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
+      if((this.uses.length + 1) >= this.options.maxUses && !this.options.unlimitedUses)
         query.$set['info.active'] = false
 
       await StoredInvite.updateOne({ 'info.id': this.id }, query)
@@ -100,7 +100,7 @@ export default class Invite {
         default:
           throw TargetTypeNotFound
       }
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -148,7 +148,7 @@ export default class Invite {
       this.setup(json)
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -166,7 +166,7 @@ export default class Invite {
       }
 
       resolve(this)
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
@@ -178,7 +178,7 @@ export default class Invite {
       })
 
       resolve()
-    } catch (error) {
+    } catch(error) {
       reject(error)
     }
   })
