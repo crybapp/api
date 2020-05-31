@@ -249,7 +249,7 @@ export default class User {
      * that the user has left the room, and any state changes on the
      * client side to handle the room being left needs to be ran
      */
-    const memberIndex = this.room.members.map(({ id }) => id).indexOf(this.id)
+    const memberIndex = (await this.room.fetchMemberIds()).map(({ id }) => id).indexOf(this.id)
     this.room.members.splice(memberIndex, 1)
 
     if (this.room.members.length === 0)

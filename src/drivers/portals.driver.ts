@@ -23,7 +23,7 @@ export async function createPortal (room: Room) {
   const response =  await axios.post(`${url}create`, { roomId: room.id }, { headers })
 
   const portalQueueMessage = new MesaMessage(0, response.data, 'QUEUE_UPDATE')
-  dispatcher.dispatch(portalQueueMessage, room.members.map(extractUserId))
+  dispatcher.dispatch(portalQueueMessage, (await room.fetchMemberIds()).map(extractUserId))
 }
 
 export async function destroyPortal(room: Room) {

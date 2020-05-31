@@ -137,7 +137,7 @@ export default class Room {
     })
 
     const message = new MesaMessage(0, { u: newOwnerId }, 'OWNER_UPDATE')
-    dispatcher.dispatch(message, this.members.map(extractUserId))
+    dispatcher.dispatch(message, (await this.fetchMemberIds()).map(extractUserId))
 
     this.owner = to
 
@@ -167,8 +167,14 @@ export default class Room {
     return this
   }
 
-  public async fetchOnlineMemberIds() {
+  public async fetchMemberIds() {
     const memberIds = await StoredUser.distinct('info.id', { 'info.room': this.id })
+
+    return memberIds
+  }
+
+  public async fetchOnlineMemberIds() {
+    const memberIds = await this.fetchMemberIds()
     const connectedClientIds: string[] = await client.smembers('connected_clients')
 
     this.online = connectedClientIds.filter(id => memberIds.indexOf(id) > -1)
@@ -255,7 +261,7 @@ export default class Room {
     })
 
     const message = new MesaMessage(0, allocation, 'PORTAL_UPDATE')
-    dispatcher.dispatch(message, this.members.map(extractUserId))
+    dispatcher.dispatch(message, (await this.fetchMemberIds()).map(extractUserId))
 
     this.portal = allocation
 
@@ -301,7 +307,7 @@ export default class Room {
     client.hset('controller', this.id, fromId)
 
     const message = new MesaMessage(0, { u: fromId }, 'CONTROLLER_UPDATE')
-    dispatcher.dispatch(message, this.members.map(extractUserId), [fromId])
+    dispatcher.dispatch(message, (await this.fetchMemberIds()).map(extractUserId), [fromId])
 
     this.controller = fromId
 
@@ -328,7 +334,7 @@ export default class Room {
     client.hset('controller', this.id, toId)
 
     const message = new MesaMessage(0, { u: toId }, 'CONTROLLER_UPDATE')
-    dispatcher.dispatch(message, this.members.map(extractUserId), [fromId])
+    dispatcher.dispatch(message, (await this.fetchMemberIds()).map(extractUserId), [fromId])
 
     this.controller = toId
 
@@ -354,7 +360,7 @@ export default class Room {
     client.hdel('controller', this.id)
 
     const message = new MesaMessage(0, { u: null }, 'CONTROLLER_UPDATE')
-    dispatcher.dispatch(message, this.members.map(extractUserId), [senderId])
+    dispatcher.dispatch(message, (await this.fetchMemberIds()).map(extractUserId), [senderId])
 
     this.controller = null
 
@@ -396,7 +402,7 @@ export default class Room {
 
   public async destroy() {
     const message = new MesaMessage(0, {}, 'ROOM_DESTROY')
-    dispatcher.dispatch(message, this.members.map(extractUserId))
+    dispatcher.dispatch(message, (await this.fetchMemberIds()).map(extractUserId))
 
     await StoredRoom.deleteOne({ 'info.id': this.id })
     await StoredMessage.deleteMany({ 'info.room': this.id })
