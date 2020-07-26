@@ -1,6 +1,6 @@
 import { UserResolvable } from '..'
 
-import StoredBan from '../../../schemas/ban.schema'
+import StoredBan from './schema'
 import IBan from './defs'
 
 import { BanAlreadyExists, BanNotFound } from '../../../utils/errors'

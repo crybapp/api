@@ -2,7 +2,7 @@ import { Message } from '@cryb/mesa'
 import express from 'express'
 
 import Room from '../models/room'
-import StoredRoom from '../schemas/room.schema'
+import StoredRoom from '../models/room/schema'
 
 import { PortalAllocationStatus } from '../models/room/defs'
 

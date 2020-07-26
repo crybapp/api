@@ -3,7 +3,7 @@ import { Message as MesaMessage } from '@cryb/mesa'
 import Room, { RoomResolvable } from '../room'
 import User, { UserResolvable } from '../user'
 
-import StoredMessage from '../../schemas/message.schema'
+import StoredMessage from './schema'
 import IMessage from './defs'
 
 import dispatcher from '../../config/dispatcher'

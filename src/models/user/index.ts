@@ -1,15 +1,15 @@
 import { Message } from '@cryb/mesa'
 
-import StoredUser from '../../schemas/user.schema'
+import StoredUser from './schema'
 import IUser, { IDiscordCredentials, Role } from './defs'
 
 import Room from '../room'
 import Ban from './ban'
 
 import { createPortal } from '../../drivers/portals'
-import StoredBan from '../../schemas/ban.schema'
+import StoredBan from './ban/schema'
 
-import StoredMessage from '../../schemas/message.schema'
+import StoredMessage from '../message/schema'
 
 import config from '../../config/defaults.js'
 import dispatcher from '../../config/dispatcher'

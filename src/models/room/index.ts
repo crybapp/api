@@ -4,12 +4,12 @@ import Invite from '../invite'
 import Message from '../message'
 import User, { UserResolvable } from '../user'
 
-import StoredInvite from '../../schemas/invite.schema'
-import StoredMessage from '../../schemas/message.schema'
-import StoredUser from '../../schemas/user.schema'
+import StoredInvite from '../invite/schema'
+import StoredMessage from '../message/schema'
+import StoredUser from '../user/schema'
 
 import { createPortal, destroyPortal } from '../../drivers/portals'
-import StoredRoom from '../../schemas/room.schema'
+import StoredRoom from './schema'
 import IRoom, { IPortalAllocation, RoomType } from './defs'
 
 import dispatcher from '../../config/dispatcher'

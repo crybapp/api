@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose'
 
-import { IStoredBan } from '../models/user/ban/defs'
+import { IStoredBan } from './defs'
 
 const BanSchema = new Schema({
   info: {

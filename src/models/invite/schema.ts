@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose'
 
-import { IStoredInvite } from '../models/invite/defs'
+import { IStoredInvite } from './defs'
 
 const InviteSchema = new Schema({
   info: {

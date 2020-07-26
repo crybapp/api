@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose'
 
-import { IStoredUser } from '../models/user/defs'
+import { IStoredUser } from './defs'
 
 const UserSchema = new Schema({
   info: {

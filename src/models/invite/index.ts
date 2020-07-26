@@ -3,7 +3,7 @@ import Chance from 'chance'
 import Room from '../room'
 import User, { UserResolvable } from '../user'
 
-import StoredInvite from '../../schemas/invite.schema'
+import StoredInvite from './schema'
 import IInvite, { IInviteHeaders, IInviteOptions, TargetResolvable, TargetType } from './defs'
 
 import { InviteNotFound, TargetTypeNotFound, UserAlreadyInRoom } from '../../utils/errors'

@@ -2,7 +2,7 @@ import { MessageResolvable } from '../message'
 import { RoomResolvable } from '../room'
 import { UserResolvable } from '../user'
 
-import StoredReport from '../../schemas/report.schema'
+import StoredReport from './schema'
 import IReport from './defs'
 
 import { ReportNotFound } from '../../utils/errors'

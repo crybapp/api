@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose'
 
-import { IStoredReport } from '../models/report/defs'
+import { IStoredReport } from './defs'
 
 const ReportSchema = new Schema({
   info: {

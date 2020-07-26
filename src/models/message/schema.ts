@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose'
 
-import { IStoredMessage } from '../models/message/defs'
+import { IStoredMessage } from './defs'
 
 const MessageSchema = new Schema({
   info: {

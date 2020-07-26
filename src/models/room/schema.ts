@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose'
 
-import { IStoredRoom } from '../models/room/defs'
+import { IStoredRoom } from './defs'
 
 const RoomSchema = new Schema({
   info: {

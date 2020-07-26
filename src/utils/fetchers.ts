@@ -1,5 +1,5 @@
 import { RoomResolvable } from '../models/room'
-import StoredUser from '../schemas/user.schema'
+import StoredUser from '../models/user/schema'
 import { extractRoomId } from './helpers'
 
 
