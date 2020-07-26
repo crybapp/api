@@ -40,14 +40,14 @@ const fetchUser = async (
 ) => new Promise<User>(async (resolve, reject) => {
   try {
     if (process.env.AUTH_BASE_URL) {
-      const { authorization } = req.headers,
-        token = authorization.split(' ')[1],
-        { data: { resource } } = await axios.post(process.env.AUTH_BASE_URL, { token }),
-        user = new User(resource)
+      const { authorization } = req.headers
+      const token = authorization.split(' ')[1]
+      const { data: { resource } } = await axios.post(process.env.AUTH_BASE_URL, { token })
+      const user = new User(resource)
 
       resolve(user)
     } else {
-      passport.authenticate('jwt', { session: false }, (err, user: User) => {
+      passport.authenticate('jwt', { session: false }, async (err, user: User) => {
         if (err)
           return handleError(err, res)
 
@@ -64,9 +64,9 @@ const fetchUser = async (
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await fetchUser(req, res, next),
-      endpoint = fetchEndpoint(req),
-      ban = await user.fetchBan()
+    const user = await fetchUser(req, res, next)
+    const endpoint = fetchEndpoint(req)
+    const ban = await user.fetchBan()
 
     if (ban && BAN_SAFE_ENDPOINTS.includes(endpoint))
       return handleError(UserBanned, res)

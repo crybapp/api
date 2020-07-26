@@ -1,12 +1,10 @@
-import { WSEventType } from '../server/websocket/models/event'
-
 const validateKeyControllerEvent = data => {
   /**
 	 * TODO: Add proper key code range validation
 	 */
-  const isKeyCodeValid = true,
-    isCtrlKeyValid = typeof data.ctrlKey === 'boolean',
-    isShiftKeyValid = typeof data.shiftKey === 'boolean'
+  const isKeyCodeValid = true
+  const isCtrlKeyValid = typeof data.ctrlKey === 'boolean'
+  const isShiftKeyValid = typeof data.shiftKey === 'boolean'
 
   return isKeyCodeValid && isCtrlKeyValid && isShiftKeyValid
 }
@@ -15,12 +13,12 @@ const validateControllerPositionCoord = (pos: number) => typeof pos === 'number'
 
 const validateControllerPosition = data => (
   validateControllerPositionCoord(data.x) &&
-	validateControllerPositionCoord(data.y)
+  validateControllerPositionCoord(data.y)
 )
 
 const validateControllerButton = (button: number) => button === 1 || button === 3
 
-export const validateControllerEvent = (data, type: WSEventType) => {
+export const validateControllerEvent = (data, type) => {
   switch (type) {
   case 'KEY_DOWN':
     return validateKeyControllerEvent(data)

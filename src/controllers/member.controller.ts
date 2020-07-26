@@ -9,8 +9,7 @@ import { extractUserId } from '../utils/helpers.utils'
 const app = express()
 
 app.post('/:id/kick', authenticate, async (req, res) => {
-  const { user: u } = req
-  const user = u as User
+  const { user } = req as { user: User }
 
   if (!user.room)
     return handleError(UserNotInRoom, res)
@@ -24,8 +23,8 @@ app.post('/:id/kick', authenticate, async (req, res) => {
     return res.status(401)
 
   try {
-    const { members } = await user.room.fetchMembers(),
-      member = members.find(({ id: userId }) => userId === id)
+    const { members } = await user.room.fetchMembers()
+    const member = members.find(({ id: userId }) => userId === id)
 
     if (!member)
       return res.status(409)
@@ -38,6 +37,6 @@ app.post('/:id/kick', authenticate, async (req, res) => {
   }
 })
 
-app.post('/:id/report', authenticate, (_, res) => res.sendStatus(200))
+app.post('/:id/report', authenticate, async (_, res) => res.sendStatus(200))
 
 export default app

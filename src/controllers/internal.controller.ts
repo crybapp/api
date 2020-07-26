@@ -1,14 +1,16 @@
+import { Message } from '@cryb/mesa'
 import express from 'express'
 
 import Room from '../models/room'
 import StoredRoom from '../schemas/room.schema'
 
 import { PortalAllocationStatus } from '../models/room/defs'
-import WSMessage from '../server/websocket/models/message'
 
+import dispatcher from '../config/dispatcher.config'
 import authenticate from '../server/middleware/authenticate.internal.middleware'
 import { signApertureToken } from '../utils/aperture.utils'
 import { handleError, RoomNotFound } from '../utils/errors.utils'
+import { fetchRoomMemberIds } from '../utils/fetchers.utils'
 
 const app = express()
 
@@ -32,39 +34,35 @@ app.post('/portal', authenticate, async (req, res) => {
  * Existing Portal Status Update
  */
 app.put('/portal', authenticate, async (req, res) => {
-  const { id, status, janusId, janusIp } = req.body as { id: string; status: PortalAllocationStatus; janusId?: number; janusIp?: string }
+  const { id, status } = req.body as { id: string; status: PortalAllocationStatus }
   // console.log('recieved', id, status, 'from portal microservice, finding room...')
 
   try {
     const doc = await StoredRoom.findOne({ 'info.portal.id': id })
+
     if (!doc)
       return RoomNotFound
 
     // console.log('room found, updating status...')
 
     const room = new Room(doc)
-    const { portal: allocation } = await room.updatePortalAllocation({ janusId, janusIp, status }),
-      { online } = await room.fetchOnlineMemberIds()
+    const { portal: allocation } = await room.updatePortalAllocation({ status })
+    const { online } = await room.fetchOnlineMemberIds()
 
     // console.log('status updated and online members fetched:', online)
 
     if (online.length > 0) {
       /**
-             * Broadcast allocation to all online clients
-             */
-      const updateMessage = new WSMessage(0, allocation, 'PORTAL_UPDATE')
-      await updateMessage.broadcast(online)
+			 * Broadcast allocation to all online clients
+			 */
+      const updateMessage = new Message(0, allocation, 'PORTAL_UPDATE')
+      dispatcher.dispatch(updateMessage, online)
 
       if (status === 'open') {
-        // JanusId is -1 when a janus instance is not running.
-        if (allocation.janusId === -1) {
-          const token = signApertureToken(id),
-            apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-          await apertureMessage.broadcast(online)
-        } else {
-          const janusMessage = new WSMessage(0, { id: janusId }, 'JANUS_CONFIG')
-          await janusMessage.broadcast(online)
-        }
+        const token = signApertureToken(id)
+        const apertureMessage = new Message(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+
+        dispatcher.dispatch(apertureMessage, online)
       }
     }
 
@@ -75,27 +73,17 @@ app.put('/portal', authenticate, async (req, res) => {
 })
 
 app.post('/queue', authenticate, (req, res) => {
-  const {
-    dequeuedRoomIds,
-    currentQueueLength,
-    roomIdsInQueue
-  } = req.body as {
-    dequeuedRoomIds: string[]
-    currentQueueLength: number
-    lastMovementLength: number
-    roomIdsInQueue: string[]
-  }
+  const { queue } = req.body as { queue: string[] }
 
-  const dequeuedlength = dequeuedRoomIds.length
+  queue.forEach(async (id, i) => {
+    try {
+      const op = 0; const d = { pos: i, len: queue.length }; const t = 'PORTAL_QUEUE_UPDATE'
+      const message = new Message(op, d, t)
 
-  roomIdsInQueue.forEach((roomId, index) => {
-    const queueMessage = new WSMessage(0, {
-      currentPositionInQueue: index + 1,
-      currentQueueLength,
-      dequeuedLength: dequeuedlength
-    }, 'QUEUE_UPDATE')
-
-    queueMessage.broadcastRoom(roomId)
+      dispatcher.dispatch(message, await fetchRoomMemberIds(id))
+    } catch (error) {
+      handleError(error, res)
+    }
   })
 
   res.sendStatus(200)

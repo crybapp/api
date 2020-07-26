@@ -8,107 +8,107 @@ import { generateFlake } from '../../../utils/generate.utils'
 import { extractUserId } from '../../../utils/helpers.utils'
 
 export default class Ban {
-	public id: string
-	public createdAt: number
-	public createdBy: UserResolvable
-	public active: boolean
+  public id: string
+  public createdAt: number
+  public createdBy: UserResolvable
+  public active: boolean
 
-	public user: UserResolvable
-	public reason: string
+  public user: UserResolvable
+  public reason: string
 
-	constructor(json?: IBan) {
-		if (!json)
-			return
+  constructor(json?: IBan) {
+    if (!json)
+      return
 
-		this.setup(json)
-	}
+    this.setup(json)
+  }
 
-	public load = (id: string) => new Promise<Ban>(async (resolve, reject) => {
-		try {
-			const doc = await StoredBan.findOne({ 'info.id': id })
-			if (!doc) throw BanNotFound
+  public load = (id: string) => new Promise<Ban>(async (resolve, reject) => {
+    try {
+      const doc = await StoredBan.findOne({ 'info.id': id })
+      if (!doc) throw BanNotFound
 
-			this.setup(doc)
+      this.setup(doc)
 
-			resolve(this)
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve(this)
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public create = (
-		user: UserResolvable,
-		reason?: string,
-		from?: UserResolvable
-	) => new Promise<Ban>(async (resolve, reject) => {
-		try {
-			const existing = await StoredBan.find({
-				$and: [
-					{
-						'info.active': true
-					},
-					{
-						'data.userId': extractUserId(user)
-					}
-				]
-			})
+  public create = (
+    user: UserResolvable,
+    reason?: string,
+    from?: UserResolvable
+  ) => new Promise<Ban>(async (resolve, reject) => {
+    try {
+      const existing = await StoredBan.find({
+        $and: [
+          {
+            'info.active': true
+          },
+          {
+            'data.userId': extractUserId(user)
+          }
+        ]
+      })
 
-			if (existing.length > 0)
-				throw BanAlreadyExists
+      if (existing.length > 0)
+        throw BanAlreadyExists
 
-			const json: IBan = {
-				info: {
-					id: generateFlake(),
-					createdAt: Date.now(),
-					createdBy: extractUserId(from),
-					active: true
-				},
-				data: {
-					userId: extractUserId(user),
-					reason
-				}
-			}
+      const json: IBan = {
+        info: {
+          id: generateFlake(),
+          createdAt: Date.now(),
+          createdBy: extractUserId(from),
+          active: true
+        },
+        data: {
+          userId: extractUserId(user),
+          reason
+        }
+      }
 
-			const stored = new StoredBan(json)
-			await stored.save()
+      const stored = new StoredBan(json)
+      await stored.save()
 
-			this.setup(json)
+      this.setup(json)
 
-			resolve(this)
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve(this)
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public setActive = (active: boolean) => new Promise<Ban>(async (resolve, reject) => {
-		try {
-			await StoredBan.updateOne({
-				'info.id': this.id
-			}, {
-				$set: {
-					'info.active': active
-				}
-			})
+  public setActive = (active: boolean) => new Promise<Ban>(async (resolve, reject) => {
+    try {
+      await StoredBan.updateOne({
+        'info.id': this.id
+      }, {
+        $set: {
+          'info.active': active
+        }
+      })
 
-			this.active = active
+      this.active = active
 
-			resolve(this)
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve(this)
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public setup = (json: IBan) => {
-		this.id = json.info.id
-		this.createdAt = json.info.createdAt
-		this.active = json.info.active
+  public setup = (json: IBan) => {
+    this.id = json.info.id
+    this.createdAt = json.info.createdAt
+    this.active = json.info.active
 
-		this.reason = json.data.reason
+    this.reason = json.data.reason
 
-		if (!this.createdBy)
-			this.createdBy = json.info.createdBy
+    if (!this.createdBy)
+      this.createdBy = json.info.createdBy
 
-		if (!this.user)
-			this.user = json.data.userId
-	}
+    if (!this.user)
+      this.user = json.data.userId
+  }
 }

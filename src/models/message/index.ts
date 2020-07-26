@@ -1,132 +1,134 @@
+import { Message as MesaMessage } from '@cryb/mesa'
+
 import Room, { RoomResolvable } from '../room'
 import User, { UserResolvable } from '../user'
-
-import WSMessage from '../../server/websocket/models/message'
 
 import StoredMessage from '../../schemas/message.schema'
 import IMessage from './defs'
 
+import dispatcher from '../../config/dispatcher.config'
 import { MessageNotFound, UserNotInRoom } from '../../utils/errors.utils'
+import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractRoomId, extractUserId } from '../../utils/helpers.utils'
 
 export type MessageResolvable = Message | string
 
 export default class Message {
-	public id: string
-	public createdAt: number
+  public id: string
+  public createdAt: number
 
-	public author: UserResolvable
-	public room: RoomResolvable
+  public author: UserResolvable
+  public room: RoomResolvable
 
-	public content: string
+  public content: string
 
-	constructor(json?: IMessage) {
-		if (!json)
-			return
+  constructor(json?: IMessage) {
+    if (!json)
+      return
 
-		this.setup(json)
-	}
+    this.setup(json)
+  }
 
-	public load = (id: string) => new Promise<Message>(async (resolve, reject) => {
-		try {
-			const doc = await StoredMessage.findOne({ 'info.id': id })
+  public load = (id: string) => new Promise<Message>(async (resolve, reject) => {
+    try {
+      const doc = await StoredMessage.findOne({ 'info.id': id })
 
-			if (!doc)
-				throw MessageNotFound
+      if (!doc)
+        throw MessageNotFound
 
-			this.setup(doc)
+      this.setup(doc)
 
-			resolve(this)
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve(this)
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public create = (content: string, author: User) => new Promise<Message>(async (resolve, reject) => {
-		if (!author.room)
-			return reject(UserNotInRoom)
+  public create = (content: string, author: User) => new Promise<Message>(async (resolve, reject) => {
+    if (!author.room)
+      return reject(UserNotInRoom)
 
-		const roomId = extractRoomId(author.room)
+    const roomId = extractRoomId(author.room)
 
-		try {
-			const json: IMessage = {
-				info: {
-					id: generateFlake(),
-					createdAt: Date.now(),
-					author: author.id,
-					room: roomId
-				},
-				data: {
-					content
-				}
-			}
+    try {
+      const json: IMessage = {
+        info: {
+          id: generateFlake(),
+          createdAt: Date.now(),
+          author: author.id,
+          room: roomId
+        },
+        data: {
+          content
+        }
+      }
 
-			const stored = new StoredMessage(json)
-			await stored.save()
+      const stored = new StoredMessage(json)
+      await stored.save()
 
-			this.setup(json)
+      this.setup(json)
 
-			const message = new WSMessage(0, this, 'MESSAGE_CREATE')
-			message.broadcastRoom(author.room, [author.id])
+      const message = new MesaMessage(0, this, 'MESSAGE_CREATE')
+      dispatcher.dispatch(message, await fetchRoomMemberIds(author.room), [author.id])
 
-			resolve(this)
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve(this)
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public fetchAuthor = () => new Promise<Message>(async (resolve, reject) => {
-		const authorId = extractUserId(this.author)
+  public fetchAuthor = () => new Promise<Message>(async (resolve, reject) => {
+    const authorId = extractUserId(this.author)
 
-		try {
-			const author = await new User().load(authorId)
-			this.author = author
+    try {
+      const author = await new User().load(authorId)
+      this.author = author
 
-			resolve(this)
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve(this)
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public fetchRoom = () => new Promise<Message>(async (resolve, reject) => {
-		const roomId = extractRoomId(this.room)
+  public fetchRoom = () => new Promise<Message>(async (resolve, reject) => {
+    const roomId = extractRoomId(this.room)
 
-		try {
-			const room = await new Room().load(roomId)
-			this.room = room
+    try {
+      const room = await new Room().load(roomId)
+      this.room = room
 
-			resolve(this)
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve(this)
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public destroy = (requester?: User) => new Promise(async (resolve, reject) => {
-		try {
-			await StoredMessage.deleteOne({
-				'info.id': this.id
-			})
+  public destroy = (requester?: User) => new Promise(async (resolve, reject) => {
+    try {
+      await StoredMessage.deleteOne({
+        'info.id': this.id
+      })
 
-			const message = new WSMessage(0, { id: this.id }, 'MESSAGE_DESTROY')
-			message.broadcastRoom(this.room, [extractUserId(requester || this.author)])
+      const message = new MesaMessage(0, { id: this.id }, 'MESSAGE_DESTROY')
+      dispatcher.dispatch(message, await fetchRoomMemberIds(this.room), [extractUserId(requester || this.author)])
 
-			resolve()
-		} catch (error) {
-			reject(error)
-		}
-	})
+      resolve()
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-	public setup = (json: IMessage) => {
-		this.id = json.info.id
-		this.createdAt = json.info.createdAt
+  public setup = (json: IMessage) => {
+    this.id = json.info.id
+    this.createdAt = json.info.createdAt
 
-		this.content = json.data.content
+    this.content = json.data.content
 
-		if (!this.author)
-			this.author = json.info.author
+    if (!this.author)
+      this.author = json.info.author
 
-		if (!this.room)
-			this.room = json.info.room
-	}
+    if (!this.room)
+      this.room = json.info.room
+  }
 }

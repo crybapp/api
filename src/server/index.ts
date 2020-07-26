@@ -1,21 +1,19 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-// eslint-disable-next-line import/order
 import { createServer } from 'http'
 
-import cors from 'cors'
 import express, { json } from 'express'
+import { connect } from 'mongoose'
+import passport from 'passport'
+
+import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import { Server } from 'ws'
 
-import { connect } from 'mongoose'
-
-import passport from '../config/passport.config'
 import { verify_env } from '../utils/verifications.utils'
+import mesa from './mesa'
 import routes from './routes'
-import websocket from './websocket'
 
 
 verify_env(
@@ -33,7 +31,6 @@ verify_env(
 
 const app = express()
 const server = createServer(app)
-const wss = new Server({ server })
 
 connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
@@ -45,6 +42,6 @@ app.use(morgan('dev'))
 app.use(passport.initialize())
 
 routes(app)
-websocket(wss)
+mesa(server)
 
 export default server

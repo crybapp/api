@@ -1,15 +1,15 @@
 import { Response } from 'express'
 
-interface APIResponse {
-  response: string
+interface IAPIResponse {
+  response: string;
   error: {
-    title: string
-    description: string
-  }
-  status: number
+    title: string;
+    description: string;
+  };
+  status: number;
 }
 
-export const UserNoAuth: APIResponse = {
+export const UserNoAuth: IAPIResponse = {
   response: 'USER_NO_AUTH',
   error: {
     title: 'User No Auth',
@@ -18,7 +18,7 @@ export const UserNoAuth: APIResponse = {
   status: 401
 }
 
-export const UserBanned: APIResponse = {
+export const UserBanned: IAPIResponse = {
   response: 'USER_BANNED',
   error: {
     title: 'User Banned',
@@ -27,7 +27,7 @@ export const UserBanned: APIResponse = {
   status: 401
 }
 
-export const UserNotAuthorized: APIResponse = {
+export const UserNotAuthorized: IAPIResponse = {
   response: 'USER_NOT_AUTHORIZED',
   error: {
     title: 'User Not Authorized',
@@ -36,7 +36,7 @@ export const UserNotAuthorized: APIResponse = {
   status: 401
 }
 
-export const UserNotInRoom: APIResponse = {
+export const UserNotInRoom: IAPIResponse = {
   response: 'USER_NOT_IN_ROOM',
   error: {
     title: 'User Not in Room',
@@ -45,7 +45,7 @@ export const UserNotInRoom: APIResponse = {
   status: 410
 }
 
-export const UserAlreadyInRoom: APIResponse = {
+export const UserAlreadyInRoom: IAPIResponse = {
   response: 'USER_ALREADY_IN_ROOM',
   error: {
     title: 'User Already in Room',
@@ -54,7 +54,7 @@ export const UserAlreadyInRoom: APIResponse = {
   status: 409
 }
 
-export const InviteNotFound: APIResponse = {
+export const InviteNotFound: IAPIResponse = {
   response: 'INVITE_NOT_FOUND',
   error: {
     title: 'Invite Not Found',
@@ -63,7 +63,7 @@ export const InviteNotFound: APIResponse = {
   status: 404
 }
 
-export const RoomNotFound: APIResponse = {
+export const RoomNotFound: IAPIResponse = {
   response: 'ROOM_NOT_FOUND',
   error: {
     title: 'Room Not Found',
@@ -72,7 +72,7 @@ export const RoomNotFound: APIResponse = {
   status: 404
 }
 
-export const RoomNameTooLong: APIResponse = {
+export const RoomNameTooLong: IAPIResponse = {
   response: 'ROOM_NAME_TOO_LONG',
   error: {
     title: 'Room Name Too Long',
@@ -81,7 +81,7 @@ export const RoomNameTooLong: APIResponse = {
   status: 413
 }
 
-export const RoomNameTooShort: APIResponse = {
+export const RoomNameTooShort: IAPIResponse = {
   response: 'ROOM_NAME_TOO_SHORT',
   error: {
     title: 'Room Name Too Long',
@@ -90,7 +90,7 @@ export const RoomNameTooShort: APIResponse = {
   status: 413
 }
 
-export const UserNotFound: APIResponse = {
+export const UserNotFound: IAPIResponse = {
   response: 'USER_NOT_FOUND',
   error: {
     title: 'User Not Found',
@@ -99,7 +99,7 @@ export const UserNotFound: APIResponse = {
   status: 404
 }
 
-export const ControllerIsNotAvailable: APIResponse = {
+export const ControllerIsNotAvailable: IAPIResponse = {
   response: 'CONTROLLER_IS_NOT_AVAILABLE',
   error: {
     title: 'Controller Is Not Available',
@@ -108,7 +108,7 @@ export const ControllerIsNotAvailable: APIResponse = {
   status: 406
 }
 
-export const UserDoesNotHaveRemote: APIResponse = {
+export const UserDoesNotHaveRemote: IAPIResponse = {
   response: 'USER_DOES_NOT_HAVE_REMOTE',
   error: {
     title: 'User Does Not Have Remote',
@@ -117,7 +117,7 @@ export const UserDoesNotHaveRemote: APIResponse = {
   status: 417
 }
 
-export const UserIsNotPermitted: APIResponse = {
+export const UserIsNotPermitted: IAPIResponse = {
   response: 'USER_IS_NOT_PERMITTED',
   error: {
     title: 'User Is Not Permitted',
@@ -126,7 +126,7 @@ export const UserIsNotPermitted: APIResponse = {
   status: 401
 }
 
-export const MessageTooLong: APIResponse = {
+export const MessageTooLong: IAPIResponse = {
   response: 'MESSAGE_TOO_LONG',
   error: {
     title: 'Message Too Long',
@@ -135,7 +135,7 @@ export const MessageTooLong: APIResponse = {
   status: 413
 }
 
-export const MessageTooShort: APIResponse = {
+export const MessageTooShort: IAPIResponse = {
   response: 'MESSAGE_TOO_SHORT',
   error: {
     title: 'Message Too Short',
@@ -144,7 +144,7 @@ export const MessageTooShort: APIResponse = {
   status: 413
 }
 
-export const MessageNotFound: APIResponse = {
+export const MessageNotFound: IAPIResponse = {
   response: 'MESSAGE_NOT_FOUND',
   error: {
     title: 'Message Not Found',
@@ -153,7 +153,7 @@ export const MessageNotFound: APIResponse = {
   status: 404
 }
 
-export const ReportNotFound: APIResponse = {
+export const ReportNotFound: IAPIResponse = {
   response: 'REPORT_NOT_FOUND',
   error: {
     title: 'Report Not Found',
@@ -162,7 +162,7 @@ export const ReportNotFound: APIResponse = {
   status: 404
 }
 
-export const BanNotFound: APIResponse = {
+export const BanNotFound: IAPIResponse = {
   response: 'BAN_NOT_FOUND',
   error: {
     title: 'Ban Not Found',
@@ -171,7 +171,7 @@ export const BanNotFound: APIResponse = {
   status: 404
 }
 
-export const BanAlreadyExists: APIResponse = {
+export const BanAlreadyExists: IAPIResponse = {
   response: 'BAN_ALREADY_EXISTS',
   error: {
     title: 'Ban Already Exists',
@@ -180,7 +180,7 @@ export const BanAlreadyExists: APIResponse = {
   status: 409
 }
 
-export const TooManyMembers: APIResponse = {
+export const TooManyMembers: IAPIResponse = {
   response: 'TOO_MANY_MEMBERS',
   error: {
     title: 'Too Many Members',
@@ -189,7 +189,7 @@ export const TooManyMembers: APIResponse = {
   status: 409
 }
 
-export const TargetTypeNotFound: APIResponse = {
+export const TargetTypeNotFound: IAPIResponse = {
   response: 'TARGET_TYPE_NOT_FOUND',
   error: {
     title: 'Target Type Not Found',
@@ -198,7 +198,7 @@ export const TargetTypeNotFound: APIResponse = {
   status: 0
 }
 
-export const NoPortalFound: APIResponse = {
+export const NoPortalFound: IAPIResponse = {
   response: 'NO_PORTAL_FOUND',
   error: {
     title: 'No Portal Found',
@@ -207,7 +207,7 @@ export const NoPortalFound: APIResponse = {
   status: 404
 }
 
-export const PortalNotOpen: APIResponse = {
+export const PortalNotOpen: IAPIResponse = {
   response: 'PORTAL_NOT_OPEN',
   error: {
     title: 'Portal Not Open',

@@ -24,13 +24,13 @@ app.post('/', authenticate, async (req, res) => {
 })
 
 app.post('/:code', authenticate, async (req, res) => {
-  const { user } = req as { user: User },
-    { code } = req.params,
-    { type } = req.body
+  const { user } = req as { user: User }
+  const { code } = req.params
+  const { type } = req.body
 
   try {
-    const invite = await new Invite().findFromCode(code),
-      target = await invite.use(user, type)
+    const invite = await new Invite().findFromCode(code)
+    const target = await invite.use(user, type)
 
     if (!target)
       return res.sendStatus(200)
@@ -45,8 +45,8 @@ app.get('/:code/peek', async (req, res) => {
   const { code } = req.params
 
   try {
-    const invite = await new Invite().findFromCode(code),
-      { target } = await invite.fetchTarget()
+    const invite = await new Invite().findFromCode(code)
+    const { target } = await invite.fetchTarget()
 
     if (!target)
       return res.sendStatus(401)
