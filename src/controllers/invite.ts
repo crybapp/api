@@ -3,8 +3,8 @@ import express from 'express'
 import Invite from '../models/invite'
 import User from '../models/user'
 
-import { authenticate } from '../config/passport.config'
-import { handleError, UserNotInRoom } from '../utils/errors.utils'
+import { authenticate } from '../config/passport'
+import { handleError, UserNotInRoom } from '../utils/errors'
 
 const app = express()
 

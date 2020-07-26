@@ -6,9 +6,9 @@ import User, { UserResolvable } from '../user'
 import StoredInvite from '../../schemas/invite.schema'
 import IInvite, { IInviteHeaders, IInviteOptions, TargetResolvable, TargetType } from './defs'
 
-import { InviteNotFound, TargetTypeNotFound, UserAlreadyInRoom } from '../../utils/errors.utils'
-import { generateFlake } from '../../utils/generate.utils'
-import { extractTargetId, extractUserId } from '../../utils/helpers.utils'
+import { InviteNotFound, TargetTypeNotFound, UserAlreadyInRoom } from '../../utils/errors'
+import { generateFlake } from '../../utils/generate'
+import { extractTargetId, extractUserId } from '../../utils/helpers'
 
 export type InviteResolvable = Invite | string
 

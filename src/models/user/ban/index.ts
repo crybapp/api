@@ -3,9 +3,9 @@ import { UserResolvable } from '..'
 import StoredBan from '../../../schemas/ban.schema'
 import IBan from './defs'
 
-import { BanAlreadyExists, BanNotFound } from '../../../utils/errors.utils'
-import { generateFlake } from '../../../utils/generate.utils'
-import { extractUserId } from '../../../utils/helpers.utils'
+import { BanAlreadyExists, BanNotFound } from '../../../utils/errors'
+import { generateFlake } from '../../../utils/generate'
+import { extractUserId } from '../../../utils/helpers'
 
 export default class Ban {
   public id: string

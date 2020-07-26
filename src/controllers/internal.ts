@@ -6,11 +6,11 @@ import StoredRoom from '../schemas/room.schema'
 
 import { PortalAllocationStatus } from '../models/room/defs'
 
-import dispatcher from '../config/dispatcher.config'
-import authenticate from '../server/middleware/authenticate.internal.middleware'
-import { signApertureToken } from '../utils/aperture.utils'
-import { handleError, RoomNotFound } from '../utils/errors.utils'
-import { fetchRoomMemberIds } from '../utils/fetchers.utils'
+import dispatcher from '../config/dispatcher'
+import authenticate from '../server/middleware/authenticate'
+import { signApertureToken } from '../utils/aperture'
+import { handleError, RoomNotFound } from '../utils/errors'
+import { fetchRoomMemberIds } from '../utils/fetchers'
 
 const app = express()
 

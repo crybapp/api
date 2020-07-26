@@ -5,9 +5,9 @@ import Report from '../models/report'
 import Room from '../models/room'
 import User from '../models/user'
 
-import { authenticate } from '../config/passport.config'
-import { handleError, MessageTooLong, MessageTooShort, UserNotInRoom } from '../utils/errors.utils'
-import { extractUserId } from '../utils/helpers.utils'
+import { authenticate } from '../config/passport'
+import { handleError, MessageTooLong, MessageTooShort, UserNotInRoom } from '../utils/errors'
+import { extractUserId } from '../utils/helpers'
 
 const app = express()
 

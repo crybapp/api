@@ -1,6 +1,6 @@
 import ISettings from './defs'
 
-import client from '../../config/redis.config'
+import client from '../../config/redis'
 
 export default class Settings {
   public patch = (update: ISettings) => new Promise<ISettings>(async (resolve, reject) => {

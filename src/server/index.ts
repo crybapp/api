@@ -11,7 +11,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 
-import { verify_env } from '../utils/verifications.utils'
+import { verify_env } from '../utils/verifications'
 import mesa from './mesa'
 import routes from './routes'
 

@@ -2,12 +2,12 @@ import { Message as MesaMessage } from '@cryb/mesa'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 
-import dispatcher from '../config/dispatcher.config'
+import dispatcher from '../config/dispatcher'
 
 import Room from '../models/room'
 
-import { extractUserId } from '../utils/helpers.utils'
-import log from '../utils/log.utils'
+import { extractUserId } from '../utils/helpers'
+import log from '../utils/log'
 
 const url = `${process.env.PORTALS_API_URL}/`; const 
   key = process.env.PORTALS_API_KEY

@@ -7,12 +7,12 @@ import config from '../config/defaults'
 
 import { RoomType } from '../models/room/defs'
 
-import { authenticate } from '../config/passport.config'
+import { authenticate } from '../config/passport'
 import {
   handleError, RoomNameTooLong, RoomNameTooShort,
   UserAlreadyInRoom, UserNotAuthorized, UserNotInRoom
-} from '../utils/errors.utils'
-import { extractRoomId, extractUserId } from '../utils/helpers.utils'
+} from '../utils/errors'
+import { extractRoomId, extractUserId } from '../utils/helpers'
 
 const app = express()
 const AVAILABLE_TYPES: RoomType[] = ['vm']
@@ -192,9 +192,9 @@ app.patch('/type', authenticate, async (req, res) => {
   }
 })
 
-import ControllerController from './controller.controller'
-import MemberController from './member.controller'
-import MessageController from './message.controller'
+import ControllerController from './controller'
+import MemberController from './member'
+import MessageController from './message'
 
 app.use('/member', MemberController)
 app.use('/message', MessageController)

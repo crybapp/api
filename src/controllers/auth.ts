@@ -3,8 +3,8 @@ import queryString from 'query-string'
 
 import User from '../models/user'
 
-import fetchDiscordTokens, { DISCORD_OAUTH_BASE_URL, DISCORD_OAUTH_SCOPES } from '../services/oauth2/discord.service'
-import { handleError } from '../utils/errors.utils'
+import fetchDiscordTokens, { DISCORD_OAUTH_BASE_URL, DISCORD_OAUTH_SCOPES } from '../services/oauth2/discord'
+import { handleError } from '../utils/errors'
 
 const app = express()
 const origins = process.env.DISCORD_OAUTH_ORIGINS.split(',')

@@ -4,16 +4,16 @@ import Mesa, { Message } from '@cryb/mesa'
 import axios from 'axios'
 
 import config from '../../config/defaults'
-import redis, { createPubSubClient, getOptions } from '../../config/redis.config'
-import log from '../../utils/log.utils'
+import redis, { createPubSubClient, getOptions } from '../../config/redis'
+import log from '../../utils/log'
 
 import Room from '../../models/room'
 import User from '../../models/user'
 
-import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
-import { verifyToken } from '../../utils/generate.utils'
-import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
-import { validateControllerEvent } from '../../utils/validate.utils'
+import { fetchRoomMemberIds } from '../../utils/fetchers'
+import { verifyToken } from '../../utils/generate'
+import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers'
+import { validateControllerEvent } from '../../utils/validate'
 
 const CONTROLLER_EVENT_TYPES = ['KEY_DOWN', 'KEY_UP', 'PASTE_TEXT', 'MOUSE_MOVE', 'MOUSE_SCROLL', 'MOUSE_DOWN', 'MOUSE_UP'],
   pub = createPubSubClient()

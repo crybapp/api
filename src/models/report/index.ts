@@ -5,9 +5,9 @@ import { UserResolvable } from '../user'
 import StoredReport from '../../schemas/report.schema'
 import IReport from './defs'
 
-import { ReportNotFound } from '../../utils/errors.utils'
-import { generateFlake } from '../../utils/generate.utils'
-import { extractMessageId, extractRoomId, extractUserId } from '../../utils/helpers.utils'
+import { ReportNotFound } from '../../utils/errors'
+import { generateFlake } from '../../utils/generate'
+import { extractMessageId, extractRoomId, extractUserId } from '../../utils/helpers'
 
 export default class Report {
   public id: string

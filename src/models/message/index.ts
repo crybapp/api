@@ -6,11 +6,11 @@ import User, { UserResolvable } from '../user'
 import StoredMessage from '../../schemas/message.schema'
 import IMessage from './defs'
 
-import dispatcher from '../../config/dispatcher.config'
-import { MessageNotFound, UserNotInRoom } from '../../utils/errors.utils'
-import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
-import { generateFlake } from '../../utils/generate.utils'
-import { extractRoomId, extractUserId } from '../../utils/helpers.utils'
+import dispatcher from '../../config/dispatcher'
+import { MessageNotFound, UserNotInRoom } from '../../utils/errors'
+import { fetchRoomMemberIds } from '../../utils/fetchers'
+import { generateFlake } from '../../utils/generate'
+import { extractRoomId, extractUserId } from '../../utils/helpers'
 
 export type MessageResolvable = Message | string
 

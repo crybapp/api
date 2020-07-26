@@ -4,7 +4,7 @@ import passport from 'passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import User from '../models/user'
 
-import { handleError, UserBanned, UserNoAuth } from '../utils/errors.utils'
+import { handleError, UserBanned, UserNoAuth } from '../utils/errors'
 
 passport.serializeUser((user, done) => done(null, user))
 passport.deserializeUser((id, done) => done(null, id))

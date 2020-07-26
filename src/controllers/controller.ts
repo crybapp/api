@@ -3,8 +3,8 @@ import express from 'express'
 import Room from '../models/room'
 import User from '../models/user'
 
-import { authenticate } from '../config/passport.config'
-import { handleError } from '../utils/errors.utils'
+import { authenticate } from '../config/passport'
+import { handleError } from '../utils/errors'
 
 const app = express()
 

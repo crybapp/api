@@ -8,13 +8,13 @@ import StoredInvite from '../../schemas/invite.schema'
 import StoredMessage from '../../schemas/message.schema'
 import StoredUser from '../../schemas/user.schema'
 
-import { createPortal, destroyPortal } from '../../drivers/portals.driver'
+import { createPortal, destroyPortal } from '../../drivers/portals'
 import StoredRoom from '../../schemas/room.schema'
 import IRoom, { IPortalAllocation, RoomType } from './defs'
 
-import dispatcher from '../../config/dispatcher.config'
+import dispatcher from '../../config/dispatcher'
 
-import client from '../../config/redis.config'
+import client from '../../config/redis'
 // import WSMessage from '../../server/websocket/models/message'
 import {
   ControllerIsNotAvailable,
@@ -23,9 +23,9 @@ import {
   UserAlreadyInRoom,
   UserDoesNotHaveRemote,
   UserIsNotPermitted
-} from '../../utils/errors.utils'
-import { generateFlake } from '../../utils/generate.utils'
-import { extractUserId, GroupedMessage, groupMessages } from '../../utils/helpers.utils'
+} from '../../utils/errors'
+import { generateFlake } from '../../utils/generate'
+import { extractUserId, GroupedMessage, groupMessages } from '../../utils/helpers'
 
 export type RoomResolvable = Room | string
 

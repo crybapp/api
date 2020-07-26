@@ -2,9 +2,9 @@ import express from 'express'
 
 import User from '../models/user'
 
-import { authenticate } from '../config/passport.config'
-import { handleError, UserNotInRoom } from '../utils/errors.utils'
-import { extractUserId } from '../utils/helpers.utils'
+import { authenticate } from '../config/passport'
+import { handleError, UserNotInRoom } from '../utils/errors'
+import { extractUserId } from '../utils/helpers'
 
 const app = express()
 

@@ -6,20 +6,20 @@ import IUser, { IDiscordCredentials, Role } from './defs'
 import Room from '../room'
 import Ban from './ban'
 
-import { createPortal } from '../../drivers/portals.driver'
+import { createPortal } from '../../drivers/portals'
 import StoredBan from '../../schemas/ban.schema'
 
 import StoredMessage from '../../schemas/message.schema'
 
 import config from '../../config/defaults.js'
-import dispatcher from '../../config/dispatcher.config'
-import client from '../../config/redis.config'
+import dispatcher from '../../config/dispatcher'
+import client from '../../config/redis'
 
-import { constructAvatar, exchangeRefreshToken, fetchUserProfile } from '../../services/oauth2/discord.service'
-import { TooManyMembers, UserNotFound, UserNotInRoom } from '../../utils/errors.utils'
-import { fetchRoomMemberIds } from '../../utils/fetchers.utils'
-import { generateFlake, signToken } from '../../utils/generate.utils'
-import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
+import { constructAvatar, exchangeRefreshToken, fetchUserProfile } from '../../services/oauth2/discord'
+import { TooManyMembers, UserNotFound, UserNotInRoom } from '../../utils/errors'
+import { fetchRoomMemberIds } from '../../utils/fetchers'
+import { generateFlake, signToken } from '../../utils/generate'
+import { extractRoomId, extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers'
 
 export type UserResolvable = User | string
 
