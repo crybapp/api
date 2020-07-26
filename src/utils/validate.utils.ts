@@ -2,9 +2,9 @@ const validateKeyControllerEvent = data => {
   /**
 	 * TODO: Add proper key code range validation
 	 */
-  const isKeyCodeValid = true,
-    isCtrlKeyValid = typeof data.ctrlKey === 'boolean',
-    isShiftKeyValid = typeof data.shiftKey === 'boolean'
+  const isKeyCodeValid = true
+  const isCtrlKeyValid = typeof data.ctrlKey === 'boolean'
+  const isShiftKeyValid = typeof data.shiftKey === 'boolean'
 
   return isKeyCodeValid && isCtrlKeyValid && isShiftKeyValid
 }
@@ -20,22 +20,22 @@ const validateControllerButton = (button: number) => button === 1 || button === 
 
 export const validateControllerEvent = (data, type) => {
   switch (type) {
-    case 'KEY_DOWN':
-      return validateKeyControllerEvent(data)
-    case 'KEY_UP':
-      return validateKeyControllerEvent(data)
-    case 'PASTE_TEXT':
-      // TODO: Validation
-      return true
-    case 'MOUSE_MOVE':
-      return validateControllerPosition(data)
-    case 'MOUSE_SCROLL':
-      return typeof data.scrollUp === 'boolean'
-    case 'MOUSE_DOWN':
-      return validateControllerPosition(data) && validateControllerButton(data.button)
-    case 'MOUSE_UP':
-      return validateControllerPosition(data) && validateControllerButton(data.button)
-    default:
-      return false
+  case 'KEY_DOWN':
+    return validateKeyControllerEvent(data)
+  case 'KEY_UP':
+    return validateKeyControllerEvent(data)
+  case 'PASTE_TEXT':
+    // TODO: Validation
+    return true
+  case 'MOUSE_MOVE':
+    return validateControllerPosition(data)
+  case 'MOUSE_SCROLL':
+    return typeof data.scrollUp === 'boolean'
+  case 'MOUSE_DOWN':
+    return validateControllerPosition(data) && validateControllerButton(data.button)
+  case 'MOUSE_UP':
+    return validateControllerPosition(data) && validateControllerButton(data.button)
+  default:
+    return false
   }
 }

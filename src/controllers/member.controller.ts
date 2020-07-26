@@ -23,8 +23,8 @@ app.post('/:id/kick', authenticate, async (req, res) => {
     return res.status(401)
 
   try {
-    const { members } = await user.room.fetchMembers(),
-      member = members.find(({ id: userId }) => userId === id)
+    const { members } = await user.room.fetchMembers()
+    const member = members.find(({ id: userId }) => userId === id)
 
     if (!member)
       return res.status(409)

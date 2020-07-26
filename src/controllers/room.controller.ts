@@ -14,8 +14,8 @@ import {
 } from '../utils/errors.utils'
 import { extractRoomId, extractUserId } from '../utils/helpers.utils'
 
-const app = express(),
-  AVAILABLE_TYPES: RoomType[] = ['vm']
+const app = express()
+const AVAILABLE_TYPES: RoomType[] = ['vm']
 
 app.get('/', authenticate, async (req, res) => {
   const { user } = req as { user: User }
@@ -168,7 +168,8 @@ app.post('/leave', authenticate, async (req, res) => {
 })
 
 app.patch('/type', authenticate, async (req, res) => {
-  const { user } = req as { user: User }, { type } = req.body as { type: RoomType }
+  const { user } = req as { user: User }; const 
+    { type } = req.body as { type: RoomType }
 
   if (!user.room)
     return handleError(UserNotInRoom, res)
@@ -179,7 +180,7 @@ app.patch('/type', authenticate, async (req, res) => {
   if (extractUserId(user.room.owner) !== user.id)
     return res.status(401)
 
-  if (AVAILABLE_TYPES.indexOf(type) === -1)
+  if (!AVAILABLE_TYPES.includes(type))
     return res.status(406)
 
   try {

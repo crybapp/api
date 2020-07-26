@@ -11,10 +11,10 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 
+import { verify_env } from '../utils/verifications.utils'
 import mesa from './mesa'
 import routes from './routes'
 
-import { verify_env } from '../utils/verifications.utils'
 
 verify_env(
   'JWT_KEY',

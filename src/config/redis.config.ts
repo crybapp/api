@@ -1,9 +1,9 @@
-import Redis from 'ioredis'
 import { URL } from 'url'
+import Redis from 'ioredis'
 
 interface ISentinel {
-  host: string
-  port: number
+  host: string;
+  port: number;
 }
 
 const parseSentinels = (sentinels: string) =>
@@ -16,11 +16,12 @@ export const getOptions = () => { // Get Options Method
   if (!process.env.REDIS_URI && !process.env.REDIS_SENTINELS)
     throw new Error('No value was found for REDIS_URI or REDIS_SENTINELS - make sure .env is setup correctly!')
 
-  if (process.env.REDIS_SENTINELS)
+  if (process.env.REDIS_SENTINELS) {
     return {
       sentinels: parseSentinels(process.env.REDIS_SENTINELS),
       name: 'mymaster'
     } as Redis.RedisOptions
+  }
 
   if (process.env.REDIS_URI) {
     const uri = new URL(process.env.REDIS_URI)

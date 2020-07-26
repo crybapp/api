@@ -1,12 +1,12 @@
 import { Response } from 'express'
 
 interface IAPIResponse {
-  response: string
+  response: string;
   error: {
-    title: string
-    description: string
-  }
-  status: number
+    title: string;
+    description: string;
+  };
+  status: number;
 }
 
 export const UserNoAuth: IAPIResponse = {
@@ -220,10 +220,11 @@ export const handleError = (error: any, res: Response) => {
   if (process.env.NODE_ENV === 'development')
     console.error(error)
 
-  if (error)
+  if (error) {
     if (error.response && error.error && error.status)
       return res.status(error.status).send(error)
     else if (error.status)
       return res.sendStatus(error.status)
+  }
   res.sendStatus(500)
 }

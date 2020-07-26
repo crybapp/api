@@ -22,8 +22,8 @@ app.post('/take', authenticate, async (req, res) => {
 })
 
 app.post('/give/:id', authenticate, async (req, res) => {
-  const { user } = req as { user: User },
-    { id: toId } = req.params
+  const { user } = req as { user: User }
+  const { id: toId } = req.params
 
   try {
     const { room } = await user.fetchRoom() as { room: Room }

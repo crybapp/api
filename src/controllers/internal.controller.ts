@@ -18,7 +18,7 @@ const app = express()
  * Assign New Portal ID to Room
  */
 app.post('/portal', authenticate, async (req, res) => {
-  const { id, roomId } = req.body as { id: string, roomId: string }
+  const { id, roomId } = req.body as { id: string; roomId: string }
 
   try {
     const room = await new Room().load(roomId)
@@ -34,7 +34,7 @@ app.post('/portal', authenticate, async (req, res) => {
  * Existing Portal Status Update
  */
 app.put('/portal', authenticate, async (req, res) => {
-  const { id, status } = req.body as { id: string, status: PortalAllocationStatus }
+  const { id, status } = req.body as { id: string; status: PortalAllocationStatus }
   // console.log('recieved', id, status, 'from portal microservice, finding room...')
 
   try {
@@ -47,7 +47,7 @@ app.put('/portal', authenticate, async (req, res) => {
 
     const room = new Room(doc)
     const { portal: allocation } = await room.updatePortalAllocation({ status })
-  const { online } = await room.fetchOnlineMemberIds()
+    const { online } = await room.fetchOnlineMemberIds()
 
     // console.log('status updated and online members fetched:', online)
 
@@ -59,8 +59,8 @@ app.put('/portal', authenticate, async (req, res) => {
       dispatcher.dispatch(updateMessage, online)
 
       if (status === 'open') {
-        const token = signApertureToken(id),
-          apertureMessage = new Message(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
+        const token = signApertureToken(id)
+        const apertureMessage = new Message(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
 
         dispatcher.dispatch(apertureMessage, online)
       }
@@ -77,8 +77,8 @@ app.post('/queue', authenticate, (req, res) => {
 
   queue.forEach(async (id, i) => {
     try {
-      const op = 0, d = { pos: i, len: queue.length }, t = 'PORTAL_QUEUE_UPDATE',
-        message = new Message(op, d, t)
+      const op = 0; const d = { pos: i, len: queue.length }; const t = 'PORTAL_QUEUE_UPDATE'
+      const message = new Message(op, d, t)
 
       dispatcher.dispatch(message, await fetchRoomMemberIds(id))
     } catch (error) {

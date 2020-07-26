@@ -35,8 +35,8 @@ app.post('/', authenticate, async (req, res) => {
 })
 
 app.post('/:id/report', authenticate, async (req, res) => {
-  const { user } = req as { user: User },
-    { id: messageId } = req.params
+  const { user } = req as { user: User }
+  const { id: messageId } = req.params
 
   try {
     await new Report().create(messageId, user.room, user)
@@ -48,8 +48,8 @@ app.post('/:id/report', authenticate, async (req, res) => {
 })
 
 app.delete('/:id', authenticate, async (req, res) => {
-  const { user } = req as { user: User },
-    { id: messageId } = req.params
+  const { user } = req as { user: User }
+  const { id: messageId } = req.params
 
   try {
     if (typeof user.room === 'string')

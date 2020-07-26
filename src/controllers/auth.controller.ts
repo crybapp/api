@@ -6,19 +6,19 @@ import User from '../models/user'
 import fetchDiscordTokens, { DISCORD_OAUTH_BASE_URL, DISCORD_OAUTH_SCOPES } from '../services/oauth2/discord.service'
 import { handleError } from '../utils/errors.utils'
 
-const app = express(),
-  origins = process.env.DISCORD_OAUTH_ORIGINS.split(',')
+const app = express()
+const origins = process.env.DISCORD_OAUTH_ORIGINS.split(',')
 
 app.post('/discord', async (req, res) => {
-  if (origins.indexOf(req.get('origin')) === -1)
+  if (!origins.includes(req.get('origin')))
     return res.sendStatus(401)
 
   const { code } = req.body
 
   try {
-    const { access_token, refresh_token, scope } = await fetchDiscordTokens(code),
-      user = await new User().findOrCreate(access_token, refresh_token, scope.split(' ')),
-      token = await user.signToken()
+    const { access_token, refresh_token, scope } = await fetchDiscordTokens(code)
+    const user = await new User().findOrCreate(access_token, refresh_token, scope.split(' '))
+    const token = await user.signToken()
 
     res.send(token)
   } catch (error) {
