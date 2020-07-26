@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 import { Application } from 'express'
 
 export default (app: Application) => {

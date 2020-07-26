@@ -25,6 +25,9 @@ module.exports = {
       'error',
       2
     ],
+    'no-async-promise-executor': [
+      'off'
+    ],
     '@typescript-eslint/no-explicit-any': [
       'off'
     ],
