@@ -1,3 +1,5 @@
+import 'module-alias/register'
+
 import server from './server'
 
 const port = process.env.PORT || 4000

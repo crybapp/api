@@ -1,21 +1,46 @@
 {
-    "compilerOptions": {
-      "target": "es2017",
-      "module": "commonjs",
-      "lib": [
-        "es2017"
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+
+    "baseUrl": "./src",
+    "outDir": "./dist",
+
+    "paths": {
+      "@cryb/controllers/*": [
+        "controllers/*"
       ],
-      "noUnusedLocals": true,
-      "noImplicitAny": false,
-      "esModuleInterop": true,
-      "inlineSourceMap": true,
-      "noUnusedParameters": true,
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "allowSyntheticDefaultImports": true,
-      "outDir": "./dist",
-      "allowJs": true,
-      "resolveJsonModule": true
+      "@cryb/config/*": [
+        "config/*"
+      ],
+      "@cryb/drivers/*": [
+        "drivers/*"
+      ],
+      "@cryb/models/*": [
+        "models/*"
+      ],
+      "@cryb/server/*": [
+        "server/*"
+      ],
+      "@cryb/services/*": [
+        "services/*"
+      ],
+      "@cryb/utils/*": [
+        "utils/*"
+      ]
     },
-    "include": ["./src"]
+
+    "esModuleInterop": true,
+    "inlineSourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": [
+    "src/**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
