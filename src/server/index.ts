@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+// eslint-disable-next-line import/order
 import { createServer } from 'http'
 
 import cors from 'cors'
@@ -11,23 +12,23 @@ import { Server } from 'ws'
 
 import { connect } from 'mongoose'
 
+import passport from '../config/passport.config'
+import { verify_env } from '../utils/verifications.utils'
 import routes from './routes'
 import websocket from './websocket'
 
-import passport from '../config/passport.config'
-import { verify_env } from '../utils/verifications.utils'
 
 verify_env(
-	'JWT_KEY',
-	'PORTALS_API_URL',
-	'PORTALS_API_KEY',
-	'APERTURE_WS_URL',
-	'APERTURE_WS_KEY',
-	'MONGO_URI',
-	'DISCORD_CLIENT_ID',
-	'DISCORD_CLIENT_SECRET',
-	'DISCORD_CALLBACK_URL',
-	'DISCORD_OAUTH_ORIGINS'
+  'JWT_KEY',
+  'PORTALS_API_URL',
+  'PORTALS_API_KEY',
+  'APERTURE_WS_URL',
+  'APERTURE_WS_KEY',
+  'MONGO_URI',
+  'DISCORD_CLIENT_ID',
+  'DISCORD_CLIENT_SECRET',
+  'DISCORD_CALLBACK_URL',
+  'DISCORD_OAUTH_ORIGINS'
 )
 
 const app = express()
