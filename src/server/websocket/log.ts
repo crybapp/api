@@ -2,9 +2,9 @@ import { cloneDeep } from 'lodash'
 
 import IWSEvent from './models/event'
 
-import log, { ILogPrefix } from '../../utils/log.utils'
+import log, { LogPrefix } from '../../utils/log.utils'
 
-export const WSLogPrefix: ILogPrefix = {
+export const WSLogPrefix: LogPrefix = {
 	content: 'ws',
 	color: 'CYAN'
 }
