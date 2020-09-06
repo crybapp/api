@@ -9,6 +9,15 @@ interface APIResponse {
   status: number
 }
 
+export const UserNotAllowed: APIResponse = {
+  response: 'USER_NOT_ALLOWED',
+  error: {
+    title: 'User Not Allowed',
+    description: 'You\'re lacking permissions to access this.',
+  },
+  status: 401
+}
+
 export const UserNoAuth: APIResponse = {
   response: 'USER_NO_AUTH',
   error: {
@@ -212,6 +221,15 @@ export const PortalNotOpen: APIResponse = {
   error: {
     title: 'Portal Not Open',
     description: 'This portal is not currently open, please try again later.'
+  },
+  status: 409
+}
+
+export const PortalAlreadyAssigned: APIResponse = {
+  response: 'PORTAL_ALREADY_ASSIGNED',
+  error: {
+    title: 'Portal Already Assigned',
+    description: 'This room already has a portal assigned.',
   },
   status: 409
 }

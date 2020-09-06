@@ -9,7 +9,7 @@ import StoredBan from '../../schemas/ban.schema'
 
 import StoredMessage from '../../schemas/message.schema'
 
-import config from '../../config/defaults.js'
+import config from '../../config/defaults'
 import client from '../../config/redis.config'
 import WSMessage from '../../server/websocket/models/message'
 import { constructAvatar, exchangeRefreshToken, fetchUserProfile } from '../../services/oauth2/discord.service'

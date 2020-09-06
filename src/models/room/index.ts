@@ -14,6 +14,7 @@ import client from '../../config/redis.config'
 import WSMessage from '../../server/websocket/models/message'
 import {
 		ControllerIsNotAvailable,
+		PortalAlreadyAssigned,
 		PortalNotOpen,
 		RoomNotFound,
 		UserAlreadyInRoom,
@@ -21,7 +22,7 @@ import {
 		UserIsNotPermitted
 } from '../../utils/errors.utils'
 import { generateFlake } from '../../utils/generate.utils'
-import { extractUserId, GroupedMessage, groupMessages } from '../../utils/helpers.utils'
+import { extractUserId, GroupedMessage, groupMessages, UNALLOCATED_PORTALS_KEYS } from '../../utils/helpers.utils'
 
 export type RoomResolvable = Room | string
 
@@ -54,7 +55,7 @@ export default class Room {
 		public load = (id: string) => new Promise<Room>(async (resolve, reject) => {
 				try {
 						const doc = await StoredRoom.findOne({ 'info.id': id })
-						if(!doc) 
+						if(!doc)
 								return reject(RoomNotFound)
 
 						this.setup(doc)
@@ -66,7 +67,7 @@ export default class Room {
 		})
 
 		public create = (name: string, creator: User) => new Promise<Room>(async (resolve, reject) => {
-				if(creator.room) 
+				if(creator.room)
 						return reject(UserAlreadyInRoom)
 
 				try {
@@ -77,7 +78,7 @@ export default class Room {
 
 										type: 'vm',
 										portal: {
-												status: 'waiting',
+												status: 'closed',
 												lastUpdatedAt: Date.now()
 										},
 
@@ -111,14 +112,14 @@ export default class Room {
 		public createInvite = (creator: User, system: boolean) => new Promise<Invite>(async (resolve, reject) => {
 				try {
 						const invite = await new Invite().create(
-								this, 
-								'room', 
-								{ maxUses: 0, unlimitedUses: true }, 
-								{ system: true }, 
+								this,
+								'room',
+								{ maxUses: 0, unlimitedUses: true },
+								{ system: true },
 								creator
 						)
 
-						if(!this.invites) 
+						if(!this.invites)
 								this.invites = []
 
 						this.invites.push(invite)
@@ -160,8 +161,8 @@ export default class Room {
 		public fetchMembers = (index: number = 0) => new Promise<Room>(async (resolve, reject) => {
 				try {
 						const docs = await StoredUser.find({ 'info.room': this.id }).skip(index).limit(10)
-						
-						if(docs.length === 0) 
+
+						if(docs.length === 0)
 								return resolve(this)
 
 						const members = docs.map(doc => new User(doc))
@@ -171,10 +172,10 @@ export default class Room {
 										controllerId = extractUserId(this.controller)
 
 						members.forEach(member => {
-								if(ownerId === member.id) 
+								if(ownerId === member.id)
 										this.owner = member
-								
-								if(controllerId === member.id) 
+
+								if(controllerId === member.id)
 										this.controller = member
 						})
 
@@ -200,8 +201,8 @@ export default class Room {
 		public fetchMessages = (index: number = 0) => new Promise<Room>(async (resolve, reject) => {
 				try {
 						const docs = await StoredMessage.find({ 'info.room': this.id }).sort({ 'info.createdAt': -1 }).skip(index).limit(50)
-						
-						if(docs.length === 0) 
+
+						if(docs.length === 0)
 								return resolve(this)
 
 						const messages = docs.map(doc => new Message(doc))
@@ -229,7 +230,7 @@ export default class Room {
 								]
 						}).skip(index).limit(10)
 
-						if(docs.length === 0) 
+						if(docs.length === 0)
 								return resolve(this)
 
 						const invites = docs.map(doc => new Invite(doc))
@@ -307,11 +308,17 @@ export default class Room {
 				allocation.lastUpdatedAt = Date.now()
 
 				try {
-						const currentAllocation = this.portal
+						let currentAllocation: IPortalAllocation = this.portal
+						if (!currentAllocation)
+							currentAllocation = {
+								id: null,
+								status: 'closed'
+              }
+
 						Object.keys(allocation).forEach(key => currentAllocation[key] = allocation[key])
 
 						if(currentAllocation.status === 'closed')
-								delete currentAllocation.id
+								currentAllocation.id = null
 
 						await StoredRoom.updateOne({
 								'info.id': this.id
@@ -332,7 +339,7 @@ export default class Room {
 		public takeControl = (from: UserResolvable) => new Promise<Room>(async (resolve, reject) => {
 				const fromId = extractUserId(from)
 
-				if(this.controller !== null) 
+				if(this.controller !== null)
 						return reject(ControllerIsNotAvailable)
 
 				try {
@@ -363,7 +370,7 @@ export default class Room {
 								toId = extractUserId(to),
 								fromId = extractUserId(from)
 
-				if(fromId !== controllerId && fromId !== ownerId) 
+				if(fromId !== controllerId && fromId !== ownerId)
 						return reject(UserDoesNotHaveRemote)
 
 				try {
@@ -393,7 +400,7 @@ export default class Room {
 								senderId = extractUserId(sender),
 								controllerId = extractUserId(this.controller)
 
-				if(senderId !== ownerId && senderId !== controllerId) 
+				if(senderId !== ownerId && senderId !== controllerId)
 						return reject(UserIsNotPermitted)
 
 				try {
@@ -418,10 +425,28 @@ export default class Room {
 				}
 		})
 
-		public createPortal = () => createPortal(this)
+		public createPortal = () => new Promise(async (resolve, reject) => {
+			if (UNALLOCATED_PORTALS_KEYS.indexOf(this.portal.status) === -1)
+				return reject(PortalAlreadyAssigned)
+
+			await this.updatePortalAllocation({ status: 'waiting' })
+			const update = new WSMessage(0, this.portal, 'PORTAL_UPDATE')
+			update.broadcastRoom(this)
+
+			try {
+				await createPortal(this)
+			} catch (error) {
+				await this.updatePortalAllocation({ status: 'error' })
+				const message = new WSMessage(0, this.portal, 'PORTAL_UPDATE')
+				message.broadcastRoom(this)
+
+				reject(error)
+			}
+			resolve()
+		})
 
 		public restartPortal = () => new Promise(async (resolve, reject) => {
-				if(this.portal.status !== 'open') 
+				if (!this.portal.id)
 						return reject(PortalNotOpen)
 
 				try {
@@ -477,7 +502,7 @@ export default class Room {
 
 						await this.destroyInvites()
 
-						if(this.portal) 
+						if(this.portal)
 								destroyPortal(this)
 
 						await client.hdel('controller', this.id)

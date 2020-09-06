@@ -10,7 +10,7 @@ interface IDiscordAuthentication {
 	scope: string
 }
 
-export const DISCORD_OAUTH_BASE_URL = 'https://discordapp.com/api/oauth2/authorize'
+export const DISCORD_OAUTH_BASE_URL = 'https://discord.com/api/oauth2/authorize'
 export const DISCORD_OAUTH_SCOPES = ['identify', 'email']
 
 interface IAvatarConstruction {
@@ -39,7 +39,7 @@ export const fetchUserProfile = (access_token: string) => new Promise<Profile>(a
 	try {
 		const { data } = await axios({
 			method: 'GET',
-			url: 'https://discordapp.com/api/v6/users/@me',
+			url: 'https://discord.com/api/v6/users/@me',
 			headers: {
 				authorization: `Bearer ${access_token}`
 			}
@@ -53,7 +53,7 @@ export const fetchUserProfile = (access_token: string) => new Promise<Profile>(a
 
 const sendOauthRequest = (opts: object) => axios({
 	method: 'POST',
-	url: 'https://discordapp.com/api/oauth2/token',
+	url: 'https://discord.com/api/oauth2/token',
 	headers: {
 		'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
 	},
