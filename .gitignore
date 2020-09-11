@@ -116,3 +116,7 @@ Temporary Items
 
 # Compiled JS
 dist
+
+# Lock Files
+yarn.lock
+package-lock.json
