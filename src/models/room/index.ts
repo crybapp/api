@@ -426,7 +426,7 @@ export default class Room {
 		})
 
 		public createPortal = () => new Promise(async (resolve, reject) => {
-			if (UNALLOCATED_PORTALS_KEYS.indexOf(this.portal.status) === -1)
+			if (this.portal && UNALLOCATED_PORTALS_KEYS.indexOf(this.portal.status) === -1)
 				return reject(PortalAlreadyAssigned)
 
 			await this.updatePortalAllocation({ status: 'waiting' })
