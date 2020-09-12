@@ -429,10 +429,10 @@ basic-auth@~2.0.0:
   dependencies:
     safe-buffer "5.1.2"
 
-biguint-format@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/biguint-format/-/biguint-format-1.0.1.tgz#0ad9a81a48de96a79084c1a2fcc11bf27b80e284"
-  integrity sha512-EyEAXbBXdXHTmysr9bFjiTiFa7nDwew4N2qZ2Ka0aAM9oTidS5lNH3jVTBPFcaXyRCzLpw1cb3ATD+fzg89/fQ==
+biguint-format@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/biguint-format/-/biguint-format-1.0.2.tgz#21e8d6c8259a8c9b39874ba6a060a1a8ec137f30"
+  integrity sha512-A9/8NoHnszWRAp4WCrgwe70wMd0FVDB3pXTdKs78z3pgwHRhc/BGU3uO7Wmfp9ueWD5WpmncL1OpypGnvc1R3w==
 
 bluebird@3.5.1:
   version "3.5.1"
