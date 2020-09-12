@@ -50,7 +50,7 @@
     "@types/passport-jwt": "^3.0.1",
     "@types/ws": "^6.0.1",
     "@typescript-eslint/eslint-plugin": "^2.32.0",
-    "@typescript-eslint/eslint-plugin-tslint": "^2.32.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^4.1.0",
     "@typescript-eslint/parser": "^2.32.0",
     "eslint": "^7.0.0",
     "eslint-plugin-import": "^2.20.2",
