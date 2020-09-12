@@ -49,10 +49,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chance@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@types/chance/-/chance-1.0.6.tgz#873a4b646ce30616cd2fdf4c7753a8bf4210ac03"
-  integrity sha512-CQ+PccoeLogLC1n9PezDXHMJ6wZVTE3liQPqKTtWQcTGUQK463gdPRWfyRhwBf0fi91IsOo2QlBacVa5+ppsTw==
+"@types/chance@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/chance/-/chance-1.1.0.tgz#7d8e6bd0506344d94c042f692d59d20f8eb7d66d"
+  integrity sha512-j/9aaLU6JaaN2iFiSZgvD+G0nju1Fi2/f2WM+WwS+8+cpTdzFhXFH3+SHZgfjgum6wNW80sfcawUx+Rx7tH26w==
 
 "@types/color-name@^1.1.1":
   version "1.1.1"
