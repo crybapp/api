@@ -23,7 +23,7 @@
     "helmet": "^3.21.0",
     "ioredis": "^4.14.1",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.20",
     "md5": "^2.2.1",
     "mongoose": "^5.7.5",
     "morgan": "^1.9.1",
