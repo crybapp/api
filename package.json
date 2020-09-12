@@ -33,7 +33,7 @@
     "qs": "^6.8.0",
     "query-string": "^6.8.2",
     "supertest": "^4.0.2",
-    "ws": "^7.1.1"
+    "ws": "^7.3.1"
   },
   "devDependencies": {
     "@types/chance": "^1.0.6",
