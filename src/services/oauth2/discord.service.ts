@@ -22,7 +22,7 @@ interface IAvatarConstruction {
 
 export const constructAvatar = (data: IAvatarConstruction) => {
 	if (!data.hash)
-		return `https://www.gravatar.com/avatar/${md5(data.email || '')}?d=retro&s=128`
+		return `https://seccdn.libravatar.org/avatar/${md5(data.email || '')}?d=retro&s=128`
 
 	const { userId, hash } = data
 	let url = `https://cdn.discordapp.com/avatars/${userId}/`
