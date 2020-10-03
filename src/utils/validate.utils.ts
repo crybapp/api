@@ -18,7 +18,7 @@ const validateControllerPosition = data => (
 	validateControllerPositionCoord(data.y)
 )
 
-const validateControllerButton = (button: number) => button === 1 || button === 3
+const validateControllerButton = (button: number) => button === 1 || button === 2 || button === 3
 
 export const validateControllerEvent = (data, type: WSEventType) => {
   switch (type) {

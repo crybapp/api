@@ -13,12 +13,12 @@ import { Server } from 'ws'
 import { connect } from 'mongoose'
 
 import passport from '../config/passport.config'
-import { verify_env } from '../utils/verifications.utils'
+import { verifyEnv } from '../utils/verifications.utils'
 import routes from './routes'
 import websocket from './websocket'
 
 
-verify_env(
+verifyEnv(
   'JWT_KEY',
   'PORTALS_API_URL',
   'PORTALS_API_KEY',
