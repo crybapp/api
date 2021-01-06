@@ -13,7 +13,7 @@
     "lint": "eslint src/**/*.ts{,x}"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "biguint-format": "^1.0.1",
     "chance": "^1.0.18",
     "cors": "^2.8.5",
