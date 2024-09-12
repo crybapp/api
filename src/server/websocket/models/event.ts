@@ -15,7 +15,6 @@ type WSEventIncomingMouseEventType =
 
 type WSEventEmittingType =
 'JANUS_CONFIG' |
-'APERTURE_CONFIG' |
 'ROOM_DESTROY' |
 'MESSAGE_CREATE' |
 'MESSAGE_DESTROY' |
