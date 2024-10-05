@@ -279,8 +279,7 @@ export default class Room {
 				try {
 						const allocation: IPortalAllocation = {
 								id,
-								janusId: 1,
-								janusIp: '0.0.0.0',
+								janusId: -1,
 								status: 'creating',
 								lastUpdatedAt: Date.now()
 						}

@@ -75,7 +75,6 @@ The following services need to be installed for `@cryb/api` to function:
 We recommend that you run the following services alongside `@cryb/api`, but it's not required.
 
 * `@cryb/portals`
-* `@cryb/aperture`
 
 You also need to install the required dependencies by running `yarn`.
 
@@ -92,7 +91,7 @@ Make sure that you have installed MongoDB and Redis, and they are both running l
 The command to start MongoDB is `mongod`, and the command to start Redis is `redis-server`.
 Most Linux distributions will have those packaged, and will start automatically with your system.
 
-If you're developing a feature that requires the VM infrastructure, then make sure `@cryb/portals` and `@cryb/aperture` are running.
+If you're developing a feature that requires the VM infrastructure, then make sure `@cryb/portals` and Janus WebRTC server are running.
 
 #### Starting @cryb/api
 

@@ -11,7 +11,6 @@ import User from '../../../models/user'
 import client from '../../../config/redis.config'
 
 import config from '../../../config/defaults'
-import { signApertureToken } from '../../../utils/aperture.utils'
 import { verifyToken } from '../../../utils/generate.utils'
 import { extractUserId, UNALLOCATED_PORTALS_KEYS } from '../../../utils/helpers.utils'
 import log from '../../../utils/log.utils'
@@ -87,14 +86,8 @@ export default class WSSocket {
 							room.createPortal()
 					})
 				} else if (room.portal.id) {
-					//JanusId is -1 when a janus instance is not running. 
-					if(room.portal.janusId == -1) {
-						const token = signApertureToken(room.portal.id), apertureMessage = new WSMessage(0, { ws: process.env.APERTURE_WS_URL, t: token }, 'APERTURE_CONFIG')
-						apertureMessage.broadcast([ extractUserId(user) ])
-					} else {
-						const janusMessage = new WSMessage(0, { id: room.portal.janusId, ip: room.portal.janusIp }, 'JANUS_CONFIG')
-						janusMessage.broadcast([ extractUserId(user) ])
-					}
+					const janusMessage = new WSMessage(0, { id: room.portal.janusId }, 'JANUS_CONFIG')
+					janusMessage.broadcast([ extractUserId(user) ])
 				}
 			}
 
